@@ -1,0 +1,1 @@
+import{messages,Locale}from'@/lib/i18n';export function LocaleContent({locale,section,keyName}:{locale:Locale;section:'nav'|'request';keyName:string}){const value=(messages[locale] as any)?.[section]?.[keyName]??(messages.en as any)[section][keyName];return <>{value}</>}
