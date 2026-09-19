@@ -4,6 +4,8 @@ import './globals.css';
 import { SiteHeader } from '@/components/marketing/SiteHeader';
 import { SiteFooter } from '@/components/marketing/SiteFooter';
 import { siteConfig } from '@/lib/site';
+import { cookies } from 'next/headers';
+import { isLocale, defaultLocale } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://alharamainelite.vercel.app'),
@@ -26,8 +28,11 @@ const structuredData = {
   knowsLanguage: ['English','Somali','Arabic'],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en" dir="ltr"><body><SiteHeader /><main>{children}</main><SiteFooter />
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const rawLocale = cookieStore.get('he_locale')?.value;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  return <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}><body><SiteHeader /><main>{children}</main><SiteFooter />
     <Script id="organization-schema" type="application/ld+json">{JSON.stringify(structuredData)}</Script>
     <Script src="https://www.googletagmanager.com/gtag/js?id=G-S4SCC036K4" strategy="afterInteractive" />
     <Script id="google-analytics" strategy="afterInteractive">{`
