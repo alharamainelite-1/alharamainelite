@@ -1,5 +1,4 @@
 import type { MetadataRoute } from 'next';
-import { siteConfig } from '@/lib/site';
 
 const routes = ['', 'packages', 'packages/signature', 'packages/elite', 'experience', 'womens-umrah', 'makkah', 'madinah', 'jeddah', 'hotels', 'transportation', 'about', 'reviews', 'faq', 'request-journey', 'contact'];
 const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://alharamainelite.vercel.app';
