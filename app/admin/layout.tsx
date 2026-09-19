@@ -21,7 +21,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
       <aside className="card h-fit p-3 lg:sticky lg:top-6">
         <nav className="grid gap-1">{nav.map(([label,href])=><Link key={href} href={href} className="px-3 py-2 text-sm text-forest transition hover:bg-[#f2eee3] hover:text-gold">{label}</Link>)}</nav>
       </aside>
-      <main>{children}</main>
+      <div>{children}</div>
     </div>
   </div>;
 }
