@@ -6,3 +6,5 @@
 - Manual bank transfer remains the launch payment method.
 - English, Somali and Arabic locale foundation is enabled; Arabic direction follows the saved locale preference.
 - Supabase leaked-password protection remains a platform-plan limitation on the current Free project.
+
+- Final verification pass requested.
