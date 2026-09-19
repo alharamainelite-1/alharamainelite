@@ -20,7 +20,7 @@ export async function PATCH(req: Request) {
   if (readError || !before) return NextResponse.json({ error: 'Payment not found.' }, { status: 404 });
 
   const now = new Date().toISOString();
-  const update: Record<string, unknown> = { status: body.status, updated_at: now };
+  const update: Record<string, unknown> = { status: body.status };
   if (body.status === 'RECEIVED') { update.verified_by = staff.profile.id; update.verified_at = now; }
   if (body.status !== 'RECEIVED') { update.verified_by = null; update.verified_at = null; }
   if (body.notes !== undefined) update.notes = String(body.notes).slice(0, 4000);
