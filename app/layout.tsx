@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   alternates: { languages: { en: '/', so: '/', ar: '/' } },
   openGraph: { title: 'Haramain Elite — A Journey Worth Remembering.', description: siteConfig.description, type: 'website', siteName: 'Haramain Elite' },
   robots: { index: true, follow: true },
-  verification: { google: 'XxC2aFwSZ9538k7OmwEWza2NocoEvV_ku7Xf1zJg08E' },
+  verification: { google: 'I8fq5FxZOgeBrw6JZfWTaS7GNpChbxA36iNidqaP5VM' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
