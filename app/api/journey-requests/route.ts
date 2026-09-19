@@ -4,9 +4,12 @@ import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
-    const parsed = journeyRequestSchema.safeParse(await req.json());
+    const raw = await req.json();
+    if (JSON.stringify(raw).length > 15000) return NextResponse.json({ error: 'Request is too large.' }, { status: 413 });
+    const parsed = journeyRequestSchema.safeParse(raw);
     if (!parsed.success) return NextResponse.json({ error: 'Please check the highlighted details.', issues: parsed.error.flatten().fieldErrors }, { status: 400 });
     const v = parsed.data;
+    if (v.website) return NextResponse.json({ error: 'Please check the highlighted details.' }, { status: 400 });
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase.rpc('create_journey_request', {
       p_full_name: v.fullName, p_whatsapp: v.whatsapp, p_email: v.email || null, p_country: v.country, p_city: v.city || null,
