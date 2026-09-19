@@ -16,6 +16,7 @@ export const journeyRequestSchema = z.object({
   expectedPeriodLabel: z.string().trim().max(120).optional().or(z.literal('')),
   preferredLanguage: z.enum(['en', 'so', 'ar']),
   additionalNotes: z.string().trim().max(2000).optional().or(z.literal('')),
+  website: z.string().max(0).optional().or(z.literal('')),
 }).superRefine((v, ctx) => {
   if (!v.expectedTravelDate && !v.expectedPeriodLabel && !v.expectedPeriodStart) ctx.addIssue({ code: 'custom', path: ['expectedPeriodLabel'], message: 'Please provide an expected travel date or period.' });
   if (v.expectedPeriodStart && v.expectedPeriodEnd && v.expectedPeriodEnd < v.expectedPeriodStart) ctx.addIssue({ code: 'custom', path: ['expectedPeriodEnd'], message: 'The end of the expected period must be after the start.' });
