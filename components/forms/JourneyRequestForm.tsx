@@ -2,6 +2,7 @@
 import { FormEvent, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { packages } from '@/lib/site';
+import { trackEvent } from '@/lib/analytics';
 
 export function JourneyRequestForm(){
   const params=useSearchParams(); const router=useRouter();
@@ -10,12 +11,13 @@ export function JourneyRequestForm(){
   const [mode,setMode]=useState<'date'|'period'>('period'); const [loading,setLoading]=useState(false); const [error,setError]=useState('');
   const [form,setForm]=useState({fullName:'',whatsapp:'',email:'',country:'',city:'',expectedTravelDate:'',expectedPeriodLabel:'',expectedPeriodStart:'',expectedPeriodEnd:'',preferredLanguage:'en',additionalNotes:''});
   const total=packages[pkg].price*guests;
+  const selectPackage=(value:'signature'|'elite')=>{setPkg(value);trackEvent('package_selected',{package:value});};
   const update=(key:string,value:string)=>setForm(f=>({...f,[key]:value}));
-  async function submit(e:FormEvent){e.preventDefault();setError('');setLoading(true);try{const res=await fetch('/api/journey-requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...form,packageSlug:pkg,guestCount:guests,expectedPeriodLabel:mode==='period'?form.expectedPeriodLabel:'',expectedPeriodStart:mode==='period'?form.expectedPeriodStart:'',expectedPeriodEnd:mode==='period'?form.expectedPeriodEnd:'',expectedTravelDate:mode==='date'?form.expectedTravelDate:''})});const data=await res.json();if(!res.ok){setError(data.error||'Please check your details.');return} sessionStorage.setItem('he_request',JSON.stringify(data));router.push(`/request-success?reference=${encodeURIComponent(data.reference)}&total=${data.total}`)}catch{setError('Something went wrong. Please try again.')}finally{setLoading(false)}}
+  async function submit(e:FormEvent){e.preventDefault();setError('');setLoading(true);trackEvent('request_started',{package:pkg,guests});try{const res=await fetch('/api/journey-requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...form,packageSlug:pkg,guestCount:guests,expectedPeriodLabel:mode==='period'?form.expectedPeriodLabel:'',expectedPeriodStart:mode==='period'?form.expectedPeriodStart:'',expectedPeriodEnd:mode==='period'?form.expectedPeriodEnd:'',expectedTravelDate:mode==='date'?form.expectedTravelDate:''})});const data=await res.json();if(!res.ok){setError(data.error||'Please check your details.');return} trackEvent('request_submitted',{package:pkg,guests,total:data.total});sessionStorage.setItem('he_request',JSON.stringify(data));router.push(`/request-success?reference=${encodeURIComponent(data.reference)}&total=${data.total}`)}catch{setError('Something went wrong. Please try again.')}finally{setLoading(false)}}
   return <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_360px]">
     <div className="card p-6 md:p-8">
       <div className="grid gap-6 md:grid-cols-2">
-        <label>Package<select value={pkg} onChange={e=>setPkg(e.target.value as 'signature'|'elite')}><option value="signature">Signature — $2,000 / guest</option><option value="elite">Elite — $2,500 / guest</option></select></label>
+        <label>Package<select value={pkg} onChange={e=>selectPackage(e.target.value as 'signature'|'elite')}><option value="signature">Signature — $2,000 / guest</option><option value="elite">Elite — $2,500 / guest</option></select></label>
         <label>Number of guests<select value={guests} onChange={e=>setGuests(Number(e.target.value))}>{Array.from({length:8},(_,i)=><option key={i+1} value={i+1}>{i+1} {i?'guests':'guest'}</option>)}</select></label>
         <label>Full name<input required value={form.fullName} onChange={e=>update('fullName',e.target.value)} autoComplete="name"/></label>
         <label>WhatsApp number<input required value={form.whatsapp} onChange={e=>update('whatsapp',e.target.value)} placeholder="+44…" autoComplete="tel"/></label>
