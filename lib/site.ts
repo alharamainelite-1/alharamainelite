@@ -11,8 +11,8 @@ export const siteConfig = {
 } as const;
 
 export const packages = {
-  signature: { slug: 'signature', name: 'SIGNATURE', price: 2000, positioning: 'Premium comfort and a complete Umrah journey.' },
-  elite: { slug: 'elite', name: 'ELITE', price: 2500, positioning: 'A higher level of comfort and experience.' },
+  signature: { slug: 'signature', name: 'SIGNATURE', price: 2000, duration: '10 days / 9 nights', positioning: 'Premium comfort and a complete Umrah journey, thoughtfully arranged for small groups.' },
+  elite: { slug: 'elite', name: 'ELITE', price: 2500, duration: '10 days / 9 nights', positioning: 'A higher level of accommodation and experience, including the Haramain Train where applicable.' },
 } as const;
 
 export const features = [
@@ -27,4 +27,4 @@ export const features = [
   'Small group structure',
 ] as const;
 
-export const eliteExtra = ['Haramain Train', 'Luxury hotels'] as const;
+export const eliteExtra = ['Luxury hotels', 'Haramain Train — economy class'] as const;
