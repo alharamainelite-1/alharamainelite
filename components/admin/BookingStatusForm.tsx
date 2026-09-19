@@ -1,0 +1,29 @@
+'use client';
+import { useState } from 'react';
+
+const STATUS = ['CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PREPARING','ACTIVE','COMPLETED','CANCELLED'] as const;
+
+export function BookingStatusForm({ bookingId, currentStatus, paymentStatus }: { bookingId:string; currentStatus:string; paymentStatus:string }) {
+  const [status,setStatus]=useState(currentStatus);
+  const [busy,setBusy]=useState(false);
+  const [message,setMessage]=useState('');
+  async function save(){
+    setBusy(true); setMessage('');
+    const res=await fetch('/api/admin/bookings',{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({bookingId,status})});
+    const data=await res.json().catch(()=>({}));
+    setMessage(res.ok ? 'Saved.' : (data.error || 'Could not save.'));
+    if(res.ok) window.location.reload();
+    setBusy(false);
+  }
+  const canConfirm = paymentStatus === 'RECEIVED';
+  return <div className="flex min-w-[240px] items-center gap-2">
+    <select value={status} onChange={e=>setStatus(e.target.value)} className="!py-2 text-xs">
+      {STATUS.map(s=><option key={s} value={s}>{s}</option>)}
+      {currentStatus==='NEW_REQUEST' && <option value="NEW_REQUEST">NEW_REQUEST</option>}
+      {currentStatus==='PAYMENT_RECEIVED' && <option value="PAYMENT_RECEIVED">PAYMENT_RECEIVED</option>}
+      {canConfirm && <option value="CONFIRMED">CONFIRMED</option>}
+    </select>
+    <button type="button" disabled={busy} onClick={save} className="btn btn-outline !px-3 !py-2 text-xs">{busy?'Saving…':'Save'}</button>
+    {message && <span className="text-[11px] text-forest/60">{message}</span>}
+  </div>;
+}
