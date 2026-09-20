@@ -39,6 +39,9 @@ export default async function Packages(){
   const raw=(await cookies()).get('he_locale')?.value;
   const l=isLocale(raw)?raw:defaultLocale;
   const t=copy[l];
+  const premiumLabel=l==='ar'?'مستوى راقٍ':l==='so'?'Heer sare':'Premium level';
+  const higherLabel=l==='ar'?'مستوى أعلى':l==='so'?'Heer ka sarreeya':'Higher level';
+  const notBoxes=l==='ar'?['الرحلات الدولية','المصاريف الشخصية','الخدمات غير المؤكدة']:l==='so'?['Duulimaadyada caalamiga ah','Kharashaadka gaarka ah','Adeegyada aan la xaqiijin']:['International flights','Personal expenses','Unconfirmed services'];
   const cards=[
     {p:packages.signature,image:images.signature,best:t.signatureBest,extra:features.slice(0,8)},
     {p:packages.elite,image:images.elite,best:t.eliteBest,extra:[...features.slice(0,8),...eliteExtra]},
@@ -57,7 +60,7 @@ export default async function Packages(){
         <div className="grid gap-7 lg:grid-cols-2">
           {cards.map(({p,image,best,extra})=><article key={p.slug} className="overflow-hidden rounded-[28px] border border-forest/10 bg-white shadow-[0_28px_90px_rgba(6,63,53,.09)]">
             <div className="relative h-56 overflow-hidden"><img src={image} alt={p.slug==='elite'?'Madinah':'Makkah'} className="h-full w-full object-cover transition duration-700 hover:scale-105"/><div className="absolute inset-0 bg-gradient-to-t from-forest/75 via-transparent to-transparent"/>
-              <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between gap-4 text-white"><div><div className="eyebrow text-gold">{p.name}</div><div className="serif mt-1 text-3xl">{p.duration}</div></div><span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs backdrop-blur">{p.slug==='elite'?'Higher level':'Premium level'}</span></div>
+              <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between gap-4 text-white"><div><div className="eyebrow text-gold">{p.name}</div><div className="serif mt-1 text-3xl">{p.duration}</div></div><span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs backdrop-blur">{p.slug==='elite'?higherLabel:premiumLabel}</span></div>
             </div>
             <div className="p-7 md:p-9">
               <div className="flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow">{t.best}</div><p className="mt-2 max-w-xl text-base leading-7 text-forest/65">{best}</p></div><div className="text-right"><div className="serif text-5xl text-forest">{'$'+p.price.toLocaleString()}</div><div className="text-sm text-forest/45">{t.perGuest}</div></div></div>
@@ -70,7 +73,7 @@ export default async function Packages(){
           <div className="card p-7 md:p-8"><div className="eyebrow">SIGNATURE</div><h2 className="serif mt-2 text-3xl text-forest">$2,000 <span className="font-sans text-sm text-forest/45">/ {t.perGuest}</span></h2><p className="mt-3 leading-7 text-forest/60">{t.signatureBest}</p></div>
           <div className="card border-gold p-7 md:p-8"><div className="eyebrow">ELITE</div><h2 className="serif mt-2 text-3xl text-forest">$2,500 <span className="font-sans text-sm text-forest/45">/ {t.perGuest}</span></h2><p className="mt-3 leading-7 text-forest/60">{t.eliteBest}</p></div>
         </div>
-        <div className="mt-10 rounded-[28px] bg-[#f7f3ea] p-7 md:p-10"><div className="grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-center"><div><div className="eyebrow">{t.notIncluded}</div><h2 className="serif mt-3 text-3xl text-forest">{t.notText}</h2></div><div className="grid gap-3 sm:grid-cols-3"><div className="border border-forest/10 bg-white p-4 text-sm text-forest/65">International flights</div><div className="border border-forest/10 bg-white p-4 text-sm text-forest/65">Personal expenses</div><div className="border border-forest/10 bg-white p-4 text-sm text-forest/65">Unconfirmed services</div></div></div></div>
+        <div className="mt-10 rounded-[28px] bg-[#f7f3ea] p-7 md:p-10"><div className="grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-center"><div><div className="eyebrow">{t.notIncluded}</div><h2 className="serif mt-3 text-3xl text-forest">{t.notText}</h2></div><div className="grid gap-3 sm:grid-cols-3">{notBoxes.map(x=><div key={x} className="border border-forest/10 bg-white p-4 text-sm text-forest/65">{x}</div>)}</div></div></div>
         <div className="mt-12"><div className="max-w-3xl"><div className="eyebrow">{t.processTitle}</div><h2 className="serif mt-3 text-4xl text-forest md:text-5xl">{t.compare}</h2></div><div className="mt-7 grid gap-4 md:grid-cols-4">{t.process.map(([n,title,text])=><div className="card p-6" key={n}><div className="eyebrow">{n}</div><h3 className="serif mt-3 text-2xl text-forest">{title}</h3><p className="mt-3 text-sm leading-6 text-forest/60">{text}</p></div>)}</div></div>
         <div className="mt-10 flex flex-col gap-5 rounded-[28px] bg-forest p-7 text-white md:flex-row md:items-center md:justify-between md:p-9"><div><div className="eyebrow">{t.compare}</div><p className="mt-2 max-w-3xl leading-7 text-white/70">{t.compareText}</p><p className="mt-3 text-sm text-gold">{t.note}</p></div><Link href="/request-journey" className="btn shrink-0 bg-gold text-forest">{t.request}</Link></div>
       </div>
