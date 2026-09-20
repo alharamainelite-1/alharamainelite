@@ -4,12 +4,15 @@ import Script from 'next/script';
 export default async function RequestSuccess({ searchParams }: { searchParams: Promise<{ reference?: string; total?: string }> }) {
   const p = await searchParams;
   const total = p.total ? Number(p.total) : null;
-  return <><Script id="request-success-event">{`window.gtag&&window.gtag('event','request_success',{request_reference:'${p.reference||''}'})`}</Script><section className="section"><div className="container max-w-3xl"><div className="card overflow-hidden p-8 md:p-14">
+  const reference = reference || '';
+  const safeReference = JSON.stringify(reference).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+  const analytics = "window.gtag&&window.gtag('event','request_success',{request_reference:" + safeReference + "})";
+  return <><Script id="request-success-event">{analytics}</Script><section className="section"><div className="container max-w-3xl"><div className="card overflow-hidden p-8 md:p-14">
     <div className="eyebrow">Journey request received</div>
     <h1 className="serif mt-4 text-4xl leading-tight text-forest md:text-6xl">YOUR JOURNEY REQUEST HAS BEEN RECEIVED.</h1>
     <p className="mt-6 text-lg leading-8 text-forest/65">Thank you for trusting Haramain Elite with your journey. Your journey request has been successfully received by our team. We will carefully review your details and personally contact you on WhatsApp to continue planning your journey.</p>
     <div className="mt-8 grid gap-4 bg-[#f2eee3] p-6 sm:grid-cols-2">
-      <div><div className="eyebrow">Request reference</div><div className="mt-2 font-semibold tracking-wide text-forest">{p.reference || 'HE-REQUEST'}</div></div>
+      <div><div className="eyebrow">Request reference</div><div className="mt-2 font-semibold tracking-wide text-forest">{reference || 'HE-REQUEST'}</div></div>
       <div><div className="eyebrow">Estimated total</div><div className="mt-2 font-semibold text-forest">{total !== null && Number.isFinite(total) ? '$' + total.toLocaleString() : '—'}</div></div>
     </div>
     <h2 className="serif mt-12 text-3xl text-forest">WHAT HAPPENS NEXT?</h2>
