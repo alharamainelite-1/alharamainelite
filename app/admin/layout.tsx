@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireStaff } from '@/lib/supabase/auth';
+import { getCurrentStaff } from '@/lib/supabase/auth';
 
 const nav: Array<[string,string]> = [
   ['Dashboard','/admin'],['Journey Requests','/admin/requests'],['Bookings','/admin/bookings'],['Groups','/admin/groups'],
@@ -9,7 +9,11 @@ const nav: Array<[string,string]> = [
 ];
 
 export default async function AdminLayout({children}:{children:React.ReactNode}) {
-  const staff = await requireStaff();
+  const staff = await getCurrentStaff();
+  const isLogin = !staff;
+
+  if (isLogin) return <>{children}</>;
+
   return <div className="min-h-screen bg-[#f3f0e7]">
     <div className="border-b border-forest/10 bg-forest text-white">
       <div className="container flex min-h-16 items-center justify-between gap-4">
