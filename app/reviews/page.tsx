@@ -1,2 +1,19 @@
-import {cookies} from 'next/headers';import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';import {getSupabasePublicServer} from '@/lib/supabase/server';import {Star} from 'lucide-react';
-export default async function Reviews(){const raw=(await cookies()).get('he_locale')?.value;const l=isLocale(raw)?raw:defaultLocale;const t=pageCopy[l].reviews;let reviews:any[]=[];try{const {data}=await getSupabasePublicServer().from('reviews').select('guest_name,country,city,rating,review_text,review_date').eq('status','PUBLISHED').eq('verified',true).order('review_date',{ascending:false}).limit(24);reviews=data||[]}catch{}return <section className="section"><div className="container max-w-6xl"><div className="max-w-4xl"><div className="eyebrow">{t.eyebrow}</div><h1 className="serif mt-4 text-6xl text-forest">{t.title}</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-forest/60">{t.intro}</p></div>{reviews.length>0?<div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{reviews.map((r)=><article key={String(r.guest_name)+String(r.review_date)} className="card p-7"><div className="flex gap-1">{Array.from({length:Math.min(5,Math.max(0,Number(r.rating)||0))}).map((_,i)=><Star key={i} size={16} fill="currentColor" className="text-gold"/></div><p className="mt-4 leading-7 text-forest/70">“{r.review_text}”</p><div className="mt-6 border-t border-forest/10 pt-4"><div className="font-semibold text-forest">{r.guest_name}</div><div className="text-xs text-forest/50">{r.city||r.country}</div></div></article>)}</div>:<div className="mt-10 max-w-2xl card p-8"><div className="eyebrow">{t.coming}</div><h2 className="serif mt-3 text-3xl text-forest">{t.comingTitle}</h2><p className="mt-3 text-sm leading-7 text-forest/60">{t.comingText}</p></div>}</div></section>}
+import {cookies} from 'next/headers';
+import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
+import {getSupabasePublicServer} from '@/lib/supabase/server';
+import {Star} from 'lucide-react';
+
+export default async function Reviews(){
+  const raw=(await cookies()).get('he_locale')?.value;
+  const l=isLocale(raw)?raw:defaultLocale;
+  const t=pageCopy[l].reviews;
+  let reviews:any[]=[];
+  try{
+    const {data}=await getSupabasePublicServer().from('reviews').select('guest_name,country,city,rating,review_text,review_date').eq('status','PUBLISHED').eq('verified',true).order('review_date',{ascending:false}).limit(24);
+    reviews=data||[];
+  }catch{reviews=[]}
+  return <section className="section"><div className="container max-w-6xl">
+    <div className="max-w-4xl"><div className="eyebrow">{t.eyebrow}</div><h1 className="serif mt-4 text-6xl text-forest">{t.title}</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-forest/60">{t.intro}</p></div>
+    {reviews.length>0?<div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{reviews.map((r:any)=><article key={String(r.guest_name)+String(r.review_date)} className="card p-7"><div className="flex gap-1">{Array.from({length:Math.min(5,Math.max(0,Number(r.rating)||0))}).map((_,i)=><Star key={i} size={16} fill="currentColor" className="text-gold"/>)}</div><p className="mt-4 leading-7 text-forest/70">“{r.review_text}”</p><div className="mt-6 border-t border-forest/10 pt-4"><div className="font-semibold text-forest">{r.guest_name}</div><div className="text-xs text-forest/50">{r.city||r.country}</div></div></article>)}</div>:<div className="mt-10 max-w-2xl card p-8"><div className="eyebrow">{t.coming}</div><h2 className="serif mt-3 text-3xl text-forest">{t.comingTitle}</h2><p className="mt-3 text-sm leading-7 text-forest/60">{t.comingText}</p></div>}
+  </div></section>;
+}
