@@ -1,5 +1,6 @@
 'use client';
-import {FormEvent,useState} from 'react';
+import {useState} from 'react';
+import type {FormEvent} from 'react';
 import {useSearchParams,useRouter} from 'next/navigation';
 import {packages,siteConfig} from '@/lib/site';
 import {trackEvent} from '@/lib/analytics';
