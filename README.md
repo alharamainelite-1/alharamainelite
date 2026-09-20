@@ -6,7 +6,7 @@ A new production-oriented Next.js foundation for Alharamainelite, built from scr
 - Signature: **$2,000 USD / guest**
 - Elite: **$2,500 USD / guest**
 - Guest selector: 1–8
-- Standard group capacity: 5–8
+- Guest capacity: 1–8
 - Flights are not included.
 - Customers submit a journey request; this is not flight booking.
 - Travel timing can be an expected date or approximate period.
@@ -39,6 +39,9 @@ Create your admin users through Supabase Auth, then assign their `profiles.role`
 
 The first admin should be `SUPER_ADMIN`. Other supported roles are:
 `ADMIN`, `OPERATIONS`, `SALES`, `FINANCE`, `HOST`.
+
+## Vercel / Supabase environment variables
+The production deployment supports the Supabase integration variables configured in Vercel, including `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 
 ## Environment variables
 Copy `.env.example` to `.env.local` and set:
