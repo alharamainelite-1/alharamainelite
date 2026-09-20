@@ -3,7 +3,7 @@ import { getCurrentStaff } from '@/lib/supabase/auth';
 import { AdminLogout } from '@/components/admin/AdminLogout';
 
 const nav: Array<[string,string]> = [
-  ['Dashboard','/admin'],['Journey Requests','/admin/requests'],['Bookings','/admin/bookings'],['Groups','/admin/groups'],
+  ['Dashboard','/admin'],['Audit Logs','/admin/audit-logs'],['Journey Requests','/admin/requests'],['Bookings','/admin/bookings'],['Groups','/admin/groups'],
   ['Guests','/admin/guests'],['Operations','/admin/operations'],['Hosts','/admin/hosts'],['Hotels','/admin/hotels'],
   ['Transportation','/admin/transportation'],['Train','/admin/train'],['Payments','/admin/payments'],['Expenses','/admin/expenses'],
   ['Reviews','/admin/reviews'],['Communications','/admin/communications'],['Reports','/admin/reports'],['Settings','/admin/settings'],
