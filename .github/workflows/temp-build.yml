@@ -1,7 +1,7 @@
 name: Temporary Build Check
 on:
-  push:
-    branches: [development/complete-site-build-2026-09-20]
+  pull_request:
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-latest
