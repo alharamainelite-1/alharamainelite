@@ -7,7 +7,7 @@ const access: Record<string,string[]> = {
   '/admin/groups':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   '/admin/guests':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   '/admin/operations':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
-  '/admin/hosts':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
+  '/admin/hosts':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS','HOST'],
   '/admin/hotels':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   '/admin/transportation':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   '/admin/train':['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
