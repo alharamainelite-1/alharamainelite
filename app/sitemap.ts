@@ -1,3 +1,5 @@
+export const dynamic = 'force-static';
+
 import type { MetadataRoute } from 'next';
 
 const routes = ['', 'packages', 'packages/signature', 'packages/elite', 'experience', 'womens-umrah', 'makkah', 'madinah', 'jeddah', 'hotels', 'transportation', 'about', 'reviews', 'faq', 'request-journey', 'contact'];
