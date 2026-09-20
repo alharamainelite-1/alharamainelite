@@ -17,6 +17,7 @@ const access: Record<string,string[]> = {
   '/admin/communications':['SUPER_ADMIN','ADMIN','SALES'],
   '/admin/reviews':['SUPER_ADMIN','ADMIN','SALES'],
   '/admin/settings':['SUPER_ADMIN','ADMIN'],
+  '/admin/audit-logs':['SUPER_ADMIN','ADMIN'],
 };
 
 export async function middleware(req: NextRequest){

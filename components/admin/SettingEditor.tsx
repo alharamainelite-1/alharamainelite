@@ -1,0 +1,4 @@
+"use client";import{useState}from"react";
+export function SettingEditor({setting}:{setting:{key:string;value:any}}){const initial=JSON.stringify(setting.value,null,2),[value,setValue]=useState(initial),[busy,setBusy]=useState(false),[m,setM]=useState("");
+async function save(){setBusy(true);setM("");const r=await fetch("/api/admin/settings",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({key:setting.key,value})});const d=await r.json().catch(()=>({}));setM(r.ok?"Saved.":d.error||"Could not save.");setBusy(false);if(r.ok)location.reload();}
+return <div className="grid gap-2 min-w-[360px]"><textarea rows={4} value={value} onChange={e=>setValue(e.target.value)} className="font-mono text-xs"/><div className="flex items-center gap-2"><button type="button" disabled={busy} onClick={save} className="btn btn-primary !px-3 !py-2 text-xs">{busy?"Saving…":"Save"}</button>{m&&<span className="text-xs text-forest/60">{m}</span>}</div></div>}

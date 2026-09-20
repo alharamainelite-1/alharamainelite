@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { getCurrentStaff } from '@/lib/supabase/auth';
+import { AdminLogout } from '@/components/admin/AdminLogout';
 
 const nav: Array<[string,string]> = [
-  ['Dashboard','/admin'],['Journey Requests','/admin/requests'],['Bookings','/admin/bookings'],['Groups','/admin/groups'],
+  ['Dashboard','/admin'],['Audit Logs','/admin/audit-logs'],['Journey Requests','/admin/requests'],['Bookings','/admin/bookings'],['Groups','/admin/groups'],
   ['Guests','/admin/guests'],['Operations','/admin/operations'],['Hosts','/admin/hosts'],['Hotels','/admin/hotels'],
   ['Transportation','/admin/transportation'],['Train','/admin/train'],['Payments','/admin/payments'],['Expenses','/admin/expenses'],
   ['Reviews','/admin/reviews'],['Communications','/admin/communications'],['Reports','/admin/reports'],['Settings','/admin/settings'],
@@ -18,7 +19,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
     <div className="border-b border-forest/10 bg-forest text-white">
       <div className="container flex min-h-16 items-center justify-between gap-4">
         <Link href="/admin" className="font-semibold tracking-wide">ALHARAMAINELITE <span className="text-gold">/ ADMIN</span></Link>
-        <div className="text-right text-xs"><div>{staff.profile.full_name || staff.user.email}</div><div className="mt-1 text-white/55">{staff.profile.role}</div></div>
+        <div className="flex items-center gap-4"><div className="text-right text-xs"><div>{staff.profile.full_name || staff.user.email}</div><div className="mt-1 text-white/55">{staff.profile.role}</div></div><AdminLogout /></div>
       </div>
     </div>
     <div className="container grid gap-6 py-6 lg:grid-cols-[220px_1fr]">
