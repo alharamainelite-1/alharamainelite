@@ -4,8 +4,8 @@ import {defaultLocale,isLocale} from '@/lib/i18n';
 import {packages,features,eliteExtra} from '@/lib/site';
 
 const images={
-  signature:'https://images.unsplash.com/photo-1565552645632-d725f8bfc19a?auto=format&fit=crop&w=1800&q=88',
-  elite:'https://images.unsplash.com/photo-1635829581952-d507b68ef6b5?auto=format&fit=crop&w=1800&q=88',
+  signature:'https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200',
+  elite:'https://images.pexels.com/photos/18360295/pexels-photo-18360295.jpeg?auto=compress&cs=tinysrgb&w=1800',
 };
 
 const copy={

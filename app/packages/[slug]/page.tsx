@@ -4,7 +4,7 @@ import {notFound} from 'next/navigation';
 import {cookies} from 'next/headers';
 import {packages,features,eliteExtra} from '@/lib/site';
 import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
-const hero='https://images.unsplash.com/photo-1565552645632-d725f8bfc19a?auto=format&fit=crop&w=2200&q=90';
+const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
 const labels={en:{included:'Included',not:'Not included',ready:'Ready when you are',request:'Request this journey',compare:'Compare packages',notList:['International flights','Personal expenses','Any service not expressly confirmed in your final itinerary']},so:{included:'Waxa ku jira',not:'Kuma jiraan',ready:'Markaad diyaar tahay',request:'Codso safarkan',compare:'Is barbar dhig safarrada',notList:['Duulimaadyada caalamiga ah','Kharashaadka gaarka ah','Adeeg kasta oo aan si cad loogu xaqiijin jadwalkaaga']},ar:{included:'يشمل',not:'لا يشمل',ready:'عندما تكون مستعدًا',request:'اطلب هذه الرحلة',compare:'مقارنة الرحلات',notList:['الرحلات الدولية','المصاريف الشخصية','أي خدمة لم يتم تأكيدها صراحة في برنامجك النهائي']}};
 export default async function PackagePage({params}:{params:Promise<{slug:string}>}){
 const {slug}=await params; const p=packages[slug as 'signature'|'elite']; if(!p)notFound();
