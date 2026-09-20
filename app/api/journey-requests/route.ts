@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { journeyRequestSchema } from '@/lib/validation/journey';
-import { getSupabaseAdmin } from '@/lib/supabase/server';
+import { getSupabasePublicServer } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     if (!parsed.success) return NextResponse.json({ error: 'Please check the highlighted details.', issues: parsed.error.flatten().fieldErrors }, { status: 400 });
     const v = parsed.data;
     if (v.website) return NextResponse.json({ error: 'Please check the highlighted details.' }, { status: 400 });
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublicServer();
     const { data, error } = await supabase.rpc('create_journey_request', {
       p_full_name: v.fullName, p_whatsapp: v.whatsapp, p_email: v.email || null, p_country: v.country, p_city: v.city || null,
       p_preferred_language: v.preferredLanguage, p_package_slug: v.packageSlug, p_guest_count: v.guestCount,
