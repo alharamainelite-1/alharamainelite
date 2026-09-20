@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export const STAFF_ROLES = ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS','SALES','FINANCE'] as const;
+export const STAFF_ROLES = ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS','SALES','FINANCE','HOST'] as const;
 export type StaffRole = typeof STAFF_ROLES[number];
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vpeagpnsljoaaafrtbed.supabase.co';
