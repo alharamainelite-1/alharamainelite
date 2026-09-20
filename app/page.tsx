@@ -5,7 +5,6 @@ import {getSupabasePublicServer} from '@/lib/supabase/server';
 import {ArrowRight,ShieldCheck,Users,HeartHandshake,Hotel,TrainFront,Car,MapPinned,Star} from 'lucide-react';
 import type {LucideIcon} from 'lucide-react';
 import {SectionHeading} from '@/components/ui/SectionHeading';
-import {PriceCalculator} from '@/components/booking/PriceCalculator';
 
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
 const makkah='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';

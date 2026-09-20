@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-const STATUS = ['CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PREPARING','ACTIVE','COMPLETED','CANCELLED'] as const;
+const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED','CANCELLED'] as const;
 
 export function BookingStatusForm({ bookingId, currentStatus, paymentStatus }: { bookingId:string; currentStatus:string; paymentStatus:string }) {
   const [status,setStatus]=useState(currentStatus);
@@ -19,8 +19,6 @@ export function BookingStatusForm({ bookingId, currentStatus, paymentStatus }: {
   return <div className="flex min-w-[240px] items-center gap-2">
     <select value={status} onChange={e=>setStatus(e.target.value)} className="!py-2 text-xs">
       {STATUS.map(s=><option key={s} value={s}>{s}</option>)}
-      {currentStatus==='NEW_REQUEST' && <option value="NEW_REQUEST">NEW_REQUEST</option>}
-      {currentStatus==='PAYMENT_RECEIVED' && <option value="PAYMENT_RECEIVED">PAYMENT_RECEIVED</option>}
       {canConfirm && <option value="CONFIRMED">CONFIRMED</option>}
     </select>
     <button type="button" disabled={busy} onClick={save} className="btn btn-outline !px-3 !py-2 text-xs">{busy?'Saving…':'Save'}</button>
