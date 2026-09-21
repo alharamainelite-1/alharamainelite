@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { getCurrentStaff } from '@/lib/supabase/auth';
 import { AdminLogout } from '@/components/admin/AdminLogout';
 import { AdminLanguageSelector } from '@/components/admin/AdminLanguageSelector';
-import { getAdminLocale, adminText } from '@/lib/admin-i18n';
+import { getAdminLocale } from '@/lib/admin-locale';
+import { adminText } from '@/lib/admin-text';
 
 type NavItem={en:string;ar:string;href:string;roles?:string[]};
 const nav:NavItem[]=[
