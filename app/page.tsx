@@ -39,7 +39,7 @@ const copy={
     signature:'Raaxo & macne',elite:'Heer raaxo oo sarreeya',
     signatureDesc:'Hoteello heer sare ah, quraac, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
     eliteDesc:'Hoy luxury ah, quraac, Haramain Train economy marka uu ku habboon yahay, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
-    details:'SAFAR DHAMMEYSTIRAN',detailsText:'Wax kasta oo aad u baahan tahay safar fudud, raaxo leh oo macno leh.'
+    details:'SAFAR DHAMMEYSTIRAN',detailsText:'Wax kasta oo aad u baahan tahay safar fudud, raaxo leh oo macno leh.',
     essentials:['Hoteello heer sare','Gaadiid gaar ah','Haramain Train','Khibradda Jeddah'],
     essentialDescriptions:['Hoy si taxaddar leh loo doortay oo ku yaal Makkah iyo Madiinah.','Gaadiid raaxo leh oo qaboojiye leh oo loogu talagalay wareejinta iyo ziyaraatka.','Safar degdeg ah oo raaxo leh oo u dhexeeya Makkah iyo Madiinah marka uu ku jiro qorshaha safarka.','Sahami suuqyada, dhaqanka iyo wax iibsiga Jeddah.'],
     reviews:'KHIBRADA MARTIDA',reviewsTitle:'Khibrado dhab ah. Dad dhab ah.',reviewsIntro:'Faallooyinka martida la xaqiijiyay waxay halkan kasoo muuqan doonaan marka safarradu dhamaadaan oo la ansixiyo.',
@@ -56,7 +56,7 @@ const copy={
     signature:'راحة ومعنى',elite:'مستوى أعلى من الراحة',
     signatureDesc:'فنادق راقية، إفطار، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
     eliteDesc:'إقامة فاخرة، إفطار، قطار الحرمين الاقتصادي حيث يناسب البرنامج، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
-    details:'رحلة متكاملة',detailsText:'كل ما تحتاجه لرحلة سلسة ومريحة وذات معنى.'
+    details:'رحلة متكاملة',detailsText:'كل ما تحتاجه لرحلة سلسة ومريحة وذات معنى.',
     essentials:['فنادق راقية','تنقلات خاصة','قطار الحرمين','تجربة جدة'],
     essentialDescriptions:['فنادق يتم اختيارها بعناية لإقامة مريحة في مكة والمدينة.','تنقلات مريحة ومكيفة للانتقالات والزيارات المخطط لها.','تنقل سريع ومريح بين مكة والمدينة حيث يكون مشمولًا في البرنامج.','استكشف الأسواق والثقافة والتسوق في جدة.'],
     reviews:'تجارب الضيوف',reviewsTitle:'تجارب حقيقية. أشخاص حقيقيون.',reviewsIntro:'ستظهر تقييمات الضيوف الموثقة هنا بعد إتمام الرحلات ومراجعة التقييمات واعتمادها.',
