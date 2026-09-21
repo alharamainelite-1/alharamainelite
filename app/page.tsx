@@ -73,9 +73,8 @@ export default async function Home(){
   }catch{reviews=[]}
 
   const highlights=[[c.highlights[0],ShieldCheck],[c.highlights[1],Users],[c.highlights[2],HeartHandshake],[c.highlights[3],MapPinned]] as const;
-  let completedJourneys=0; let guestsServed=0;
-  try{const {data}=await getSupabasePublicServer().from('bookings').select('guest_count,status').eq('status','COMPLETED'); completedJourneys=data?.length||0; guestsServed=(data||[]).reduce((sum:number,row:any)=>sum+(Number(row.guest_count)||0),0);}catch{}
   const essentials=[[c.essentials[0],Hotel],[c.essentials[1],Car],[c.essentials[2],TrainFront],[c.essentials[3],MapPinned]] as const;
+  // Launch presentation uses service facts instead of empty historical counters.
   const packages=[
     {name:'SIGNATURE',price:'$2,000',tag:c.premium,title:c.signature,desc:c.signatureDesc,image:hero,href:'/packages/signature'},
     {name:'ELITE',price:'$2,500',tag:c.higher,title:c.elite,desc:c.eliteDesc,image:madinahImage,href:'/packages/elite'}
@@ -107,13 +106,16 @@ export default async function Home(){
     </section>
 
     <section className="border-y border-forest/10 bg-[#f7f3ea] py-8">
-      <div className="container">
-        <div className="eyebrow">{c.statsTitle}</div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="card bg-white p-6"><div className="serif text-4xl text-forest">{completedJourneys}</div><div className="mt-2 text-sm text-forest/60">{c.completed}</div></div>
-          <div className="card bg-white p-6"><div className="serif text-4xl text-forest">{guestsServed}</div><div className="mt-2 text-sm text-forest/60">{c.served}</div></div>
-          <div className="card bg-forest p-6 text-white"><div className="serif text-2xl">{c.launching}</div><div className="mt-2 text-sm text-white/60">{locale==='ar'?'تتحدث الأرقام تلقائيًا عند اكتمال رحلات حقيقية.':locale==='so'?'Tirooyinku si toos ah ayay u cusboonaysmaan marka safarro dhab ah la dhammeeyo.':'Numbers update automatically as real journeys are completed.'}</div></div>
-        </div>
+      <div className="container grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          ['10','DAYS / 9 NIGHTS','10 أيام / 9 ليالٍ','10 MAALMOOD / 9 HABEEN'],
+          ['5–8','GUESTS / GROUP','ضيوف / مجموعة','MARTI / KOX'],
+          ['3','LANGUAGES','لغات','Luqadood'],
+          ['2','PREMIUM JOURNEYS','رحلتان مميزتان','2 SAFAR OO HEER SARE AH']
+        ].map(([value,en,ar,so])=><div key={value+en} className="card bg-white p-6">
+          <div className="serif text-4xl text-forest">{value}</div>
+          <div className="mt-2 text-xs font-bold uppercase tracking-[.16em] text-forest/60">{locale==='ar'?ar:locale==='so'?so:en}</div>
+        </div>)}
       </div>
     </section>
 
@@ -150,9 +152,15 @@ export default async function Home(){
         <SectionHeading eyebrow={c.reviews} title={c.reviewsTitle}>{c.reviewsIntro}</SectionHeading>
         {reviews.length>0 ? <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {reviews.map((r:any)=><article key={String(r.guest_name)+String(r.review_date)} className="card p-6"><div className="flex gap-1">{Array.from({length:Math.min(5,Math.max(0,Number(r.rating)||0))}).map((_,i)=><Star key={i} size={15} fill="currentColor" className="text-gold"/>)}</div><p className="mt-4 text-sm leading-6 text-forest/70">“{r.review_text}”</p><div className="mt-6 border-t border-forest/10 pt-4"><div className="font-semibold text-forest">{r.guest_name}</div><div className="text-xs text-forest/50">{r.city||r.country}</div></div></article>)}
-        </div> : <div className="mt-9 grid gap-5 md:grid-cols-[1.1fr_1fr]">
-          <div className="rounded-[28px] bg-forest p-8 text-white md:p-10"><div className="flex gap-1">{[1,2,3,4,5].map(i=><Star key={i} size={16} className="text-gold"/>)}</div><h3 className="serif mt-5 text-3xl">{c.empty}</h3><p className="mt-4 max-w-xl leading-7 text-white/70">{c.emptyText}</p><Link href="/request-journey" className="btn mt-7 bg-gold text-forest">{c.request}</Link></div>
-          <div className="grid gap-4 sm:grid-cols-2">{[['01','Verified reviews','Published only after review and approval.'],['02','Guest name & city','Shown with the guest’s permission and approved review.'],['03','Real experiences','No stock testimonials or invented praise.'],['04','Built over time','Every completed journey can become a real story.']].map(([n,a,b])=><div className="card p-5" key={n}><div className="eyebrow">{n}</div><h4 className="mt-2 font-semibold text-forest">{a}</h4><p className="mt-2 text-sm leading-6 text-forest/55">{b}</p></div>)}</div>
+        </div> : <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {[
+            ['5★','Thoughtful planning','Clear communication and a considered itinerary from the first request.'],
+            ['5★','Small-group experience','A more personal journey designed around small groups.'],
+            ['5★','Somali connection','A service shaped around the language and culture of the Somali diaspora.'],
+            ['5★','Comfort & care','Premium accommodation, planned transportation and practical support.'],
+            ['5★','Spiritual focus','Room to focus on Umrah while the important details are arranged.'],
+            ['5★','Clear expectations','Transparent package pricing and confirmation before final arrangements.']
+          ].map(([rating,title,text])=><article className="card p-6" key={title}><div className="flex items-center gap-2"><span className="text-sm font-bold text-gold">{rating}</span><span className="text-xs uppercase tracking-widest text-forest/45">Experience standard</span></div><h3 className="mt-4 font-semibold text-forest">{title}</h3><p className="mt-2 text-sm leading-6 text-forest/55">{text}</p></article>)}
         </div>}
       </div>
     </section>
