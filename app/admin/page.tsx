@@ -1,73 +1,37 @@
-import Link from 'next/link';
-import { getSupabaseAdmin } from '@/lib/supabase/server';
-import { getCurrentStaff } from '@/lib/supabase/auth';
-
-type PaymentRow={amount:number|string;status:string};
+import Link from "next/link";
+import {getSupabaseAdmin} from "@/lib/supabase/server";
+import {getCurrentStaff} from "@/lib/supabase/auth";
 
 export default async function AdminHome(){
- const staff=await getCurrentStaff();
- if(!staff)return null;
- const role=staff.profile.role;
- let stats={requests:0,pending:0,confirmed:0,active:0,revenue:0,pendingPayments:0,completed:0,overdueTasks:0};
- let setup=false;
+ const staff=await getCurrentStaff(); if(!staff)return null;
+ const role=staff.profile.role; let stats={requests:0,active:0,pendingPayments:0,completed:0,overdue:0,revenue:0}; let recent:any[]=[]; let error="";
  try{
   const s=getSupabaseAdmin();
-  const [r,p,c,a,pay,done,tasks]=await Promise.all([
-   s.from('journey_requests').select('*',{count:'exact',head:true}),
-   s.from('bookings').select('*',{count:'exact',head:true}).eq('payment_status','PAYMENT_PENDING'),
-   s.from('bookings').select('*',{count:'exact',head:true}).eq('status','CONFIRMED'),
-   s.from('bookings').select('*',{count:'exact',head:true}).eq('status','ACTIVE'),
-   s.from('payments').select('amount,status'),
-   s.from('bookings').select('*',{count:'exact',head:true}).eq('status','COMPLETED'),
-   s.from('operations_tasks').select('*',{count:'exact',head:true}).in('status',['OVERDUE','DELAYED'])
-  ]);
-  if([r,p,c,a,pay,done,tasks].some(x=>x.error))throw new Error('Unable to load dashboard data.');
-  stats.requests=r.count||0; stats.pending=p.count||0; stats.confirmed=c.count||0; stats.active=a.count||0; stats.completed=done.count||0; stats.overdueTasks=tasks.count||0;
-  stats.revenue=((pay.data||[]) as PaymentRow[]).filter(x=>x.status==='RECEIVED').reduce((n,x)=>n+Number(x.amount),0);
-  stats.pendingPayments=((pay.data||[]) as PaymentRow[]).filter(x=>x.status==='PENDING_VERIFICATION').reduce((n,x)=>n+Number(x.amount),0);
- }catch{setup=true}
-
- const isSales=role==='SALES';
- const isOps=role==='OPERATIONS_MANAGER'||role==='OPERATIONS';
- const title=isSales?'Sales & Booking Workspace':isOps?'Operations Control Centre':'Executive Dashboard';
- const intro=isSales?'Manage leads, customer follow-up, booking readiness and handover to operations.':isOps?'Manage operational tasks, suppliers, resources and journey readiness.':'Monitor the business, approve exceptions and see what needs attention.';
- const attention=[
-  stats.overdueTasks>0?{label:'Overdue operational tasks',value:stats.overdueTasks,href:'/admin/operations'}:null,
-  stats.pending>0?{label:'Payments pending',value:stats.pending,href:'/admin/payments'}:null,
-  stats.requests>0&&isSales?{label:'New journey requests',value:stats.requests,href:'/admin/requests'}:null
- ].filter(Boolean) as {label:string;value:number;href:string}[];
-
- return <section className="section"><div className="container">
-  <div className="flex flex-wrap items-end justify-between gap-5">
-   <div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-3 text-5xl text-forest">{title}</h1><p className="mt-3 max-w-2xl text-forest/55">{intro}</p></div>
-   <Link href="/" className="btn btn-outline">View website</Link>
-  </div>
-  {setup&&<div className="mt-8 border border-gold/40 bg-[#fffaf0] p-5 text-sm leading-6 text-forest/70"><b className="text-forest">Live data is not available.</b> Check the production Supabase environment and migration.</div>}
+  const [r,a,p,d,t,pay,j]=await Promise.all([s.from("journey_requests").select("*",{count:"exact",head:true}),s.from("bookings").select("*",{count:"exact",head:true}).in("status",["CONFIRMED","PREPARING","ACTIVE"]),s.from("bookings").select("*",{count:"exact",head:true}).in("payment_status",["PAYMENT_INSTRUCTIONS_SENT","PENDING_VERIFICATION"]),s.from("bookings").select("*",{count:"exact",head:true}).eq("status","COMPLETED"),s.from("operations_tasks").select("*",{count:"exact",head:true}).in("status",["OVERDUE","DELAYED"]),s.from("payments").select("amount,status"),s.from("bookings").select("id,booking_id,status,payment_status,total_amount,guest_count,created_at,customers(full_name),packages(name)").order("created_at",{ascending:false}).limit(6)]);
+  if([r,a,p,d,t,pay,j].some(x=>x.error))throw new Error("Unable to load live dashboard data.");
+  stats={requests:r.count||0,active:a.count||0,pendingPayments:p.count||0,completed:d.count||0,overdue:t.count||0,revenue:((pay.data||[]) as any[]).filter(x=>x.status==="RECEIVED").reduce((n,x)=>n+Number(x.amount),0)}; recent=j.data||[];
+ }catch(e){error=e instanceof Error?e.message:"Unable to load dashboard."}
+ const isSales=role==="SALES"; const isOps=role==="OPERATIONS_MANAGER"||role==="OPERATIONS";
+ const title=isSales?"Sales workspace":isOps?"Operations workspace":"Executive workspace";
+ const intro=isSales?"Work the customer journey from first request to confirmed handover.":isOps?"Prepare every confirmed journey and keep the next operational action visible.":"See what needs attention across sales, payments and upcoming journeys.";
+ return <section className="pb-12"><div className="container">
+  <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-5xl text-forest">{title}</h1><p className="mt-3 max-w-2xl text-forest/55">{intro}</p></div><Link href="/admin/journeys" className="btn btn-primary">Open journeys</Link></div>
+  {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
   <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-   {[
-    ['New Requests',stats.requests,'/admin/requests'],
-    ['Payment Pending',stats.pending,'/admin/payments'],
-    ['Confirmed',stats.confirmed,'/admin/bookings'],
-    ['Active Journeys',stats.active,'/admin/bookings']
-   ].map(([label,value,href])=><Link href={href as string} className="card p-6 transition hover:-translate-y-0.5 hover:border-gold/60" key={label as string}><div className="eyebrow">{label as string}</div><div className="serif mt-3 text-4xl text-forest">{value as number}</div></Link>)}
+   <Link href="/admin/requests" className="card p-6 hover:border-gold/50"><div className="eyebrow">New requests</div><div className="serif mt-2 text-4xl text-forest">{stats.requests}</div><div className="mt-2 text-xs text-forest/45">Start the customer conversation →</div></Link>
+   <Link href="/admin/journeys" className="card p-6 hover:border-gold/50"><div className="eyebrow">Active journeys</div><div className="serif mt-2 text-4xl text-forest">{stats.active}</div><div className="mt-2 text-xs text-forest/45">Open journey workspace →</div></Link>
+   <Link href="/admin/payments" className="card p-6 hover:border-gold/50"><div className="eyebrow">Payment actions</div><div className="serif mt-2 text-4xl text-forest">{stats.pendingPayments}</div><div className="mt-2 text-xs text-forest/45">Verify or follow up →</div></Link>
+   <Link href="/admin/operations" className="card p-6 hover:border-gold/50"><div className="eyebrow">Operational issues</div><div className="serif mt-2 text-4xl text-forest">{stats.overdue}</div><div className="mt-2 text-xs text-forest/45">Open operations →</div></Link>
   </div>
-  <div className="mt-5 grid gap-4 md:grid-cols-3">
-   <div className="card p-6"><div className="eyebrow">Payments received</div><div className="serif mt-3 text-4xl text-forest">{'USD '+stats.revenue.toLocaleString()}</div></div>
-   <div className="card p-6"><div className="eyebrow">Pending verification</div><div className="serif mt-3 text-4xl text-forest">{'USD '+stats.pendingPayments.toLocaleString()}</div></div>
-   <div className="card p-6"><div className="eyebrow">Completed journeys</div><div className="serif mt-3 text-4xl text-forest">{stats.completed}</div></div>
+  <div className="mt-8 grid gap-6 lg:grid-cols-[1.3fr_.7fr]">
+   <div className="card p-6"><div className="flex items-end justify-between"><div><div className="eyebrow">Journey queue</div><h2 className="serif mt-2 text-3xl text-forest">Recent journeys</h2></div><Link href="/admin/journeys" className="text-sm font-semibold text-gold">View all →</Link></div>
+    <div className="mt-5 grid gap-3">{recent.length===0?<div className="rounded-xl bg-[#f7f3ea] p-5 text-sm text-forest/50">No journeys yet.</div>:recent.map(r=><Link key={r.id} href={"/admin/journeys/"+r.id} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-forest/10 p-4 hover:border-gold/50"><div><div className="text-xs font-semibold text-gold">{r.booking_id}</div><div className="mt-1 font-semibold text-forest">{r.customers?.full_name||"Unnamed customer"}</div><div className="mt-1 text-xs text-forest/45">{r.packages?.name||"—"} · {r.guest_count} guests</div></div><div className="text-right"><div className="text-sm font-semibold text-forest">${Number(r.total_amount).toLocaleString()}</div><div className="mt-1 rounded-full bg-[#f7f3ea] px-3 py-1 text-[11px] font-semibold text-forest">{r.status.replaceAll("_"," ")}</div></div></Link>)}</div>
+   </div>
+   <div className="grid gap-6">
+    <div className="card p-6"><div className="eyebrow">Needs attention</div><div className="mt-4 grid gap-3">{stats.pendingPayments>0&&<Link href="/admin/payments" className="rounded-xl border border-amber-200 bg-amber-50 p-4"><div className="font-semibold text-forest">{stats.pendingPayments} payment action{stats.pendingPayments===1?"":"s"}</div><div className="mt-1 text-xs text-forest/55">Review payment status.</div></Link>}{stats.overdue>0&&<Link href="/admin/operations" className="rounded-xl border border-red-200 bg-red-50 p-4"><div className="font-semibold text-forest">{stats.overdue} operational issue{stats.overdue===1?"":"s"}</div><div className="mt-1 text-xs text-forest/55">Resolve delayed or overdue tasks.</div></Link>}{stats.pendingPayments===0&&stats.overdue===0&&<div className="rounded-xl bg-[#f7f3ea] p-4 text-sm text-forest/55">Nothing urgent right now.</div>}</div></div>
+    <div className="card p-6"><div className="eyebrow">Business snapshot</div><div className="mt-4 grid gap-4"><div className="flex justify-between border-b border-forest/10 pb-3"><span className="text-sm text-forest/55">Payments received</span><b className="text-forest">USD {stats.revenue.toLocaleString()}</b></div><div className="flex justify-between"><span className="text-sm text-forest/55">Completed journeys</span><b className="text-forest">{stats.completed}</b></div></div></div>
+   </div>
   </div>
-  <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
-   <div className="card p-6"><div className="eyebrow">Needs attention</div><div className="mt-4 grid gap-3">
-    {attention.length===0?<div className="rounded-xl bg-[#f7f3ea] p-4 text-sm text-forest/55">Nothing urgent right now.</div>:attention.map(x=><Link key={x.href+x.label} href={x.href} className="flex items-center justify-between rounded-xl border border-forest/10 p-4 hover:border-gold/50"><span className="text-sm font-medium text-forest">{x.label}</span><span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-sm font-semibold text-forest">{x.value}</span></Link>)}
-   </div></div>
-   <div className="card p-6"><div className="eyebrow">Operating model</div><div className="mt-4 grid gap-3 text-sm text-forest/70">
-    <div><b className="text-forest">Sales & Booking</b> owns the customer relationship and prepares the booking file.</div>
-    <div><b className="text-forest">Operations</b> owns hotels, transport, train, hosts and journey readiness.</div>
-    <div><b className="text-forest">General Management</b> owns business decisions and exceptions.</div>
-   </div></div>
-  </div>
-  <div className="mt-8 card p-6"><div className="eyebrow">Handover workflow</div><div className="mt-4 grid gap-3 md:grid-cols-5">
-   {['Customer','Booking Ready','Handover','Operations','Journey Ready'].map((x,i)=><div key={x} className="rounded-xl bg-[#f7f3ea] p-4 text-center"><div className="text-xs font-semibold text-gold">{i+1}</div><div className="mt-1 text-sm font-medium text-forest">{x}</div></div>)}
-  </div></div>
+  <div className="mt-8 card p-6"><div className="eyebrow">Your operating model</div><div className="mt-4 grid gap-3 md:grid-cols-4">{[["1","INBOX","Requests & follow-up","/admin/requests"],["2","JOURNEYS","Customer + booking file","/admin/journeys"],["3","OPERATIONS","Readiness & resources","/admin/operations"],["4","MANAGEMENT","Finance, reports & team","/admin/team"]].map(([n,k,d,h])=><Link href={h} key={k} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{n}</div><div className="mt-2 font-semibold text-forest">{k}</div><div className="mt-1 text-xs text-forest/50">{d}</div></Link>)}</div></div>
  </div></section>
 }
