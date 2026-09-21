@@ -1,2 +1,4 @@
-import {cookies} from 'next/headers';import {siteConfig} from '@/lib/site';import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
+import {cookies} from 'next/headers';import {cookies} from 'next/headers';
+import {siteConfig} from '@/lib/site';
+import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
 export default async function Contact(){const raw=(await cookies()).get('he_locale')?.value;const l=isLocale(raw)?raw:defaultLocale;const t=pageCopy[l].contact;return <section className="section"><div className="container max-w-4xl"><div className="eyebrow">{t.eyebrow}</div><h1 className="serif mt-4 text-6xl text-forest">{t.title}</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-forest/65">{t.intro}</p><a className="btn btn-primary mt-8" href={`https://wa.me/${siteConfig.whatsappDigits}`} target="_blank" rel="noreferrer">{t.cta}</a><p className="mt-5 text-sm text-forest/50">WhatsApp: {siteConfig.whatsapp}</p></div></section>}
