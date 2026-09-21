@@ -16,3 +16,5 @@ export const adminText={
     managementTitle:'الفريق والصلاحيات',managementDesc:'أنشئ حسابات الموظفين، وحدد أدوارهم، وتحكم في الوصول دون مشاركة كلمات المرور.',createStaff:'إنشاء حساب موظف',invite:'دعوة عضو للفريق',inviteDesc:'سيتلقى الموظف دعوة عبر البريد ثم ينشئ كلمة المرور بنفسه. لا حاجة لمشاركة أي كلمة مرور.',fullName:'الاسم الكامل',workEmail:'بريد العمل',phone:'واتساب / الهاتف',sendInvitation:'إرسال الدعوة',working:'جارٍ التنفيذ…',permissionModel:'نموذج الصلاحيات',roleAccess:'الوصول حسب الدور',teamAccounts:'حسابات الموظفين',employee:'الموظف',role:'الدور',account:'الحساب',joined:'تاريخ الانضمام',access:'الوصول',activeEmail:'البريد مفعّل',invitationPending:'الدعوة بانتظار التفعيل',deactivate:'تعطيل الحساب',reactivate:'إعادة تفعيل الحساب',invitationSent:'تم إرسال الدعوة. سيقوم الموظف بإنشاء كلمة المرور من الرابط المرسل.',accessUpdated:'تم تحديث الصلاحية.'
   }
 } as const;
+
+// Admin translations are shared by server and client-safe admin UI.
