@@ -9,10 +9,10 @@ const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg
 const madinahImage='https://images.pexels.com/photos/18360295/pexels-photo-18360295.jpeg?auto=compress&cs=tinysrgb&w=1800';
 const jeddahImage='https://images.pexels.com/photos/34744920/pexels-photo-34744920.jpeg?auto=compress&cs=tinysrgb&w=1800';
 const serviceImages={
-  hotel:'https://images.pexels.com/photos/8092391/pexels-photo-8092391.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  transport:'https://images.pexels.com/photos/29586609/pexels-photo-29586609.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  train:'https://images.pexels.com/photos/2101187/pexels-photo-2101187.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  jeddah:jeddahImage
+  hotel:'https://content.skyscnr.com/available/2085004568/2085004568_WxH.jpg',
+  transport:'https://umrahtransit.com/black-mercedes-sprinter-vip.png',
+  train:'https://image.idntimes.com/post/20250219/cara-naik-kereta-cepat-haramain-apa-saja-cara-naik-kereta-cepat-haramain-haramain-express-tiba-di-stasiun-tujuan-9cde86371d7fc78c91ae80a6ffab250e-3d3be380aeea0bc392a046548d082d21.jpg?tr=w-1200',
+  jeddah:'https://scenenow.com/Content/editor_api/images/Artboard%208%20%281%29-cab2d0df-6870-4b32-88c8-3cc934ad4964.jpg'
 };
 
 const copy={
@@ -21,10 +21,10 @@ const copy={
     premium:'Premium experience',higher:'Higher level',perGuest:'per guest',view:'View journey',
     signature:'Comfortable & meaningful',elite:'A higher level of comfort',
     signatureDesc:'Premium hotels, breakfast, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
-    eliteDesc:'Luxury accommodation, breakfast, Haramain Train economy where applicable, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
+    eliteDesc:'Luxury accommodation, breakfast, Haramain Train where applicable, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
     details:'A COMPLETE JOURNEY',detailsText:'Everything you need for a smooth, comfortable and meaningful journey.',
-    essentials:['Premium hotels','Private transportation','Haramain Train','Jeddah Experience'],
-    essentialDescriptions:['Carefully selected accommodation for a comfortable stay in Makkah and Madinah.','Comfortable, air-conditioned transport for transfers and planned ziyarat.','Fast, comfortable travel between Makkah and Madinah where included in the journey plan.','Explore local markets, culture and shopping in Jeddah.'],
+    essentials:['Premium Hotels','Private Transportation','Haramain Train','Jeddah Experience'],
+    essentialDescriptions:['Carefully selected hotels in Makkah and Madinah near the Haram, ensuring comfort and convenience.','Travel in comfort with our premium, air-conditioned luxury vans for all transfers and Ziyarat.','Fast and comfortable travel between Makkah and Madinah with the Haramain Train.','Explore local markets, culture and shopping in Jeddah as part of your journey.'],
     reviews:'GUEST EXPERIENCES',reviewsTitle:'Real experiences. Real people.',reviewsIntro:'Verified guest reviews will appear here after journeys are completed and reviews are approved.',
     empty:'Your experience can be next.',emptyText:'We do not publish invented testimonials. Once our first guests share verified feedback, their words and city will appear here.',
     destinations:'BEYOND UMRAH',destTitle:'Discover Makkah, Madinah & Jeddah',destText:'The sacred cities and the wider experience, thoughtfully arranged around your journey.',
@@ -38,10 +38,10 @@ const copy={
     premium:'Khibrad heer sare ah',higher:'Heer ka sarreeya',perGuest:'qofkiiba',view:'Eeg safarka',
     signature:'Raaxo & macne',elite:'Heer raaxo oo sarreeya',
     signatureDesc:'Hoteello heer sare ah, quraac, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
-    eliteDesc:'Hoy luxury ah, quraac, Haramain Train economy marka uu ku habboon yahay, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
+    eliteDesc:'Hoy luxury ah, quraac, Haramain Train marka uu ku habboon yahay, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
     details:'SAFAR DHAMMEYSTIRAN',detailsText:'Wax kasta oo aad u baahan tahay safar fudud, raaxo leh oo macno leh.',
-    essentials:['Hoteello heer sare','Gaadiid gaar ah','Haramain Train','Khibradda Jeddah'],
-    essentialDescriptions:['Hoy si taxaddar leh loo doortay oo ku yaal Makkah iyo Madiinah.','Gaadiid raaxo leh oo qaboojiye leh oo loogu talagalay wareejinta iyo ziyaraatka.','Safar degdeg ah oo raaxo leh oo u dhexeeya Makkah iyo Madiinah marka uu ku jiro qorshaha safarka.','Sahami suuqyada, dhaqanka iyo wax iibsiga Jeddah.'],
+    essentials:['Hoteello Heer Sare','Gaadiid Gaar ah','Haramain Train','Khibradda Jeddah'],
+    essentialDescriptions:['Hoteello si taxaddar leh loo doortay oo ku yaal Makkah iyo Madiinah, kuna dhow Xaramka.','Ku safar raaxo leh gaadiid luxury ah oo qaboojiye leh oo loogu talagalay wareejinta iyo ziyaraatka.','Safar degdeg ah oo raaxo leh oo u dhexeeya Makkah iyo Madiinah adigoo raacaya Haramain Train.','Sahami suuqyada, dhaqanka iyo wax iibsiga Jeddah oo qayb ka ah safarkaaga.'],
     reviews:'KHIBRADA MARTIDA',reviewsTitle:'Khibrado dhab ah. Dad dhab ah.',reviewsIntro:'Faallooyinka martida la xaqiijiyay waxay halkan kasoo muuqan doonaan marka safarradu dhamaadaan oo la ansixiyo.',
     empty:'Khibraddaadu waxay noqon kartaa tan xigta.',emptyText:'Ma daabacno markhaatiyo la sameeyay. Marka martideenna ugu horreysa ay bixiyaan faallo la xaqiijiyay, magacooda iyo magaaladooda ayaa halkan kasoo muuqan doona.',
     destinations:'WAX KA BADAN CUMRO',destTitle:'Baro Makkah, Madiinah & Jeddah',destText:'Magaalooyinka barakeysan iyo khibradda ku xeeran, si taxaddar leh loogu habeeyay safarkaaga.',
@@ -55,10 +55,10 @@ const copy={
     premium:'تجربة راقية',higher:'مستوى أعلى',perGuest:'للضيف',view:'استكشف الرحلة',
     signature:'راحة ومعنى',elite:'مستوى أعلى من الراحة',
     signatureDesc:'فنادق راقية، إفطار، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
-    eliteDesc:'إقامة فاخرة، إفطار، قطار الحرمين الاقتصادي حيث يناسب البرنامج، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
+    eliteDesc:'إقامة فاخرة، إفطار، تنقل بالقطار، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
     details:'رحلة متكاملة',detailsText:'كل ما تحتاجه لرحلة سلسة ومريحة وذات معنى.',
     essentials:['فنادق راقية','تنقلات خاصة','قطار الحرمين','تجربة جدة'],
-    essentialDescriptions:['فنادق يتم اختيارها بعناية لإقامة مريحة في مكة والمدينة.','تنقلات مريحة ومكيفة للانتقالات والزيارات المخطط لها.','تنقل سريع ومريح بين مكة والمدينة حيث يكون مشمولًا في البرنامج.','استكشف الأسواق والثقافة والتسوق في جدة.'],
+    essentialDescriptions:['فنادق يتم اختيارها بعناية في مكة والمدينة بالقرب من الحرم، لضمان الراحة والسهولة.','تنقلات مريحة ومكيفة عبر فانات فاخرة لجميع الانتقالات والزيارات.','تنقل سريع ومريح بين مكة والمدينة عبر قطار الحرمين.','استكشف الأسواق والثقافة والتسوق في جدة كجزء من رحلتك.'],
     reviews:'تجارب الضيوف',reviewsTitle:'تجارب حقيقية. أشخاص حقيقيون.',reviewsIntro:'ستظهر تقييمات الضيوف الموثقة هنا بعد إتمام الرحلات ومراجعة التقييمات واعتمادها.',
     empty:'قد تكون تجربتك التالية.',emptyText:'لا ننشر شهادات مختلقة. عندما يشارك ضيوفنا الأوائل تجارب موثقة، سيظهر اسم الضيف ومدينته هنا.',
     destinations:'أكثر من العمرة',destTitle:'اكتشف مكة والمدينة وجدة',destText:'المدن المقدسة وما حول الرحلة، بترتيب مدروس يتناسب مع تجربتك.',
@@ -88,7 +88,6 @@ export default async function Home(){
     {label:c.essentials[2],description:c.essentialDescriptions[2],Icon:TrainFront,image:serviceImages.train,href:'/transportation'},
     {label:c.essentials[3],description:c.essentialDescriptions[3],Icon:MapPinned,image:serviceImages.jeddah,href:'/jeddah'},
   ] as const;
-  // Launch presentation uses service facts instead of empty historical counters.
   const packages=[
     {name:'SIGNATURE',price:'$2,000',tag:c.premium,title:c.signature,desc:c.signatureDesc,image:hero,href:'/packages/signature'},
     {name:'ELITE',price:'$2,500',tag:c.higher,title:c.elite,desc:c.eliteDesc,image:madinahImage,href:'/packages/elite'}
@@ -168,7 +167,8 @@ export default async function Home(){
               <span className="mt-5 inline-flex items-center text-sm font-semibold text-gold">{c.explore} <ArrowRight size={16} className="ml-2 transition group-hover:translate-x-1"/></span>
             </div>
           </Link>})}
-        </div>      </div>
+        </div>
+      </div>
     </section>
 
     <section className="section">
