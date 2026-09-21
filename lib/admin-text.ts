@@ -18,3 +18,5 @@ export const adminText={
 } as const;
 
 // Admin translations are shared by server and client-safe admin UI.
+
+// Deployment checkpoint: admin client/server translation split is complete.
