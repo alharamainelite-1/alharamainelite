@@ -18,6 +18,7 @@ const copy={
     eliteDesc:'Luxury accommodation, breakfast, Haramain Train economy where applicable, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
     details:'THE DETAILS MATTER',detailsText:'From accommodation and transport to ziyarat and personal support, the confirmed itinerary sets out exactly what is arranged.',
     essentials:['Premium hotels','Private transportation','Haramain Train','Ziyarat & experiences'],
+    essentialDescriptions:['Comfortable stays selected for your confirmed itinerary.','Planned private transfers and journey transport according to the final itinerary.','Included in Elite as economy class where applicable to the journey plan.','Planned ziyarat and experiences are confirmed in your final itinerary.'],
     reviews:'GUEST EXPERIENCES',reviewsTitle:'Real experiences. Real people.',reviewsIntro:'Verified guest reviews will appear here after journeys are completed and reviews are approved.',
     empty:'Your experience can be next.',emptyText:'We do not publish invented testimonials. Once our first guests share verified feedback, their words and city will appear here.',
     destinations:'BEYOND UMRAH',destTitle:'Discover Makkah, Madinah & Jeddah',destText:'The sacred cities and the wider experience, thoughtfully arranged around your journey.',
@@ -34,6 +35,7 @@ const copy={
     eliteDesc:'Hoy luxury ah, quraac, Haramain Train economy marka uu ku habboon yahay, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
     details:'FAAHFAAHINTU WAA MUHIIM',detailsText:'Laga bilaabo hoyga iyo gaadiidka ilaa ziyaraat iyo taageerada qofeed, jadwalka la xaqiijiyay wuxuu si cad u qeexayaa waxa la diyaariyay.',
     essentials:['Hoteello heer sare','Gaadiid gaar ah','Haramain Train','Ziyaraat & khibrado'],
+    essentialDescriptions:['Hoy raaxo leh oo lagu doorto qorshahaaga la xaqiijiyay.','Gaadiid gaar ah oo loo qorsheeyay wareejinta iyo hawlaha safarka.','Waxaa ku jira Elite fasalka economy marka uu ku habboon yahay qorshaha safarka.','Ziyaraat iyo khibrado lagu xaqiijiyay jadwalkaaga kama dambaysta ah.'],
     reviews:'KHIBRADA MARTIDA',reviewsTitle:'Khibrado dhab ah. Dad dhab ah.',reviewsIntro:'Faallooyinka martida la xaqiijiyay waxay halkan kasoo muuqan doonaan marka safarradu dhamaadaan oo la ansixiyo.',
     empty:'Khibraddaadu waxay noqon kartaa tan xigta.',emptyText:'Ma daabacno markhaatiyo la sameeyay. Marka martideenna ugu horreysa ay bixiyaan faallo la xaqiijiyay, magacooda iyo magaaladooda ayaa halkan kasoo muuqan doona.',
     destinations:'WAX KA BADAN CUMRO',destTitle:'Baro Makkah, Madiinah & Jeddah',destText:'Magaalooyinka barakeysan iyo khibradda ku xeeran, si taxaddar leh loogu habeeyay safarkaaga.',
@@ -50,6 +52,7 @@ const copy={
     eliteDesc:'إقامة فاخرة، إفطار، قطار الحرمين الاقتصادي حيث يناسب البرنامج، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
     details:'التفاصيل تصنع الفرق',detailsText:'من الإقامة والتنقلات إلى الزيارات والدعم الشخصي، يوضح البرنامج المؤكد ما تم ترتيبه بالتحديد.',
     essentials:['فنادق راقية','تنقلات خاصة','قطار الحرمين','زيارات وتجارب'],
+    essentialDescriptions:['إقامة مريحة يتم اختيارها وفق البرنامج المؤكد.','تنقلات خاصة للرحلة وفق التفاصيل النهائية المعتمدة.','مشمول في ELITE بالدرجة الاقتصادية حيث يناسب برنامج الرحلة.','الزيارات والتجارب التي يتم اعتمادها تظهر بوضوح في البرنامج النهائي.'],
     reviews:'تجارب الضيوف',reviewsTitle:'تجارب حقيقية. أشخاص حقيقيون.',reviewsIntro:'ستظهر تقييمات الضيوف الموثقة هنا بعد إتمام الرحلات ومراجعة التقييمات واعتمادها.',
     empty:'قد تكون تجربتك التالية.',emptyText:'لا ننشر شهادات مختلقة. عندما يشارك ضيوفنا الأوائل تجارب موثقة، سيظهر اسم الضيف ومدينته هنا.',
     destinations:'أكثر من العمرة',destTitle:'اكتشف مكة والمدينة وجدة',destText:'المدن المقدسة وما حول الرحلة، بترتيب مدروس يتناسب مع تجربتك.',
@@ -142,7 +145,7 @@ export default async function Home(){
       <div className="container">
         <SectionHeading eyebrow={c.details} title={c.detailsText}/>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {essentials.map(([label,Icon])=><div key={label} className="card bg-white p-6"><Icon size={23} className="text-gold"/><h3 className="mt-4 font-semibold text-forest">{label}</h3><p className="mt-2 text-sm leading-6 text-forest/55">{t.essentialsText}</p></div>)}
+          {essentials.map(([label,Icon],index)=><div key={label} className="card bg-white p-6"><Icon size={23} className="text-gold"/><h3 className="mt-4 font-semibold text-forest">{label}</h3><p className="mt-2 text-sm leading-6 text-forest/55">{c.essentialDescriptions[index]}</p></div>)}
         </div>
       </div>
     </section>
