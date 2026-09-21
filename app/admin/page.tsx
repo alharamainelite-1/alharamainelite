@@ -1,7 +1,8 @@
 import Link from "next/link";
 import {getSupabaseAdmin} from "@/lib/supabase/server";
 import {getCurrentStaff} from "@/lib/supabase/auth";
-import {getAdminLocale,adminText} from "@/lib/admin-i18n";
+import {getAdminLocale} from "@/lib/admin-locale";
+import {adminText} from "@/lib/admin-text";
 
 export default async function AdminHome(){
  const staff=await getCurrentStaff(); if(!staff)return null;
