@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { getCurrentStaff } from '@/lib/supabase/auth';
 import { AdminLogout } from '@/components/admin/AdminLogout';
 import { AdminLanguageSelector } from '@/components/admin/AdminLanguageSelector';
+import { getAdminLocale, adminText } from '@/lib/admin-i18n';
 
 type NavItem={en:string;ar:string;href:string;roles?:string[]};
 const nav:NavItem[]=[
@@ -26,8 +27,9 @@ const nav:NavItem[]=[
 
 export default async function AdminLayout({children}:{children:React.ReactNode}){
  const staff=await getCurrentStaff();
- if(!staff)return <>{children}</>;
- const locale=(await cookies()).get('he_locale')?.value==='ar'?'ar':'en';
+ const locale=await getAdminLocale();
+ const t=adminText[locale];
+ if(!staff)return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="min-h-screen bg-[#f3f0e7]"><div className="border-b border-forest/10 bg-forest text-white"><div className="container flex min-h-16 items-center justify-between"><Link href="/admin/login" className="font-semibold tracking-wide">ALHARAMAIN ELITE <span className="text-gold">/ ADMIN</span></Link><AdminLanguageSelector/></div></div>{children}</div>;
  const role=staff.profile.role;
  const visibleNav=nav.filter(item=>!item.roles||item.roles.includes(role));
  const label=(item:NavItem)=>locale==='ar'?item.ar:item.en;
@@ -41,13 +43,13 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
       <div>{staff.profile.full_name||staff.user.email}</div>
       <div className="mt-1 text-white/55">{role}</div>
      </div>
-     <AdminLogout/>
+     <AdminLogout locale={locale}/>
     </div>
    </div>
   </div>
   <div className="container grid gap-6 py-6 lg:grid-cols-[240px_1fr]">
    <aside className="card h-fit p-3 lg:sticky lg:top-6">
-    <div className="px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-forest/40">Workspace</div>
+    <div className="px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-forest/40"{t.workspace}</div>
     <nav className="grid gap-1">
      {visibleNav.map(item=><Link key={item.href} href={item.href} className="rounded-xl px-3 py-2.5 text-sm text-forest transition hover:bg-[#f2eee3] hover:text-gold">{label(item)}</Link>)}
     </nav>
