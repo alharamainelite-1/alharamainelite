@@ -1,0 +1,10 @@
+'use client';
+import {useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {getSupabaseBrowser} from '@/lib/supabase/browser';
+
+export default function SetPasswordPage(){
+ const [password,setPassword]=useState(''); const [confirm,setConfirm]=useState(''); const [error,setError]=useState(''); const [busy,setBusy]=useState(false); const router=useRouter();
+ async function submit(e:React.FormEvent){e.preventDefault();setError('');if(password.length<10){setError('Password must be at least 10 characters.');return}if(password!==confirm){setError('Passwords do not match.');return}setBusy(true);const supabase=getSupabaseBrowser();const {data:{user}}=await supabase.auth.getUser();if(!user){setError('This invitation link is no longer active.');setBusy(false);return}const {error:e2}=await supabase.auth.updateUser({password});if(e2)setError(e2.message);else router.replace('/admin');setBusy(false)}
+ return <main className="min-h-screen bg-[#f3f0e7] px-5 py-16"><div className="mx-auto max-w-md card p-8"><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-3 text-4xl text-forest">Set your password</h1><p className="mt-3 text-sm leading-6 text-forest/55">Create your private password to access the staff workspace.</p><form onSubmit={submit} className="mt-7 grid gap-4"><input required type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="New password" className="rounded-xl border border-forest/10 bg-white px-4 py-3 outline-none"/><input required type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Confirm password" className="rounded-xl border border-forest/10 bg-white px-4 py-3 outline-none"/>{error&&<div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</div>}<button disabled={busy} className="btn btn-primary">{busy?'Saving…':'Set password & continue'}</button></form></div></main>;
+}
