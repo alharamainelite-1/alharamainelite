@@ -9,7 +9,8 @@ export default async function JourneyFile({params}:{params:Promise<{id:string}>}
   const s=getSupabaseAdmin();
   const {data:row,error}=await s.from('bookings').select('id,booking_id,guest_count,total_amount,currency,status,payment_status,expected_travel_date,expected_period_start,expected_period_end,notes,created_at,customers(full_name,country,city,whatsapp,email,preferred_language),packages(name,slug,positioning)').eq('id',id).single();
   if(error||!row)return <section className="pb-12"><div className="card p-10"><h1 className="serif text-3xl text-forest">Journey not found</h1><Link className="btn btn-outline mt-6" href="/admin/journeys">Back to journeys</Link></div></section>;
-  const customer=row.customers; const pkg=row.packages;
+  const customer=(Array.isArray(row.customers)?row.customers[0]:row.customers) as {full_name?:string;country?:string;city?:string;whatsapp?:string;email?:string;preferred_language?:string}|null;
+  const pkg=(Array.isArray(row.packages)?row.packages[0]:row.packages) as {name?:string;slug?:string;positioning?:string}|null;
   const period=row.expected_travel_date||row.expected_period_start||(row.expected_period_end?('Until '+row.expected_period_end):'Not set');
   const stage=['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED'].indexOf(row.status);
   const stages=['Request','Sales','Details','Payment','Verified','Confirmed','Preparing','Active','Completed'];
