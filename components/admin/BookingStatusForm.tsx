@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED','CANCELLED'] as const;
+const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','HANDED_TO_OPERATIONS','OPERATIONS_IN_PROGRESS','PREPARING','JOURNEY_READY','ACTIVE','COMPLETED','CANCELLED'] as const;
 
 export function BookingStatusForm({ bookingId, currentStatus, paymentStatus }: { bookingId:string; currentStatus:string; paymentStatus:string }) {
   const [status,setStatus]=useState(currentStatus);
@@ -16,12 +16,11 @@ export function BookingStatusForm({ bookingId, currentStatus, paymentStatus }: {
     setBusy(false);
   }
   const canConfirm = paymentStatus === 'RECEIVED';
-  return <div className="flex min-w-[240px] items-center gap-2">
+  return <div className="flex min-w-[270px] items-center gap-2">
     <select value={status} onChange={e=>setStatus(e.target.value)} className="!py-2 text-xs">
-      {STATUS.map(s=><option key={s} value={s}>{s}</option>)}
-      {canConfirm && <option value="CONFIRMED">CONFIRMED</option>}
+      {STATUS.map(s=><option key={s} value={s}>{s.replaceAll('_',' ')}</option>)}
     </select>
-    <button type="button" disabled={busy} onClick={save} className="btn btn-outline !px-3 !py-2 text-xs">{busy?'Saving…':'Save'}</button>
+    <button type="button" disabled={busy || (status==='CONFIRMED' && !canConfirm)} onClick={save} className="btn btn-outline !px-3 !py-2 text-xs">{busy?'Saving…':'Save'}</button>
     {message && <span className="text-[11px] text-forest/60">{message}</span>}
   </div>;
 }
