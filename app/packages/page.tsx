@@ -13,7 +13,7 @@ const copy={
     eyebrow:'Our Umrah journeys',title:'CHOOSE THE JOURNEY THAT FITS YOUR PEOPLE.',intro:'Two clear journeys. One thoughtful standard. Select the level that fits your group, see exactly what is included, then request your dates.',perGuest:'per guest',
     best:'Best for',signatureBest:'Guests who want premium comfort, clear arrangements and a calm small-group experience.',eliteBest:'Guests who want a higher level of accommodation and the added convenience of the Haramain Train where applicable.',
     notIncluded:'Always clear',notText:'International flights, personal expenses and any service not expressly confirmed in your final itinerary are not included.',
-    request:'Plan this journey',compare:'At a glance',compareText:'Both journeys share the same thoughtful foundation. ELITE adds a higher accommodation level and Haramain Train economy class where applicable.',
+    request:'Plan this journey',compare:'At a glance',compareText:'Both journeys share the same thoughtful foundation. ELITE adds a higher accommodation level and Haramain Train where applicable.',
     processTitle:'FROM INTEREST TO JOURNEY',process:[['01','Choose','Select Signature or Elite and tell us how many guests are travelling.'],['02','Share your period','You can give an expected date or an approximate travel period. A confirmed flight date is not required.'],['03','Speak with us','We review your request and continue the details with you on WhatsApp.'],['04','Confirm','Your final itinerary and payment instructions are provided before the booking is confirmed.']],
     note:'No hidden package price. Your estimate is simply price × guests.'
   },
@@ -21,7 +21,7 @@ const copy={
     eyebrow:'Safarradeenna Cumrada',title:'DOORO SAFARKA KU HABBOON DADKAAGA.',intro:'Laba safar oo cad. Hal heer oo taxaddar leh. Dooro heerka ku habboon kooxdaada, arag waxa ku jira, kadibna codso muddada safarka.',perGuest:'qofkiiba',
     best:'Ku habboon',signatureBest:'Martida rabta raaxo heer sare ah, qorshe cad iyo khibrad koox yar oo deggan.',eliteBest:'Martida rabta hoy heer sare ah iyo faa’iidada Haramain Train marka uu ku habboon yahay qorshaha.',
     notIncluded:'Wax walba si cad',notText:'Duulimaadyada caalamiga ah, kharashaadka gaarka ah iyo adeeg kasta oo aan si cad loogu xaqiijin jadwalka ugu dambeeya kuma jiraan.',
-    request:'Qorshee safarkan',compare:'Marka la soo koobo',compareText:'Labada safar waxay wadaagaan aasaas isku mid ah. ELITE wuxuu ku daraa heer hoy oo sare iyo Haramain Train economy marka uu ku habboon yahay.',
+    request:'Qorshee safarkan',compare:'Marka la soo koobo',compareText:'Labada safar waxay wadaagaan aasaas isku mid ah. ELITE wuxuu ku daraa heer hoy oo sare iyo Haramain Train marka uu ku habboon yahay.',
     processTitle:'LAGA BILAABO XIISAHA ILAA SAFARKA',process:[['01','Dooro','Dooro Signature ama Elite oo sheeg tirada martida.'],['02','Sheeg muddada','Waxaad bixin kartaa taariikh la filayo ama muddo qiyaas ah. Taariikh duulimaad la xaqiijiyay looma baahna.'],['03','Nala hadal','Waxaan dib u eegaynaa codsigaaga, kadibna faahfaahinta kula sii wadaynaa WhatsApp.'],['04','Xaqiiji','Jadwalka ugu dambeeya iyo tilmaamaha lacag-bixinta ayaa lagu siinayaa ka hor xaqiijinta booking-ka.']],
     note:'Qiime qarsoon ma jiro. Qiyaastu waa qiimaha qofkiiba × tirada martida.'
   },
