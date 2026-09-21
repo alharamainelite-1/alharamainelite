@@ -24,7 +24,7 @@ const copy={
     makkah:'The Sacred Mosque',madinah:'The Prophet’s Mosque',jeddah:'Culture & the Red Sea',explore:'Explore',
     process:'FROM INTEREST TO JOURNEY',request:'Request your journey',chat:'Chat on WhatsApp',
     steps:[['01','Choose','Select Signature or Elite.'],['02','Tell us your people','Choose 1–8 guests and your expected travel period.'],['03','Speak with us','We review the request and continue with you directly.'],['04','Confirm','Your final itinerary and payment instructions come before confirmation.']],
-    highlights:['Premium service','Small groups','Personal support','Thoughtful planning']
+    highlights:['Premium service','Small groups','Personal support','Thoughtful planning'],statsTitle:'OUR JOURNEY SO FAR',completed:'Completed journeys',served:'Guests served',launching:'Now welcoming our first journeys'
   },
   so:{
     journeys:'SAFARRADEENNA CUMRADA',choose:'DOORO SAFARKA KU HABBOON DADKAAGA.',packageIntro:'Laba safar oo cad. Qiime cad. Qorshe taxaddar leh oo loogu talagalay kooxo yaryar.',
@@ -40,7 +40,7 @@ const copy={
     makkah:'Masjidka Xaramka',madinah:'Masjidka Nabiga',jeddah:'Dhaqanka & Badda Cas',explore:'Sahami',
     process:'LAGA BILAABO XIISAHA ILAA SAFARKA',request:'Codso safarkaaga',chat:'Nala hadal WhatsApp',
     steps:[['01','Dooro','Dooro Signature ama Elite.'],['02','Sheeg dadkaaga','Dooro 1–8 marti iyo muddada aad filayso.'],['03','Nala hadal','Waxaan dib u eegaynaa codsiga oo si toos ah ayaan kula sii wadaynaa.'],['04','Xaqiiji','Jadwalka ugu dambeeya iyo tilmaamaha lacag-bixinta ayaa yimaada ka hor xaqiijinta.']],
-    highlights:['Adeeg heer sare ah','Kooxo yaryar','Taageero qofeed','Qorshe taxaddar leh']
+    highlights:['Adeeg heer sare ah','Kooxo yaryar','Taageero qofeed','Qorshe taxaddar leh'],statsTitle:'SAFARKEENNA ILLAA HADDANA',completed:'Safarro la dhammeeyay',served:'Marti la adeegay',launching:'Hadda waxaan soo dhoweynaynaa safarradii ugu horreeyay'
   },
   ar:{
     journeys:'رحلات العمرة لدينا',choose:'اختر الرحلة التي تناسب مجموعتك.',packageIntro:'رحلتان واضحتان. أسعار شفافة. وترتيبات مدروسة للمجموعات الصغيرة.',
@@ -56,7 +56,7 @@ const copy={
     makkah:'المسجد الحرام',madinah:'المسجد النبوي',jeddah:'الثقافة والبحر الأحمر',explore:'استكشف',
     process:'من الاهتمام إلى الرحلة',request:'اطلب رحلتك',chat:'تحدث معنا عبر واتساب',
     steps:[['01','اختر','اختر SIGNATURE أو ELITE.'],['02','أخبرنا عن مجموعتك','حدد 1–8 ضيوف والفترة المتوقعة للسفر.'],['03','تحدث معنا','نراجع الطلب ونكمل معك مباشرة.'],['04','أكد','يصلك البرنامج النهائي وتعليمات الدفع قبل تأكيد الحجز.']],
-    highlights:['خدمة راقية','مجموعات صغيرة','دعم شخصي','تخطيط مدروس']
+    highlights:['خدمة راقية','مجموعات صغيرة','دعم شخصي','تخطيط مدروس'],statsTitle:'رحلتنا حتى الآن',completed:'رحلات مكتملة',served:'ضيوف تم خدمتهم',launching:'نرحب الآن بأولى رحلاتنا'
   }
 } as const;
 
@@ -73,6 +73,8 @@ export default async function Home(){
   }catch{reviews=[]}
 
   const highlights=[[c.highlights[0],ShieldCheck],[c.highlights[1],Users],[c.highlights[2],HeartHandshake],[c.highlights[3],MapPinned]] as const;
+  let completedJourneys=0; let guestsServed=0;
+  try{const {data}=await getSupabasePublicServer().from('bookings').select('guest_count,status').eq('status','COMPLETED'); completedJourneys=data?.length||0; guestsServed=(data||[]).reduce((sum:number,row:any)=>sum+(Number(row.guest_count)||0),0);}catch{}
   const essentials=[[c.essentials[0],Hotel],[c.essentials[1],Car],[c.essentials[2],TrainFront],[c.essentials[3],MapPinned]] as const;
   const packages=[
     {name:'SIGNATURE',price:'$2,000',tag:c.premium,title:c.signature,desc:c.signatureDesc,image:hero,href:'/packages/signature'},
@@ -101,6 +103,17 @@ export default async function Home(){
     <section className="border-b border-forest/10 bg-white py-5">
       <div className="container grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         {highlights.map(([label,Icon])=><div key={label} className="flex items-center gap-3 text-sm text-forest/70"><Icon size={19} className="text-gold"/><span>{label}</span></div>)}
+      </div>
+    </section>
+
+    <section className="border-y border-forest/10 bg-[#f7f3ea] py-8">
+      <div className="container">
+        <div className="eyebrow">{c.statsTitle}</div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="card bg-white p-6"><div className="serif text-4xl text-forest">{completedJourneys}</div><div className="mt-2 text-sm text-forest/60">{c.completed}</div></div>
+          <div className="card bg-white p-6"><div className="serif text-4xl text-forest">{guestsServed}</div><div className="mt-2 text-sm text-forest/60">{c.served}</div></div>
+          <div className="card bg-forest p-6 text-white sm:col-span-2 lg:col-span-1"><div className="serif text-2xl">{c.launching}</div><div className="mt-2 text-sm text-white/60">{locale==='ar'?'الأرقام تتحدث تلقائيًا عند اكتمال رحلات حقيقية واعتمادها.':locale==='so'?'Tirooyinku si toos ah ayay u cusboonaysmaan marka safarro dhab ah la dhammeeyo.':'Numbers update automatically as real journeys are completed.'}</div></div>
+        </div>
       </div>
     </section>
 
