@@ -82,7 +82,12 @@ export default async function Home(){
   }catch{reviews=[]}
 
   const highlights=[[c.highlights[0],ShieldCheck],[c.highlights[1],Users],[c.highlights[2],HeartHandshake],[c.highlights[3],MapPinned]] as const;
-  const essentials=[[c.essentials[0],Hotel],[c.essentials[1],Car],[c.essentials[2],TrainFront],[c.essentials[3],MapPinned]] as const;
+  const serviceCards=[
+    {label:c.essentials[0],description:c.essentialDescriptions[0],Icon:Hotel,image:serviceImages.hotel,href:'/hotels'},
+    {label:c.essentials[1],description:c.essentialDescriptions[1],Icon:Car,image:serviceImages.transport,href:'/transportation'},
+    {label:c.essentials[2],description:c.essentialDescriptions[2],Icon:TrainFront,image:serviceImages.train,href:'/transportation'},
+    {label:c.essentials[3],description:c.essentialDescriptions[3],Icon:MapPinned,image:serviceImages.jeddah,href:'/jeddah'},
+  ] as const;
   // Launch presentation uses service facts instead of empty historical counters.
   const packages=[
     {name:'SIGNATURE',price:'$2,000',tag:c.premium,title:c.signature,desc:c.signatureDesc,image:hero,href:'/packages/signature'},
@@ -151,25 +156,19 @@ export default async function Home(){
       <div className="container">
         <SectionHeading eyebrow={c.details} title={c.detailsText}/>
         <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {essentials.map(([label,Icon],index)=>{
-            const images=[serviceImages.hotel,serviceImages.transport,serviceImages.train,serviceImages.jeddah];
-            const links=['/hotels','/transportation','/transportation','/jeddah'];
-            const imageAlts=[label,label,label,label];
-            return <Link href={links[index]} key={label} className="group overflow-hidden rounded-[24px] border border-forest/10 bg-white shadow-[0_18px_60px_rgba(6,63,53,.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_25px_70px_rgba(6,63,53,.12)]">
-              <div className="relative h-52 overflow-hidden md:h-56">
-                <img src={images[index]} alt={imageAlts[index]} className="h-full w-full object-cover transition duration-700 group-hover:scale-105"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"/>
-                <span className="absolute bottom-4 left-4 flex h-14 w-14 items-center justify-center rounded-full border border-white/70 bg-white text-forest shadow-lg"><Icon size={24} className="text-gold"/></span>
-              </div>
-              <div className="p-6 md:p-7">
-                <h3 className="serif text-2xl text-forest">{label}</h3>
-                <p className="mt-3 text-sm leading-7 text-forest/60">{c.essentialDescriptions[index]}</p>
-                <span className="mt-5 inline-flex items-center text-sm font-semibold text-gold">{c.explore} <ArrowRight size={16} className="ml-2 transition group-hover:translate-x-1"/></span>
-              </div>
-            </Link>;
-          })}
-        </div>
-      </div>
+          {serviceCards.map((card)=><Link href={card.href} key={card.label} className="group overflow-hidden rounded-[24px] border border-forest/10 bg-white shadow-[0_18px_60px_rgba(6,63,53,.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_25px_70px_rgba(6,63,53,.12)]">
+            <div className="relative h-52 overflow-hidden md:h-56">
+              <img src={card.image} alt={card.label} className="h-full w-full object-cover transition duration-700 group-hover:scale-105"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"/>
+              <span className="absolute bottom-4 left-4 flex h-14 w-14 items-center justify-center rounded-full border border-white/70 bg-white text-forest shadow-lg"><card.Icon size={24} className="text-gold"/></span>
+            </div>
+            <div className="p-6 md:p-7">
+              <h3 className="serif text-2xl text-forest">{card.label}</h3>
+              <p className="mt-3 text-sm leading-7 text-forest/60">{card.description}</p>
+              <span className="mt-5 inline-flex items-center text-sm font-semibold text-gold">{c.explore} <ArrowRight size={16} className="ml-2 transition group-hover:translate-x-1"/></span>
+            </div>
+          </Link>)}
+        </div>      </div>
     </section>
 
     <section className="section">
