@@ -3,10 +3,12 @@ import Image from 'next/image';
 import {notFound} from 'next/navigation';
 import {cookies} from 'next/headers';
 import {packages} from '@/lib/site';
-import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
+import {defaultLocale,isLocale} from '@/lib/i18n';
 import type {Metadata} from 'next';
-import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane, ArrowRight} from 'lucide-react';
+import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane} from 'lucide-react';
+
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
+
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}): Promise<Metadata> {
   const {slug}=await params;
   const p=packages[slug as 'signature'|'elite'];
@@ -15,7 +17,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   const description=slug==='elite'
     ? 'ELITE is a 10-day / 9-night premium Umrah journey at $2,500 per guest, designed for small groups.'
     : 'SIGNATURE is a 10-day / 9-night premium Umrah journey at $2,000 per guest, designed for small groups.';
-  return { title, description, alternates:{canonical:`/packages/${slug}`}, openGraph:{title,description,type:'website'} };
+  return {title,description,alternates:{canonical:`/packages/${slug}`},openGraph:{title,description,type:'website'}};
 }
 
 const labels={
@@ -91,4 +93,96 @@ const labels={
     eliteExtra:[['قطار الحرمين','تشمل ELITE رحلة قطار الحرمين حيث يناسب برنامج الرحلة المؤكد.']],
     notList:['الرحلات الدولية']
   }
-};}
+} as const;
+
+export default async function PackagePage({params}:{params:Promise<{slug:string}>}){
+  const {slug}=await params;
+  const p=packages[slug as 'signature'|'elite'];
+  if(!p) notFound();
+  const raw=(await cookies()).get('he_locale')?.value;
+  const l=isLocale(raw)?raw:defaultLocale;
+  const t=labels[l];
+  const positioning=l==='ar'
+    ? (slug==='elite'?'مستوى أعلى من الإقامة والتجربة، مع قطار الحرمين حيث يناسب البرنامج.':'راحة راقية وتجربة عمرة متكاملة، مرتبة بعناية للمجموعات الصغيرة.')
+    : l==='so'
+      ? (slug==='elite'?'Heer sare oo hoy iyo khibrad ah, oo ay ku jirto Haramain Train marka uu ku habboon yahay.':'Raaxo heer sare ah iyo safar Cumro oo dhammaystiran, si taxaddar leh loogu diyaariyay kooxo yaryar.')
+      : p.positioning;
+  const icons=[Hotel,Utensils,Car,MapPinned,MapPinned,Smartphone,Headphones] as const;
+
+  return <div>
+    <section className='relative overflow-hidden bg-forest text-white'>
+      <Image src={hero} alt='Makkah' fill priority className='object-cover opacity-30' sizes='100vw'/>
+      <div className='absolute inset-0 bg-forest/80'/>
+      <div className='container relative max-w-5xl py-28'>
+        <div className='eyebrow'>{p.name}</div>
+        <h1 className='serif mt-4 text-7xl'>{p.name}</h1>
+        <div className='mt-6 flex items-end gap-3'>
+          <span className='serif text-6xl text-gold'>{'$'+p.price.toLocaleString()}</span>
+          <span className='pb-2 text-white/60'>{l==='ar'?'/ ضيف':l==='so'?'/ marti':'/ guest'}</span>
+        </div>
+        <p className='mt-6 max-w-2xl text-lg leading-8 text-white/75'>{positioning}</p>
+        <p className='mt-3 text-sm text-white/55'>{t.duration} · {t.flights}</p>
+      </div>
+    </section>
+
+    <section className='section bg-ivory'>
+      <div className='container'>
+        <div className='max-w-3xl'>
+          <div className='eyebrow'>{p.name}</div>
+          <h2 className='serif mt-3 text-5xl text-forest'>{t.included}</h2>
+          <p className='mt-4 text-lg leading-8 text-forest/65'>{t.includedIntro}</p>
+        </div>
+
+        <div className='mt-12 grid gap-10 lg:grid-cols-[1fr_360px]'>
+          <div>
+            <div className='flex items-center gap-3'>
+              <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold'><Check size={20}/></div>
+              <h3 className='serif text-3xl text-forest'>{t.coreTitle}</h3>
+            </div>
+
+            <div className='mt-6 grid gap-4 sm:grid-cols-2'>
+              {t.features.map(([title,desc],i)=>{
+                const Icon=icons[i];
+                return <div key={title} className='group rounded-2xl border border-forest/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg'>
+                  <div className='flex items-start gap-4'>
+                    <div className='flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-forest text-gold'><Icon size={20}/></div>
+                    <div><h4 className='font-semibold text-forest'>{title}</h4><p className='mt-2 text-sm leading-6 text-forest/60'>{desc}</p></div>
+                  </div>
+                </div>;
+              })}
+            </div>
+
+            <div className='mt-10 rounded-2xl border border-gold/35 bg-white p-6'>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold'><Train size={20}/></div>
+                <h3 className='serif text-2xl text-forest'>{t.eliteTitle}</h3>
+              </div>
+              <div className='mt-5 grid gap-4'>
+                {(slug==='elite'?t.eliteExtra:[]).map(([title,desc])=><div key={title} className='flex gap-4 rounded-xl bg-ivory p-5'>
+                  <div className='mt-1 text-gold'><Check size={18}/></div>
+                  <div><h4 className='font-semibold text-forest'>{title}</h4><p className='mt-1 text-sm leading-6 text-forest/60'>{desc}</p></div>
+                </div>)}
+              </div>
+              {slug==='signature'&&<p className='mt-4 text-sm text-forest/55'>{l==='ar'?'تتضمن SIGNATURE جميع المزايا الأساسية الموضحة أعلاه.':l==='so'?'SIGNATURE wuxuu leeyahay dhammaan adeegyada muhiimka ah ee kor ku xusan.':'SIGNATURE includes all of the core inclusions listed above.'}</p>}
+            </div>
+
+            <div className='mt-10 rounded-2xl border border-forest/10 bg-white p-6'>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-full bg-forest text-gold'><Plane size={19}/></div>
+                <div><h3 className='font-semibold text-forest'>{t.not}</h3><p className='mt-1 text-sm text-forest/55'>{t.notIntro}</p></div>
+              </div>
+              <div className='mt-5 flex items-center gap-3 border-t border-forest/10 pt-4 text-forest/75'><Plane size={17} className='text-gold'/><span>{t.notList[0]}</span></div>
+            </div>
+          </div>
+
+          <aside className='card h-fit p-7 lg:sticky lg:top-28'>
+            <div className='eyebrow'>{t.ready}</div>
+            <p className='mt-4 leading-7 text-forest/65'>{l==='ar'?'لا تحتاج إلى تاريخ رحلة مؤكد للبدء. شاركنا الفترة المتوقعة وسيتواصل معك فريقنا.':l==='so'?'Uma baahnid taariikh duulimaad la xaqiijiyay. Sheeg muddada aad filayso, kooxdayaduna way kula soo xiriiri doontaa.':'You do not need a confirmed flight date to start. Share your expected travel date or period and our team will contact you personally. There is no need to have your international flight booked yet.'}</p>
+            <Link href={'/request-journey?package='+slug} className='btn btn-primary mt-6 w-full'>{t.request}</Link>
+            <Link href='/packages' className='btn btn-outline mt-3 w-full'>{t.compare}</Link>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </div>;
+}
