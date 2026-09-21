@@ -10,7 +10,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   const {slug}=await params;
   const p=packages[slug as 'signature'|'elite'];
   if(!p) return {};
-  const title=`${p.name} Umrah Journey — ${p.price.toLocaleString()} per guest | ALHARAMAIN ELITE`;
+  const title=`${p.name} Umrah Journey — $${p.price.toLocaleString()} per guest`;
   const description=slug==='elite'
     ? 'ELITE is a 10-day / 9-night premium Umrah journey at $2,500 per guest, designed for small groups.'
     : 'SIGNATURE is a 10-day / 9-night premium Umrah journey at $2,000 per guest, designed for small groups.';
