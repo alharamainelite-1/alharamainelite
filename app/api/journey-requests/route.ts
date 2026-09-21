@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       p_preferred_language: v.preferredLanguage, p_package_slug: v.packageSlug, p_guest_count: v.guestCount,
       p_expected_travel_date: v.expectedTravelDate || null, p_expected_period_start: v.expectedPeriodStart || null,
       p_expected_period_end: v.expectedPeriodEnd || null, p_expected_period_label: v.expectedPeriodLabel || null,
-      p_additional_notes: v.additionalNotes || null,
+      p_additional_notes: v.additionalNotes || null, p_lead_source: v.leadSource,
     });
     if (error || !data) { console.error('journey_request_rpc_error', error); return NextResponse.json({ error: 'We could not receive your request right now. Please try again.' }, { status: 500 }); }
     return NextResponse.json({ reference: data.reference, bookingId: data.booking_id, total: Number(data.estimated_total), currency: data.currency }, { status: 201 });
