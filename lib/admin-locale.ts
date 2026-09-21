@@ -5,3 +5,4 @@ export async function getAdminLocale():Promise<AdminLocale>{
 }
 
 // Production deployment checkpoint.
+// Vercel production trigger.
