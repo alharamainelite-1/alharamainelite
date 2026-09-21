@@ -113,7 +113,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
     <section className='relative overflow-hidden bg-forest text-white'>
       <Image src={hero} alt='Makkah' fill priority className='object-cover opacity-30' sizes='100vw'/>
       <div className='absolute inset-0 bg-forest/80'/>
-      <div className='container relative max-w-5xl py-28'>
+      <div className='container relative py-28 md:py-32'>
         <div className='eyebrow'>{p.name}</div>
         <h1 className='serif mt-4 text-7xl'>{p.name}</h1>
         <div className='mt-6 flex items-end gap-3'>
