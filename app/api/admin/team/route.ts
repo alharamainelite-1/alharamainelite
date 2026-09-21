@@ -17,8 +17,8 @@ export async function GET(){
   const {data,error}=await admin.auth.admin.listUsers({page:1,perPage:100});
   if(error)return NextResponse.json({error:error.message},{status:500});
   const ids=(data.users||[]).map(u=>u.id);
-  const {data:profiles,pError}=await admin.from('profiles').select('id,full_name,role,phone,created_at,updated_at').in('id',ids);
-  if(pError)return NextResponse.json({error:pError.message},{status:500});
+  const {data:profiles,error:profileError}=await admin.from('profiles').select('id,full_name,role,phone,created_at,updated_at').in('id',ids);
+  if(profileError)return NextResponse.json({error:profileError.message},{status:500});
   const byId=new Map((profiles||[]).map(p=>[p.id,p]));
   return NextResponse.json({users:(data.users||[]).map(u=>{const p=byId.get(u.id);return {id:u.id,email:u.email||'',full_name:p?.full_name||u.user_metadata?.full_name||'',phone:p?.phone||'',role:p?.role||'SALES',created_at:p?.created_at||u.created_at,email_confirmed:!!u.email_confirmed_at,banned:!!u.banned_until};})});
 }
