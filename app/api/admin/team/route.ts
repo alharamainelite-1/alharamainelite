@@ -63,7 +63,6 @@ export async function PATCH(req:Request){
     if(!active){
       const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');
       if((count||0)<=1){
-        const {data:u}=await admin.auth.admin.getUserById(userId);
         const profile=await admin.from('profiles').select('role').eq('id',userId).maybeSingle();
         if(profile.data?.role==='SUPER_ADMIN')return NextResponse.json({error:'The last Super Admin cannot be deactivated.'},{status:409});
       }
