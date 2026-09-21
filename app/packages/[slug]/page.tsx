@@ -4,7 +4,19 @@ import {notFound} from 'next/navigation';
 import {cookies} from 'next/headers';
 import {packages,features,eliteExtra} from '@/lib/site';
 import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
+import type {Metadata} from 'next';
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}): Promise<Metadata> {
+  const {slug}=await params;
+  const p=packages[slug as 'signature'|'elite'];
+  if(!p) return {};
+  const title=`${p.name} Umrah Journey — ${p.price.toLocaleString()} per guest | ALHARAMAIN ELITE`;
+  const description=slug==='elite'
+    ? 'Explore the ELITE 10-day / 9-night premium Umrah journey at $2,500 per guest, designed for small groups.'
+    : 'Explore the SIGNATURE 10-day / 9-night premium Umrah journey at $2,000 per guest, designed for small groups.';
+  return { title, description, alternates:{canonical:`/packages/${slug}`}, openGraph:{title,description,type:'website'} };
+}
+
 const labels={en:{included:'Included',not:'Not included',ready:'Ready when you are',request:'Request this journey',compare:'Compare packages',notList:['International flights','Personal expenses','Any service not expressly confirmed in your final itinerary']},so:{included:'Waxa ku jira',not:'Kuma jiraan',ready:'Markaad diyaar tahay',request:'Codso safarkan',compare:'Is barbar dhig safarrada',notList:['Duulimaadyada caalamiga ah','Kharashaadka gaarka ah','Adeeg kasta oo aan si cad loogu xaqiijin jadwalkaaga']},ar:{included:'يشمل',not:'لا يشمل',ready:'عندما تكون مستعدًا',request:'اطلب هذه الرحلة',compare:'مقارنة الرحلات',notList:['الرحلات الدولية','المصاريف الشخصية','أي خدمة لم يتم تأكيدها صراحة في برنامجك النهائي']}};
 export default async function PackagePage({params}:{params:Promise<{slug:string}>}){
 const {slug}=await params; const p=packages[slug as 'signature'|'elite']; if(!p)notFound();
