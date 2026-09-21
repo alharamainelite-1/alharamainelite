@@ -4,6 +4,7 @@ const optionalDate = z.string().trim().refine((value) => !value || /^\d{4}-\d{2}
 
 export const journeyRequestSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
+  leadSource: z.enum(['PUBLIC','WOMENS_UMRAH']).default('PUBLIC'),
   whatsapp: z.string().trim().min(7).max(30),
   email: z.string().trim().email().max(160).optional().or(z.literal('')),
   country: z.string().trim().min(2).max(80),
