@@ -70,7 +70,7 @@ export function PriceCalculator(){
 
         <div className="mt-8 border-t border-forest/10 pt-7">
           <div className="text-xs font-bold tracking-[.18em] text-gold">ESTIMATED JOURNEY TOTAL</div>
-          <div className="serif mt-2 text-5xl text-forest">\$${total.toLocaleString()}</div>
+          <div className="serif mt-2 text-5xl text-forest">${total.toLocaleString()}</div>
           <p className="mt-2 text-sm text-forest/55">Transparent journey estimate. Flights are not included.</p>
           <Link
             href={'/request-journey?package='+pkg+'&guests='+guests}
