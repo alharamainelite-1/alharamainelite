@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
-import {adminText} from '@/lib/admin-i18n';
+import {adminText} from '@/lib/admin-text';
 
 type Role='SUPER_ADMIN'|'ADMIN'|'OPERATIONS_MANAGER'|'OPERATIONS'|'SALES'|'FINANCE'|'HOST';
 type User={id:string;email:string;full_name:string;phone:string;role:Role;created_at:string;email_confirmed:boolean;banned:boolean};
