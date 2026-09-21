@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   openGraph: { title: 'ALHARAMAIN ELITE — A Journey Worth Remembering.', description: siteConfig.description, type: 'website', siteName: 'ALHARAMAIN ELITE' },
   robots: { index: true, follow: true },
+  alternates: { canonical: '/' },
   verification: { google: 'I8fq5FxZOgeBrw6JZfWTaS7GNpChbxA36iNidqaP5VM' },
 };
 
