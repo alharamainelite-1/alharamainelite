@@ -8,20 +8,19 @@ type NavItem={en:string;ar:string;href:string;roles?:string[]};
 const nav:NavItem[]=[
  {en:'Dashboard',ar:'لوحة التحكم',href:'/admin'},
  {en:'Journey Requests',ar:'طلبات الرحلات',href:'/admin/requests',roles:['SUPER_ADMIN','ADMIN','SALES']},
- {en:'Customers / Guests',ar:'العملاء والضيوف',href:'/admin/guests',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
+ {en:'Customers',ar:'العملاء',href:'/admin/guests',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
+ {en:'Journeys',ar:'الرحلات',href:'/admin/journeys',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
  {en:'Bookings',ar:'الحجوزات',href:'/admin/bookings',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
  {en:'Operations',ar:'العمليات والمهام',href:'/admin/operations',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
  {en:'Groups',ar:'المجموعات',href:'/admin/groups',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Hotels',ar:'الفنادق',href:'/admin/hotels',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Transportation',ar:'النقل',href:'/admin/transportation',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Train',ar:'القطار',href:'/admin/train',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Hosts',ar:'المضيفون',href:'/admin/hosts',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
+ {en:'Resources',ar:'الموارد',href:'/admin/operations',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
  {en:'Payments',ar:'المدفوعات',href:'/admin/payments',roles:['SUPER_ADMIN','ADMIN','SALES','FINANCE']},
  {en:'Expenses',ar:'المصروفات',href:'/admin/expenses',roles:['SUPER_ADMIN','ADMIN','FINANCE']},
  {en:'Reports',ar:'التقارير',href:'/admin/reports',roles:['SUPER_ADMIN','ADMIN']},
  {en:'Audit Logs',ar:'سجل النشاط',href:'/admin/audit-logs',roles:['SUPER_ADMIN','ADMIN']},
  {en:'Communications',ar:'التواصل',href:'/admin/communications',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
  {en:'Reviews',ar:'التقييمات',href:'/admin/reviews',roles:['SUPER_ADMIN','ADMIN']},
+ {en:'Team & Permissions',ar:'الفريق والصلاحيات',href:'/admin/team',roles:['SUPER_ADMIN']},
  {en:'Settings',ar:'الإعدادات',href:'/admin/settings',roles:['SUPER_ADMIN','ADMIN']}
 ];
 
