@@ -13,7 +13,7 @@ export default async function AdminHome(){
   if([r,a,p,d,t,pay,j].some(x=>x.error))throw new Error("Unable to load live dashboard data.");
   stats={requests:r.count||0,active:a.count||0,pendingPayments:p.count||0,completed:d.count||0,overdue:t.count||0,revenue:((pay.data||[]) as any[]).filter(x=>x.status==="RECEIVED").reduce((n,x)=>n+Number(x.amount),0)}; recent=j.data||[];
  }catch(e){error=e instanceof Error?e.message:"Unable to load dashboard."}
- const isSales=role==="SALES"; const isOps=role==="{t.operationsLabel}_MANAGER"||role==="{t.operationsLabel}";
+ const isSales=role==="SALES"; const isOps=role==="OPERATIONS_MANAGER"||role==="OPERATIONS";
  const title=isSales?t.sales:isOps?t.ops:t.executive;
  const intro=isSales?t.salesIntro:isOps?t.opsIntro:t.execIntro;
  return <section className="pb-12"><div className="container">
@@ -34,6 +34,6 @@ export default async function AdminHome(){
     <div className="card p-6"><div className="eyebrow">{t.businessSnapshot}</div><div className="mt-4 grid gap-4"><div className="flex justify-between border-b border-forest/10 pb-3"><span className="text-sm text-forest/55">{t.paymentsReceived}</span><b className="text-forest">USD {stats.revenue.toLocaleString()}</b></div><div className="flex justify-between"><span className="text-sm text-forest/55">{t.completedJourneys}</span><b className="text-forest">{stats.completed}</b></div></div></div>
    </div>
   </div>
-  <div className="mt-8 card p-6"><div className="eyebrow">{t.operatingModel}</div><div className="mt-4 grid gap-3 md:grid-cols-4">{[["1","{t.inbox}","{t.followup}","/admin/requests"],["2","{t.journeyFile}","{t.customerBooking}","/admin/journeys"],["3","{t.operationsLabel}","{t.readiness}","/admin/operations"],["4","{t.management}","{t.financeTeam}","/admin/team"]].map(([n,k,d,h])=><Link href={h} key={k} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{n}</div><div className="mt-2 font-semibold text-forest">{k}</div><div className="mt-1 text-xs text-forest/50">{d}</div></Link>)}</div></div>
+  <div className="mt-8 card p-6"><div className="eyebrow">{t.operatingModel}</div><div className="mt-4 grid gap-3 md:grid-cols-4">{[["1",t.inbox,t.followup,"/admin/requests"],["2",t.journeyFile,t.customerBooking,"/admin/journeys"],["3",t.operationsLabel,t.readiness,"/admin/operations"],["4",t.management,t.financeTeam,"/admin/team"]].map(([n,k,d,h])=><Link href={h} key={k} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{n}</div><div className="mt-2 font-semibold text-forest">{k}</div><div className="mt-1 text-xs text-forest/50">{d}</div></Link>)}</div></div>
  </div></section>
 }
