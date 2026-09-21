@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','HANDED_TO_OPERATIONS','OPERATIONS_IN_PROGRESS','PREPARING','JOURNEY_READY','ACTIVE','COMPLETED','CANCELLED'] as const;
 const ALLOWED: Record<string,string[]> = {
-  SALES: ['CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','HANDED_TO_OPERATIONS','CANCELLED'],
+  SALES: ['CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','HANDED_TO_OPERATIONS','CANCELLED'],
   FINANCE: ['PAYMENT_RECEIVED','PAYMENT_PENDING'],
   OPERATIONS_MANAGER: ['OPERATIONS_IN_PROGRESS','PREPARING','JOURNEY_READY','ACTIVE','COMPLETED','CANCELLED'],
   OPERATIONS: ['OPERATIONS_IN_PROGRESS','PREPARING','JOURNEY_READY','ACTIVE','COMPLETED'],
@@ -23,6 +23,7 @@ export async function PATCH(req: Request) {
   const supabase = getSupabaseAdmin();
   const { data: before, error: readError } = await supabase.from('bookings').select('*').eq('id', body.bookingId).single();
   if (readError || !before) return NextResponse.json({ error: 'Booking not found.' }, { status: 404 });
+  if (body.status === 'PAYMENT_RECEIVED' && before.payment_status !== 'RECEIVED') return NextResponse.json({ error: 'Payment must be verified through Finance before marking a booking as payment received.' }, { status: 409 });
   if (body.status === 'CONFIRMED' && before.payment_status !== 'RECEIVED') return NextResponse.json({ error: 'A booking can only be confirmed after finance marks payment as received.' }, { status: 409 });
   if (body.status === 'HANDED_TO_OPERATIONS' && before.payment_status !== 'RECEIVED') return NextResponse.json({ error: 'Complete payment verification before handing a booking to operations.' }, { status: 409 });
   const update: Record<string, unknown> = { status: body.status, updated_at: new Date().toISOString() };
