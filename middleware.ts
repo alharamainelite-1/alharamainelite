@@ -25,6 +25,8 @@ export async function middleware(req: NextRequest){
   res.headers.set('x-content-type-options','nosniff');
   res.headers.set('referrer-policy','strict-origin-when-cross-origin');
   res.headers.set('permissions-policy','camera=(), microphone=(), geolocation=()');
+  res.headers.set('content-security-policy',"default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https://images.pexels.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://vpeagpnsljoaaafrtbed.supabase.co https://www.google-analytics.com; frame-src 'self';");
+  if(req.nextUrl.pathname==='/favicon.ico') return NextResponse.redirect(new URL('/brand/alharamainelite-logo.png',req.url));
   if(req.nextUrl.pathname.startsWith('/admin') && !req.nextUrl.pathname.startsWith('/admin/login')){
     const url=process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://vpeagpnsljoaaafrtbed.supabase.co';
     const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ['sb_publishable_', 'x3cFwO1f_', 'MB4mnfS2uqNfg_9CvxRZE_'].join('');
