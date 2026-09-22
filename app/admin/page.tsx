@@ -17,16 +17,16 @@ export default async function AdminHome(){
  const isSales=role==="SALES"; const isOps=role==="OPERATIONS_MANAGER"||role==="OPERATIONS";
  const title=isSales?t.sales:isOps?t.ops:t.executive;
  const intro=isSales?t.salesIntro:isOps?t.opsIntro:t.execIntro;
- return <section className="pb-12"><div className="container">
-  <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-5xl text-forest">{title}</h1><p className="mt-3 max-w-2xl text-forest/55">{intro}</p></div><Link href="/admin/journeys" className="btn btn-primary">{t.openJourneys}</Link></div>
+ return <section className="pb-12">
+  <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-3xl sm:text-4xl xl:text-5xl text-forest">{title}</h1><p className="mt-3 max-w-2xl text-forest/55">{intro}</p></div><Link href="/admin/journeys" className="btn btn-primary">{t.openJourneys}</Link></div>
   {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
-  <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
    <Link href="/admin/requests" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.newRequests}</div><div className="serif mt-2 text-4xl text-forest">{stats.requests}</div><div className="mt-2 text-xs text-forest/45">Start the customer conversation →</div></Link>
    <Link href="/admin/journeys" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.activeJourneys}</div><div className="serif mt-2 text-4xl text-forest">{stats.active}</div><div className="mt-2 text-xs text-forest/45">Open journey workspace →</div></Link>
    <Link href="/admin/payments" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.paymentActions}</div><div className="serif mt-2 text-4xl text-forest">{stats.pendingPayments}</div><div className="mt-2 text-xs text-forest/45">Verify or follow up →</div></Link>
    <Link href="/admin/operations" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.operationalIssues}</div><div className="serif mt-2 text-4xl text-forest">{stats.overdue}</div><div className="mt-2 text-xs text-forest/45">Open operations →</div></Link>
   </div>
-  <div className="mt-8 grid gap-6 lg:grid-cols-[1.3fr_.7fr]">
+  <div className="mt-7 grid gap-6 xl:grid-cols-[1.3fr_.7fr]">
    <div className="card p-6"><div className="flex items-end justify-between"><div><div className="eyebrow">Journey queue</div><h2 className="serif mt-2 text-3xl text-forest">{t.recentJourneys}</h2></div><Link href="/admin/journeys" className="text-sm font-semibold text-gold">{t.viewAll}</Link></div>
     <div className="mt-5 grid gap-3">{recent.length===0?<div className="rounded-xl bg-[#f7f3ea] p-5 text-sm text-forest/50">No journeys yet.</div>:recent.map(r=><Link key={r.id} href={"/admin/journeys/"+r.id} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-forest/10 p-4 hover:border-gold/50"><div><div className="text-xs font-semibold text-gold">{r.booking_id}</div><div className="mt-1 font-semibold text-forest">{r.customers?.full_name||"Unnamed customer"}</div><div className="mt-1 text-xs text-forest/45">{r.packages?.name||"—"} · {r.guest_count} guests</div></div><div className="text-right"><div className="text-sm font-semibold text-forest">${Number(r.total_amount).toLocaleString()}</div><div className="mt-1 rounded-full bg-[#f7f3ea] px-3 py-1 text-[11px] font-semibold text-forest">{r.status.replaceAll("_"," ")}</div></div></Link>)}</div>
    </div>
