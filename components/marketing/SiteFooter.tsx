@@ -3,12 +3,11 @@ import {usePathname} from 'next/navigation';
 'use client';
 import {siteConfig} from '@/lib/site';
 import {whatsappUrl} from '@/lib/whatsapp';
-import {defaultLocale,isLocale} from '@/lib/i18n';
+import type {Locale} from '@/lib/i18n';
 
-export function SiteFooter(){
+export function SiteFooter({locale='en'}:{locale?:Locale}){
   const pathname=usePathname();
   if(pathname==='/admin'||pathname.startsWith('/admin/'))return null;
-  const locale=defaultLocale;
   const copy={
     en:{explore:'Explore',speak:'Speak with us',whatsapp:'WhatsApp',request:'Request your journey',description:'Premium Umrah journeys thoughtfully designed for Somali Muslims around the world.',links:[['Packages','/packages'],['Experience','/experience'],["Women's Umrah",'/womens-umrah'],['Jeddah','/jeddah'],['Hotels','/hotels'],['FAQ','/faq']]},
     so:{explore:'Sahami',speak:'Nala xiriir',whatsapp:'WhatsApp',request:'Codso safarkaaga',description:'Safarro Cumro oo heer sare ah, si taxaddar leh loogu diyaariyay Muslimiinta Soomaaliyeed ee dunida ku nool.',links:[['Safarrada','/packages'],['Khibradda','/experience'],['Cumrada Haweenka','/womens-umrah'],['Jeddah','/jeddah'],['Hoteellada','/hotels'],['Su’aalaha','/faq']]},
