@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Script from 'next/script';
 
-type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
+type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string; localIntro?:string; travelNote?:string };
 
 export function MarketLandingPage({market}:{market:Market}){
   const marketSchema = {\n    '@context':'https://schema.org',\n    '@type':'WebPage',\n    name: market.title,\n    description: market.intro,\n    about: { '@type':'Service', name:'Umrah journeys for Somali Muslims' },\n    areaServed: { '@type':'Country', name: market.country },\n  };\n\n  return <div>
@@ -51,7 +51,7 @@ export function MarketLandingPage({market}:{market:Market}){
     <section className="section bg-[#f7f3ea]">
       <div className="container">
         <div className="max-w-3xl"><div className="eyebrow">Somali diaspora</div><h2 className="serif mt-3 text-4xl text-forest md:text-5xl">A service shaped around language, culture and small groups.</h2><p className="mt-5 leading-8 text-forest/65">English, Somali and Arabic support is built into the experience. The journey request lets you select your preferred language and share the period you expect to travel.</p></div>
-        <div className="mt-8 flex flex-wrap gap-3">{market.cities.map(c=><span key={c} className="rounded-full border border-forest/15 bg-white px-4 py-2 text-sm text-forest/70">{c}</span>)}</div>
+        <p className="mt-5 max-w-3xl leading-8 text-forest/65">{market.travelNote || 'You do not need a confirmed international flight date to submit your first journey request. The final itinerary and travel arrangements are confirmed with you before booking.'}</p><div className="mt-8 flex flex-wrap gap-3">{market.cities.map(c=><span key={c} className="rounded-full border border-forest/15 bg-white px-4 py-2 text-sm text-forest/70">{c}</span>)}</div>
       </div>
     </section>
 
