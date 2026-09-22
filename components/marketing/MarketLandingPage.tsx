@@ -4,6 +4,7 @@ import {headers} from 'next/headers';
 import {defaultLocale, isLocale, type Locale} from '@/lib/i18n';
 import {localizedPath} from '@/lib/seo';
 
+// SEO launch: market pages emit locale-aware structured data.
 type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
 
 export async function MarketLandingPage({market}:{market:Market}){
