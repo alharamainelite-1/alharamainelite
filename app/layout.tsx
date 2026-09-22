@@ -11,7 +11,7 @@ import { SEO_PAGES, SITE_URL, localizedMetadata } from '@/lib/seo';
 export async function generateMetadata(): Promise<Metadata> {
   const h = await headers();
   const localeHeader = h.get('x-he-locale');
-  const locale: Locale = isLocale(localeHeader) ? localeHeader : defaultLocale;
+  const locale: Locale = isLocale(localeHeader ?? undefined) ? localeHeader : defaultLocale;
   const path = h.get('x-he-path') || '/';
   const base = SEO_PAGES[path] || SEO_PAGES['/'];
   return {
