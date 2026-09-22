@@ -14,8 +14,6 @@ export default function Page(){
     country: 'United States', countryCode: 'USA', slug: 'usa',
     title: 'Umrah from the USA for Somali Muslims', intro: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United States. Explore two transparent journeys, choose your group size and share your expected travel period.',
     cities: ["Minneapolis","Columbus","Washington, D.C.","Seattle"],
-    localIntro: 'For Somali Muslims across the United States, Umrah planning may involve coordinating relatives across cities and choosing a travel period that works for the group. ALHARAMAIN ELITE provides a clear starting point with transparent per-guest pricing and personal follow-up.',
-    travelNote: 'Whether your group is in Minneapolis, Columbus, Washington, D.C. or Seattle, you can start with an expected travel period rather than a confirmed flight date.'
     metaTitle: 'Umrah from the USA for Somali Muslims', metaDescription: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United States. Explore two transparent journeys, choose your group size and share your expected travel period.'
   }} />;
 }
