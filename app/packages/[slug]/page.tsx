@@ -5,6 +5,7 @@ import {cookies} from 'next/headers';
 import {packages} from '@/lib/site';
 import {defaultLocale,isLocale} from '@/lib/i18n';
 import type {Metadata} from 'next';
+import { SITE_URL } from '@/lib/seo';
 import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane} from 'lucide-react';
 
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
@@ -17,7 +18,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   const description=slug==='elite'
     ? 'ELITE is a 10-day / 9-night premium Umrah journey at $2,500 per guest, designed for small groups.'
     : 'SIGNATURE is a 10-day / 9-night premium Umrah journey at $2,000 per guest, designed for small groups.';
-  return {title,description,alternates:{canonical:`/packages/${slug}`},openGraph:{title,description,type:'website'}};
+  return {title,description,alternates:{canonical:`/packages/${slug}`,languages:{en:`${SITE_URL}/packages/${slug}`,so:`${SITE_URL}/so/packages/${slug}`,ar:`${SITE_URL}/ar/packages/${slug}`,'x-default':`${SITE_URL}/packages/${slug}`}},openGraph:{title,description,type:'website'}};
 }
 
 const labels={
