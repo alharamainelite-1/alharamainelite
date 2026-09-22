@@ -29,18 +29,18 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
  const staff=await getCurrentStaff();
  const locale=await getAdminLocale();
  const t=adminText[locale];
- if(!staff)return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="min-h-screen bg-[#f3f0e7]"><div className="border-b border-forest/10 bg-forest text-white"><div className="container flex min-h-16 items-center justify-between"><Link href="/admin/login" className="font-semibold tracking-wide">ALHARAMAIN ELITE <span className="text-gold">/ ADMIN</span></Link><AdminLanguageSelector/></div></div>{children}</div>;
+ if(!staff)return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="admin-shell min-h-screen min-w-0 overflow-x-hidden bg-[#f3f0e7]"><div className="border-b border-forest/10 bg-forest text-white"><div className="container flex min-h-16 items-center justify-between"><Link href="/admin/login" className="font-semibold tracking-wide">ALHARAMAIN ELITE <span className="text-gold">/ ADMIN</span></Link><AdminLanguageSelector/></div></div>{children}</div>;
  const role=staff.profile.role;
  const visibleNav=nav.filter(item=>!item.roles||item.roles.includes(role));
  const label=(item:NavItem)=>locale==='ar'?item.ar:item.en;
  return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="min-h-screen bg-[#f3f0e7]">
   <div className="border-b border-forest/10 bg-forest text-white">
-   <div className="container flex min-h-16 items-center justify-between gap-4">
+   <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 py-2 sm:flex-nowrap sm:py-0">
     <Link href="/admin" className="font-semibold tracking-wide">ALHARAMAIN ELITE <span className="text-gold">/ ADMIN</span></Link>
     <div className="flex items-center gap-3">
      <AdminLanguageSelector/>
-     <div className={locale==='ar'?'text-left text-xs':'text-right text-xs'}>
-      <div>{staff.profile.full_name||staff.user.email}</div>
+     <div className={`${locale==='ar'?'text-left':'text-right'} min-w-0 max-w-[38vw] text-xs sm:max-w-none`}>
+      <div className="break-words">{staff.profile.full_name||staff.user.email}</div>
       <div className="mt-1 text-white/55">{role}</div>
      </div>
      <AdminLogout locale={locale}/>
