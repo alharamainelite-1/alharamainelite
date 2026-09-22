@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import {cookies} from 'next/headers';
 import {defaultLocale,isLocale} from '@/lib/i18n';
-import {localizedPath,SITE_URL} from '@/lib/seo';
-import Script from 'next/script';
 import {packages,features,eliteExtra} from '@/lib/site';
 
 const images={
@@ -41,8 +39,6 @@ export default async function Packages(){
   const raw=(await cookies()).get('he_locale')?.value;
   const l=isLocale(raw)?raw:defaultLocale;
   const t=copy[l];
-  const packagesPath=localizedPath('/packages',l);
-  const requestPath=localizedPath('/request-journey',l);
   const premiumLabel=l==='ar'?'مستوى راقٍ':l==='so'?'Heer sare':'Premium level';
   const higherLabel=l==='ar'?'مستوى أعلى':l==='so'?'Heer ka sarreeya':'Higher level';
   const notBoxes=l==='ar'?['الرحلات الدولية','المصاريف الشخصية','الخدمات غير المؤكدة']:l==='so'?['Duulimaadyada caalamiga ah','Kharashaadka gaarka ah','Adeegyada aan la xaqiijin']:['International flights','Personal expenses','Unconfirmed services'];
@@ -55,7 +51,7 @@ export default async function Packages(){
       <div className="absolute inset-0"><img src={images.signature} alt="" className="h-full w-full object-cover opacity-25"/><div className="absolute inset-0 bg-gradient-to-r from-forest via-forest/90 to-forest/55"/></div>
       <div className="container relative py-24 md:py-32">
         <div className="max-w-4xl"><div className="eyebrow">{t.eyebrow}</div><h1 className="serif mt-5 text-5xl leading-[.98] md:text-7xl">{t.title}</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-white/75">{t.intro}</p>
-          <div className="mt-8 flex flex-wrap gap-3"><Link href={requestPath} className="btn bg-gold text-forest">{t.request}</Link><a href="#compare" className="btn border border-white/35 text-white">{t.compare}</a></div>
+          <div className="mt-8 flex flex-wrap gap-3"><Link href="/request-journey" className="btn bg-gold text-forest">{t.request}</Link><a href="#compare" className="btn border border-white/35 text-white">{t.compare}</a></div>
         </div>
       </div>
     </section>
@@ -69,7 +65,7 @@ export default async function Packages(){
             <div className="p-7 md:p-9">
               <div className="flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow">{t.best}</div><p className="mt-2 max-w-xl text-base leading-7 text-forest/65">{best}</p></div><div className="text-right"><div className="serif text-5xl text-forest">{'$'+p.price.toLocaleString()}</div><div className="text-sm text-forest/45">{t.perGuest}</div></div></div>
               <div className="mt-7 grid gap-3 border-t border-forest/10 pt-7 sm:grid-cols-2">{extra.map(f=><div key={f} className="flex gap-3 text-sm leading-6 text-forest/75"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"/>{f}</div>)}</div>
-              <Link href={localizedPath('/packages/'+p.slug,l)} className="btn btn-primary mt-8 w-full">{t.request}</Link>
+              <Link href={'/packages/'+p.slug} className="btn btn-primary mt-8 w-full">{t.request}</Link>
             </div>
           </article>)}
         </div>
