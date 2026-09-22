@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 import Link from 'next/link';
 import Script from 'next/script';
 import {cookies} from 'next/headers';
