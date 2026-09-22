@@ -1,18 +1,8 @@
 import Link from 'next/link';
-import Script from 'next/script';
 
-type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string; localIntro?:string; travelNote?:string };
+type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
 
 export function MarketLandingPage({market}:{market:Market}){
-  const marketSchema = {
-    '@context':'https://schema.org',
-    '@type':'WebPage',
-    name: market.title,
-    description: market.intro,
-    about: { '@type':'Service', name:'Umrah journeys for Somali Muslims' },
-    areaServed: { '@type':'Country', name: market.country },
-  };
-
   return <div>
     <section className="relative overflow-hidden bg-forest text-white">
       <div className="container py-24 md:py-32">
@@ -47,7 +37,7 @@ export function MarketLandingPage({market}:{market:Market}){
             <ol className="mt-5 space-y-5">
               {[
                 ['01','Choose your journey','Select SIGNATURE or ELITE.'],
-                ['02','Choose your group','Choose a group of 5–8 guests.'],
+                ['02','Choose your group','Tell us the number of guests, from 1–8.'],
                 ['03','Share your period','An expected travel date or approximate period is enough to start.'],
                 ['04','Speak with us','We review your request and continue the details with you.'],
               ].map(([n,t,d])=><li key={n} className="border-b border-forest/10 pb-4"><div className="eyebrow">{n}</div><h3 className="mt-1 font-semibold text-forest">{t}</h3><p className="mt-1 text-sm leading-6 text-forest/55">{d}</p></li>)}
@@ -60,7 +50,7 @@ export function MarketLandingPage({market}:{market:Market}){
     <section className="section bg-[#f7f3ea]">
       <div className="container">
         <div className="max-w-3xl"><div className="eyebrow">Somali diaspora</div><h2 className="serif mt-3 text-4xl text-forest md:text-5xl">A service shaped around language, culture and small groups.</h2><p className="mt-5 leading-8 text-forest/65">English, Somali and Arabic support is built into the experience. The journey request lets you select your preferred language and share the period you expect to travel.</p></div>
-        <p className="mt-5 max-w-3xl leading-8 text-forest/65">{market.travelNote || 'You do not need a confirmed international flight date to submit your first journey request. The final itinerary and travel arrangements are confirmed with you before booking.'}</p><div className="mt-8 flex flex-wrap gap-3">{market.cities.map(c=><span key={c} className="rounded-full border border-forest/15 bg-white px-4 py-2 text-sm text-forest/70">{c}</span>)}</div>
+        <div className="mt-8 flex flex-wrap gap-3">{market.cities.map(c=><span key={c} className="rounded-full border border-forest/15 bg-white px-4 py-2 text-sm text-forest/70">{c}</span>)}</div>
       </div>
     </section>
 
