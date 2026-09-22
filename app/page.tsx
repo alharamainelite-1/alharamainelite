@@ -25,7 +25,7 @@ const copy={
     details:'A COMPLETE JOURNEY',detailsText:'Everything you need for a smooth, comfortable and meaningful journey.',
     essentials:['Premium Hotels','Private Transportation','Haramain Train','Jeddah Experience'],
     essentialDescriptions:['Carefully selected hotels in Makkah and Madinah near the Haram, ensuring comfort and convenience.','Travel in comfort with our premium, air-conditioned luxury vans for all transfers and Ziyarat.','Fast and comfortable travel between Makkah and Madinah with the Haramain Train.','Explore local markets, culture and shopping in Jeddah as part of your journey.'],
-    reviews:'GUEST EXPERIENCES',reviewsTitle:'Real experiences. Real people.',reviewsIntro:'Verified guest reviews will appear here after journeys are completed and reviews are approved.',
+    reviews:'GUEST EXPERIENCES',reviewsTitle:'Real experiences. Real people.',
     empty:'Your experience can be next.',emptyText:'We do not publish invented testimonials. Once our first guests share verified feedback, their words and city will appear here.',
     destinations:'BEYOND UMRAH',destTitle:'Discover Makkah, Madinah & Jeddah',destText:'The sacred cities and the wider experience, thoughtfully arranged around your journey.',
     makkah:'The Sacred Mosque',madinah:'The Prophet’s Mosque',jeddah:'Culture & the Red Sea',explore:'Explore',
@@ -42,7 +42,7 @@ const copy={
     details:'SAFAR DHAMMEYSTIRAN',detailsText:'Wax kasta oo aad u baahan tahay safar fudud, raaxo leh oo macno leh.',
     essentials:['Hoteello Heer Sare','Gaadiid Gaar ah','Haramain Train','Khibradda Jeddah'],
     essentialDescriptions:['Hoteello si taxaddar leh loo doortay oo ku yaal Makkah iyo Madiinah, kuna dhow Xaramka.','Ku safar raaxo leh gaadiid luxury ah oo qaboojiye leh oo loogu talagalay wareejinta iyo ziyaraatka.','Safar degdeg ah oo raaxo leh oo u dhexeeya Makkah iyo Madiinah adigoo raacaya Haramain Train.','Sahami suuqyada, dhaqanka iyo wax iibsiga Jeddah oo qayb ka ah safarkaaga.'],
-    reviews:'KHIBRADA MARTIDA',reviewsTitle:'Khibrado dhab ah. Dad dhab ah.',reviewsIntro:'Faallooyinka martida la xaqiijiyay waxay halkan kasoo muuqan doonaan marka safarradu dhamaadaan oo la ansixiyo.',
+    reviews:'KHIBRADA MARTIDA',reviewsTitle:'Khibrado dhab ah. Dad dhab ah.',
     empty:'Khibraddaadu waxay noqon kartaa tan xigta.',emptyText:'Ma daabacno markhaatiyo la sameeyay. Marka martideenna ugu horreysa ay bixiyaan faallo la xaqiijiyay, magacooda iyo magaaladooda ayaa halkan kasoo muuqan doona.',
     destinations:'WAX KA BADAN CUMRO',destTitle:'Baro Makkah, Madiinah & Jeddah',destText:'Magaalooyinka barakeysan iyo khibradda ku xeeran, si taxaddar leh loogu habeeyay safarkaaga.',
     makkah:'Masjidka Xaramka',madinah:'Masjidka Nabiga',jeddah:'Dhaqanka & Badda Cas',explore:'Sahami',
@@ -59,7 +59,7 @@ const copy={
     details:'رحلة متكاملة',detailsText:'كل ما تحتاجه لرحلة سلسة ومريحة وذات معنى.',
     essentials:['فنادق راقية','تنقلات خاصة','قطار الحرمين','تجربة جدة'],
     essentialDescriptions:['فنادق يتم اختيارها بعناية في مكة والمدينة بالقرب من الحرم، لضمان الراحة والسهولة.','تنقلات مريحة ومكيفة عبر فانات فاخرة لجميع الانتقالات والزيارات.','تنقل سريع ومريح بين مكة والمدينة عبر قطار الحرمين.','استكشف الأسواق والثقافة والتسوق في جدة كجزء من رحلتك.'],
-    reviews:'تجارب الضيوف',reviewsTitle:'تجارب حقيقية. أشخاص حقيقيون.',reviewsIntro:'ستظهر تقييمات الضيوف الموثقة هنا بعد إتمام الرحلات ومراجعة التقييمات واعتمادها.',
+    reviews:'تجارب الضيوف',reviewsTitle:'تجارب حقيقية. أشخاص حقيقيون.',
     empty:'قد تكون تجربتك التالية.',emptyText:'لا ننشر شهادات مختلقة. عندما يشارك ضيوفنا الأوائل تجارب موثقة، سيظهر اسم الضيف ومدينته هنا.',
     destinations:'أكثر من العمرة',destTitle:'اكتشف مكة والمدينة وجدة',destText:'المدن المقدسة وما حول الرحلة، بترتيب مدروس يتناسب مع تجربتك.',
     makkah:'المسجد الحرام',madinah:'المسجد النبوي',jeddah:'الثقافة والبحر الأحمر',explore:'استكشف',
@@ -173,7 +173,7 @@ export default async function Home(){
 
     <section className="section">
       <div className="container">
-        <SectionHeading eyebrow={c.reviews} title={c.reviewsTitle}>{c.reviewsIntro}</SectionHeading>
+        <SectionHeading eyebrow={c.reviews} title={c.reviewsTitle}/>
         {reviews.length>0 ? <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {reviews.map((r:any)=><article key={String(r.guest_name)+String(r.review_date)} className="card p-6"><div className="flex gap-1">{Array.from({length:Math.min(5,Math.max(0,Number(r.rating)||0))}).map((_,i)=><Star key={i} size={15} fill="currentColor" className="text-gold"/>)}</div><p className="mt-4 text-sm leading-6 text-forest/70">“{r.review_text}”</p><div className="mt-6 border-t border-forest/10 pt-4"><div className="font-semibold text-forest">{r.guest_name}</div><div className="text-xs text-forest/50">{r.city||r.country}</div></div></article>)}
         </div> : <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
