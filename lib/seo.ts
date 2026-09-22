@@ -44,13 +44,60 @@ export function hreflangAlternates(path: string) {
   };
 }
 
+const LOCALIZED_SEO: Record<'so' | 'ar', Record<string, { title: string; description: string }>> = {
+  so: {
+    '/': { title: 'Safarrada Cumrada ee Heer Sare ee Muslimiinta Soomaalida Dibadda', description: 'AlHaramain Elite waxay bixisaa safarro Cumro oo 10 maalmood iyo 9 habeen ah, qiime cad, kooxo yaryar iyo taageero gaar ah.' },
+    '/packages': { title: 'Xirmooyinka Cumrada ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Isbarbar dhig safarrada SIGNATURE iyo ELITE: 10 maalmood iyo 9 habeen, qiime cad iyo kooxo yaryar.' },
+    '/packages/signature': { title: 'SIGNATURE Cumro — $2,000 Marti Kasta', description: 'Safar Cumro oo 10 maalmood iyo 9 habeen ah, $2,000 marti kasta, oo leh hoy tayo leh, quraac, gaadiid gaar ah, ziyaraat iyo taageero.' },
+    '/packages/elite': { title: 'ELITE Cumro — $2,500 Marti Kasta', description: 'Safar Cumro oo 10 maalmood iyo 9 habeen ah, $2,500 marti kasta, oo Haramain Train lagu daro marka uu ku habboon yahay qorshaha.' },
+    '/experience': { title: 'Khibradda Cumrada ee AlHaramain Elite', description: 'Baro sida Makkah, Madiinah, Jeddah, hoyga, gaadiidka iyo taageerada safarka loogu diyaariyo kooxo yaryar.' },
+    '/womens-umrah': { title: 'Cumrada Haweenka ee Muslimiinta Soomaalida', description: 'Qorshayn Cumro oo loogu talagalay haweenka iyo kooxo yaryar, iyadoo la siinayo xiriir iyo taageero gaar ah.' },
+    '/makkah': { title: 'Khibradda Cumrada ee Makkah | AlHaramain Elite', description: 'Qorshee joogitaan Makkah oo ay ku jiraan hoy, gaadiid iyo ziyaraat sida ku cad qorshaha safarka.' },
+    '/madinah': { title: 'Khibradda Cumrada ee Madiinah | AlHaramain Elite', description: 'Joogitaan Madiinah oo si taxaddar leh loo qorsheeyay, oo ay ku jiraan hoy, gaadiid iyo ziyaraat.' },
+    '/jeddah': { title: 'Khibradda Jeddah ee Xujayda Cumrada | AlHaramain Elite', description: 'Khibrad Jeddah oo qorshaysan, oo leh dhaqan, suuqyo iyo fursad lagu booqdo Suuqa Soomaalida marka uu ku jiro safarka.' },
+    '/hotels': { title: 'Hoteellada Cumrada ee Makkah iyo Madiinah | AlHaramain Elite', description: 'Baro sida loo doorto loona xaqiijiyo hoteellada Makkah iyo Madiinah safar kasta.' },
+    '/transportation': { title: 'Gaadiidka Cumrada | AlHaramain Elite', description: 'Baro gaadiidka gaarka ah iyo qorshaha Haramain Train ee ELITE marka uu ku habboon yahay safarka.' },
+    '/about': { title: 'Ku Saabsan AlHaramain Elite | Cumrada Soomaalida', description: 'Wax ka baro AlHaramain Elite iyo diiradda ay saarto safarrada Cumrada ee Muslimiinta Soomaalida dibadda.' },
+    '/reviews': { title: 'Khibradaha Martida | AlHaramain Elite', description: 'Khibradaha martida ee la xaqiijiyay waxaa halkan lagu daabici doonaa marka la helo.' },
+    '/faq': { title: 'Su’aalaha Cumrada ee Inta Badan La Isweydiiyo | AlHaramain Elite', description: 'Jawaabo cad oo ku saabsan xirmooyinka Cumrada, duulimaadyada, taariikhda la filayo, kooxaha, lacag bixinta iyo gaadiidka.' },
+    '/request-journey': { title: 'Codso Safarkaaga Cumrada | AlHaramain Elite', description: 'Dooro safarkaaga, tirada martida iyo muddada safarka la filayo, kadib codsiga u dir AlHaramain Elite.' },
+    '/contact': { title: 'La Xiriir AlHaramain Elite | Taageerada Cumrada', description: 'La xiriir AlHaramain Elite si aad uga hadasho safarkaaga Cumrada, muddada la filayo iyo faahfaahinta kooxda.' },
+    '/umrah-from-usa': { title: 'Cumro ka Tagaysa USA ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Qorshee safar Cumro oo koox yar ah oo ka imanaya Mareykanka, leh qiime cad iyo taageero gaar ah.' },
+    '/umrah-from-uk': { title: 'Cumro ka Tagaysa UK ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Qorshee safar Cumro oo koox yar ah oo ka imanaya Boqortooyada Midowday, leh qiime cad iyo taageero gaar ah.' },
+    '/umrah-from-canada': { title: 'Cumro ka Tagaysa Canada ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Qorshee safar Cumro oo koox yar ah oo ka imanaya Canada, leh qiime cad iyo taageero gaar ah.' },
+  },
+  ar: {
+    '/': { title: 'رحلات عمرة راقية للمسلمين الصوماليين في الخارج', description: 'تقدم AlHaramain Elite رحلات عمرة لمدة 10 أيام و9 ليالٍ، بأسعار واضحة ومجموعات صغيرة ودعم شخصي.' },
+    '/packages': { title: 'باقات العمرة للمسافرين الصوماليين | AlHaramain Elite', description: 'قارن بين رحلتي SIGNATURE وELITE لمدة 10 أيام و9 ليالٍ مع أسعار واضحة ومجموعات صغيرة.' },
+    '/packages/signature': { title: 'عمرة SIGNATURE — 2,000 دولار لكل ضيف', description: 'رحلة عمرة لمدة 10 أيام و9 ليالٍ بسعر 2,000 دولار لكل ضيف، مع إقامة راقية وإفطار وتنقلات وزيارات ودعم.' },
+    '/packages/elite': { title: 'عمرة ELITE — 2,500 دولار لكل ضيف', description: 'رحلة عمرة لمدة 10 أيام و9 ليالٍ بسعر 2,500 دولار لكل ضيف، مع قطار الحرمين حيث يناسب البرنامج المؤكد.' },
+    '/experience': { title: 'تجربة العمرة مع AlHaramain Elite', description: 'اكتشف كيف نجمع بين مكة والمدينة وجدة والإقامة والتنقلات والدعم الشخصي في رحلة متكاملة.' },
+    '/womens-umrah': { title: 'رحلات عمرة للنساء من المسلمات الصوماليات', description: 'تخطيط رحلات عمرة للمجموعات الصغيرة مع تواصل شخصي ودعم وترتيبات واضحة.' },
+    '/makkah': { title: 'تجربة العمرة في مكة | AlHaramain Elite', description: 'خطط لإقامتك في مكة مع السكن والتنقلات والزيارات وفق برنامج الرحلة المؤكد.' },
+    '/madinah': { title: 'تجربة العمرة في المدينة المنورة | AlHaramain Elite', description: 'إقامة مخططة بعناية في المدينة مع السكن والتنقلات والزيارات، وقطار الحرمين في ELITE حيث يناسب البرنامج.' },
+    '/jeddah': { title: 'تجربة جدة للمسافرين للعمرة | AlHaramain Elite', description: 'اكتشف تجربة جدة المخططة التي تجمع الثقافة والتسوق وزيارة السوق الصومالي عند تضمينه في الرحلة.' },
+    '/hotels': { title: 'فنادق العمرة في مكة والمدينة | AlHaramain Elite', description: 'تعرف على طريقة اختيار وتأكيد أماكن الإقامة في مكة والمدينة لكل رحلة.' },
+    '/transportation': { title: 'تنقلات العمرة | AlHaramain Elite', description: 'تعرف على التنقلات الخاصة وترتيبات قطار الحرمين في ELITE حيث يناسب برنامج الرحلة.' },
+    '/about': { title: 'عن AlHaramain Elite | عمرة للمسلمين الصوماليين', description: 'تعرف على AlHaramain Elite وتركيزها على رحلات العمرة الراقية للمسلمين الصوماليين في الخارج.' },
+    '/reviews': { title: 'تجارب الضيوف | AlHaramain Elite', description: 'سيتم نشر تجارب الضيوف الموثقة هنا عند توفرها.' },
+    '/faq': { title: 'الأسئلة الشائعة عن العمرة | AlHaramain Elite', description: 'إجابات واضحة حول باقات العمرة والرحلات الجوية وتاريخ السفر المتوقع والمجموعات والدفع والتنقلات.' },
+    '/request-journey': { title: 'اطلب رحلة العمرة | AlHaramain Elite', description: 'اختر الرحلة وعدد الضيوف والفترة المتوقعة للسفر، ثم أرسل طلبك لفريق AlHaramain Elite.' },
+    '/contact': { title: 'تواصل مع AlHaramain Elite | دعم العمرة', description: 'تواصل معنا بشأن رحلة العمرة والفترة المتوقعة للسفر وتفاصيل المجموعة والباقات.' },
+    '/umrah-from-usa': { title: 'العمرة من الولايات المتحدة للمسلمين الصوماليين | AlHaramain Elite', description: 'خطط لرحلة عمرة راقية ضمن مجموعة صغيرة من الولايات المتحدة مع أسعار واضحة ودعم شخصي.' },
+    '/umrah-from-uk': { title: 'العمرة من المملكة المتحدة للمسلمين الصوماليين | AlHaramain Elite', description: 'خطط لرحلة عمرة راقية ضمن مجموعة صغيرة من المملكة المتحدة مع أسعار واضحة ودعم شخصي.' },
+    '/umrah-from-canada': { title: 'العمرة من كندا للمسلمين الصوماليين | AlHaramain Elite', description: 'خطط لرحلة عمرة راقية ضمن مجموعة صغيرة من كندا مع أسعار واضحة ودعم شخصي.' },
+  },
+};
+
 export function localizedMetadata(path: string, locale: 'en' | 'so' | 'ar', base: { title: string; description: string }): Metadata {
-  const canonical = localizedPath(stripLocale(path), locale);
+  const cleanPath = stripLocale(path);
+  const localized = locale === 'en' ? base : (LOCALIZED_SEO[locale][cleanPath] || base);
+  const canonical = localizedPath(cleanPath, locale);
   return {
-    title: base.title,
-    description: base.description,
-    alternates: { canonical, languages: hreflangAlternates(path) },
-    openGraph: { title: base.title, description: base.description, type: 'website', url: `${SITE_URL}${canonical}`, images: [{ url: `${SITE_URL}/brand/alharamainelite-logo.png`, width: 1200, height: 1200, alt: 'ALHARAMAIN ELITE' }] },
-    twitter: { card: 'summary_large_image', title: base.title, description: base.description, images: [`${SITE_URL}/brand/alharamainelite-logo.png`] },
+    title: localized.title,
+    description: localized.description,
+    alternates: { canonical, languages: hreflangAlternates(cleanPath) },
+    openGraph: { title: localized.title, description: localized.description, type: 'website', url: `${SITE_URL}${canonical}`, images: [{ url: `${SITE_URL}/brand/alharamainelite-logo.png`, width: 1200, height: 1200, alt: 'ALHARAMAIN ELITE' }] },
+    twitter: { card: 'summary_large_image', title: localized.title, description: localized.description, images: [`${SITE_URL}/brand/alharamainelite-logo.png`] },
   };
 }
