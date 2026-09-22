@@ -4,7 +4,16 @@ import Script from 'next/script';
 type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string; localIntro?:string; travelNote?:string };
 
 export function MarketLandingPage({market}:{market:Market}){
-  const marketSchema = {\n    '@context':'https://schema.org',\n    '@type':'WebPage',\n    name: market.title,\n    description: market.intro,\n    about: { '@type':'Service', name:'Umrah journeys for Somali Muslims' },\n    areaServed: { '@type':'Country', name: market.country },\n  };\n\n  return <div>
+  const marketSchema = {
+    '@context':'https://schema.org',
+    '@type':'WebPage',
+    name: market.title,
+    description: market.intro,
+    about: { '@type':'Service', name:'Umrah journeys for Somali Muslims' },
+    areaServed: { '@type':'Country', name: market.country },
+  };
+
+  return <div>
     <section className="relative overflow-hidden bg-forest text-white">
       <div className="container py-24 md:py-32">
         <div className="max-w-4xl">
