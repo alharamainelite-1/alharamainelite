@@ -1,1 +1,44 @@
-import Image from 'next/image';import Link from 'next/link';import Script from 'next/script';import {localizedPath,SITE_URL} from '@/lib/seo';import {cookies} from 'next/headers';import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';const image='https://images.pexels.com/photos/18360295/pexels-photo-18360295.jpeg?auto=compress&cs=tinysrgb&w=1800';export default async function Madinah(){const raw=(await cookies()).get('he_locale')?.value;const l=isLocale(raw)?raw:defaultLocale;const t=pageCopy[l].madinah;return <section className="section"><div className="container max-w-5xl"><div className="relative mb-12 h-72 overflow-hidden rounded-2xl"><Image src={image} alt={t.eyebrow} fill className="object-cover" sizes="100vw"/><div className="absolute inset-0 bg-forest/45"/><div className="absolute bottom-7 left-7 text-white"><div className="eyebrow">{t.eyebrow}</div><h1 className="serif mt-2 text-5xl">{t.title}</h1></div></div><p className="max-w-4xl text-lg leading-8 text-forest/65">{t.intro}</p><div className="mt-10 grid gap-4 md:grid-cols-3">{t.items.map(([a,b])=><div className="card p-6" key={a}><h2 className="font-semibold text-forest">{a}</h2><p className="mt-2 text-sm leading-6 text-forest/60">{b}</p></div>)}</div></div><div className="mt-10 flex flex-wrap gap-3"><Link href={packagesPath} className="btn btn-primary">{l==='ar'?'استكشف الباقات':l==='so'?'Eeg xirmooyinka':'Explore Umrah journeys'}</Link><Link href={requestPath} className="btn btn-outline">{l==='ar'?'اطلب رحلتك':l==='so'?'Codso safarkaaga':'Request your journey'}</Link></div></div></section><Script id="breadcrumb-schema" type="application/ld+json">{JSON.stringify({'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:`${SITE_URL}${localizedPath('/',l)}`},{'@type':'ListItem',position:2,name:'Madinah',item:`${SITE_URL}${localizedPath('/madinah',l)}`} ]})}</Script></div>}
+import Image from 'next/image';
+import Link from 'next/link';
+import Script from 'next/script';
+import {cookies} from 'next/headers';
+import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
+import {localizedPath,SITE_URL} from '@/lib/seo';
+
+const image='https://images.pexels.com/photos/18360295/pexels-photo-18360295.jpeg?auto=compress&cs=tinysrgb&w=1800';
+
+export default async function Madinah(){
+  const raw=(await cookies()).get('he_locale')?.value;
+  const l=isLocale(raw)?raw:defaultLocale;
+  const t=pageCopy[l].madinah;
+  const packagesPath=localizedPath('/packages',l);
+  const requestPath=localizedPath('/request-journey',l);
+  const pagePath=localizedPath('/madinah',l);
+  const schema={'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[
+    {'@type':'ListItem',position:1,name:l==='ar'?'الرئيسية':l==='so'?'Bogga hore':'Home',item:`${SITE_URL}${localizedPath('/',l)}`},
+    {'@type':'ListItem',position:2,name:'Madinah',item:`${SITE_URL}${pagePath}`}
+  ]};
+  return <div>
+    <section className="section">
+      <div className="container max-w-5xl">
+        <div className="relative mb-12 h-72 overflow-hidden rounded-2xl">
+          <Image src={image} alt={t.eyebrow} fill className="object-cover" sizes="100vw"/>
+          <div className="absolute inset-0 bg-forest/45"/>
+          <div className="absolute bottom-7 left-7 text-white">
+            <div className="eyebrow">{t.eyebrow}</div>
+            <h1 className="serif mt-2 text-5xl">{t.title}</h1>
+          </div>
+        </div>
+        <p className="max-w-4xl text-lg leading-8 text-forest/65">{t.intro}</p>
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {t.items.map(([a,b])=><div className="card p-6" key={a}><h2 className="font-semibold text-forest">{a}</h2><p className="mt-2 text-sm leading-6 text-forest/60">{b}</p></div>)}
+        </div>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link href={packagesPath} className="btn btn-primary">{l==='ar'?'استكشف الباقات':l==='so'?'Eeg xirmooyinka':'Explore Umrah journeys'}</Link>
+          <Link href={requestPath} className="btn btn-outline">{l==='ar'?'اطلب رحلتك':l==='so'?'Codso safarkaaga':'Request your journey'}</Link>
+        </div>
+      </div>
+    </section>
+    <Script id="breadcrumb-schema" type="application/ld+json">{JSON.stringify(schema)}</Script>
+  </div>;
+}
