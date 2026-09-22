@@ -66,5 +66,23 @@ export function MarketLandingPage({market}:{market:Market}){
         <div className="mt-10 rounded-[28px] bg-forest p-8 text-white md:p-10"><div className="eyebrow">Ready to plan?</div><h2 className="serif mt-3 text-4xl">Begin your journey request.</h2><p className="mt-4 max-w-2xl leading-7 text-white/70">Tell us where you are, who is travelling and the period you expect to travel.</p><Link href="/request-journey" className="btn mt-7 bg-gold text-forest">Request your journey</Link></div>
       </div>
     </section>
+  </div>
+    <Script id="market-webpage-schema" type="application/ld+json">{JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: market.metaTitle,
+      description: market.metaDescription,
+      url: `https://alharamainelite.vercel.app/umrah-from-${market.slug}`,
+      about: { '@type': 'Service', name: 'Umrah Journey Planning' },
+      areaServed: { '@type': 'Country', name: market.country },
+    })}</Script>
+    <Script id="market-breadcrumb-schema" type="application/ld+json">{JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://alharamainelite.vercel.app/' },
+        { '@type': 'ListItem', position: 2, name: market.metaTitle, item: `https://alharamainelite.vercel.app/umrah-from-${market.slug}` },
+      ],
+    })}</Script>
   </div>;
 }
