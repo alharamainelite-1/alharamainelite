@@ -1,6 +1,6 @@
-'use client';import Link from 'next/link';
-import {usePathname} from 'next/navigation';
 'use client';
+import Link from 'next/link';
+import {usePathname} from 'next/navigation';
 import {siteConfig} from '@/lib/site';
 import {whatsappUrl} from '@/lib/whatsapp';
 import type {Locale} from '@/lib/i18n';
