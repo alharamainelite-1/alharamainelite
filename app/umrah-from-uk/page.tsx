@@ -1,13 +1,15 @@
 import type {Metadata} from 'next';
-import { SITE_URL } from '@/lib/seo';
+import {headers} from 'next/headers';
+import {SEO_PAGES, localizedMetadata} from '@/lib/seo';
+import {isLocale, defaultLocale, type Locale} from '@/lib/i18n';
 import {MarketLandingPage} from '@/components/marketing/MarketLandingPage';
 
-export const metadata: Metadata = {
-  title: 'Umrah from the UK for Somali Muslims',
-  description: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United Kingdom. Explore two transparent journeys, choose your group size and share your expected travel period.',
-  alternates: { canonical: '/umrah-from-uk', languages: { en: `${SITE_URL}/umrah-from-uk`, so: `${SITE_URL}/so/umrah-from-uk`, ar: `${SITE_URL}/ar/umrah-from-uk`, 'x-default': `${SITE_URL}/umrah-from-uk` } },
-  openGraph: { title: 'Umrah from the UK for Somali Muslims', description: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United Kingdom. Explore two transparent journeys, choose your group size and share your expected travel period.', type: 'website' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const h = await headers();
+  const raw = h.get('x-he-locale');
+  const locale: Locale = isLocale(raw ?? undefined) ? (raw as Locale) : defaultLocale;
+  return localizedMetadata('/umrah-from-uk', locale, SEO_PAGES['/umrah-from-uk']);
+}
 
 export default function Page(){
   return <MarketLandingPage market={{
