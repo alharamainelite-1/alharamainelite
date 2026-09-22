@@ -1,9 +1,16 @@
 import Link from 'next/link';
 import Script from 'next/script';
+import {headers} from 'next/headers';
+import {defaultLocale, isLocale, type Locale} from '@/lib/i18n';
+import {localizedPath} from '@/lib/seo';
 
 type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
 
-export function MarketLandingPage({market}:{market:Market}){
+export async function MarketLandingPage({market}:{market:Market}){
+  const h = await headers();
+  const rawLocale = h.get('x-he-locale');
+  const locale: Locale = isLocale(rawLocale ?? undefined) ? (rawLocale as Locale) : defaultLocale;
+  const marketPath = localizedPath(`/umrah-from-${market.slug}`, locale);
   return <div>
     <section className="relative overflow-hidden bg-forest text-white">
       <div className="container py-24 md:py-32">
@@ -72,16 +79,17 @@ export function MarketLandingPage({market}:{market:Market}){
       '@type': 'WebPage',
       name: market.metaTitle,
       description: market.metaDescription,
-      url: `https://alharamainelite.vercel.app/umrah-from-${market.slug}`,
+      url: `https://alharamainelite.vercel.app${marketPath}`,
       about: { '@type': 'Service', name: 'Umrah Journey Planning' },
       areaServed: { '@type': 'Country', name: market.country },
+      inLanguage: locale,
     })}</Script>
     <Script id="market-breadcrumb-schema" type="application/ld+json">{JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://alharamainelite.vercel.app/' },
-        { '@type': 'ListItem', position: 2, name: market.metaTitle, item: `https://alharamainelite.vercel.app/umrah-from-${market.slug}` },
+        { '@type': 'ListItem', position: 2, name: market.metaTitle, item: `https://alharamainelite.vercel.app${marketPath}` },
       ],
     })}</Script>
   </div>;
