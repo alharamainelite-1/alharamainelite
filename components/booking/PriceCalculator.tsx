@@ -18,7 +18,7 @@ export function PriceCalculator(){
   };
 
   const updateGuests = (value: string) => {
-    const next = Math.min(8, Math.max(1, Number(value) || 1));
+    const next = Math.min(siteConfig.groupMax, Math.max(siteConfig.groupMin, Number(value) || siteConfig.groupMin));
     setGuests(next);
     trackEvent('calculator_used',{
       package: pkg,
@@ -58,8 +58,8 @@ export function PriceCalculator(){
               <input
                 required
                 type="number"
-                min={1}
-                max={8}
+                min={siteConfig.groupMin}
+                max={siteConfig.groupMax}
                 step={1}
                 value={guests}
                 onChange={(event) => updateGuests(event.target.value)}
