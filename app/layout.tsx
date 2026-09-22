@@ -35,6 +35,15 @@ const structuredData = {
   knowsLanguage: ['English','Somali','Arabic'],
 };
 
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteConfig.brandName,
+  url: SITE_URL,
+  inLanguage: ['en', 'so', 'ar'],
+};
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const rawLocale = (await cookies()).get('he_locale')?.value;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
@@ -43,7 +52,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <SiteHeader locale={locale} />
       <main>{children}</main>
       <SiteFooter locale={locale} />
-      <Script id="organization-schema" type="application/ld+json">{JSON.stringify(structuredData)}</Script>
+      <Script id="organization-schema" type="application/ld+json">{JSON.stringify(structuredData)}</Script>\n      <Script id="website-schema" type="application/ld+json">{JSON.stringify(websiteSchema)}</Script>
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-S4SCC036K4" strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S4SCC036K4');`}</Script>
     </body>
