@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { journeyRequestSchema } from '@/lib/validation/journey';
-import { getSupabasePublicServer } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
