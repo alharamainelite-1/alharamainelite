@@ -10,12 +10,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-import { getCurrentStaff } from '@/lib/supabase/auth';
-import { AdminLogout } from '@/components/admin/AdminLogout';
-import { AdminLanguageSelector } from '@/components/admin/AdminLanguageSelector';
-import { getAdminLocale } from '@/lib/admin-locale';
-import { adminText } from '@/lib/admin-text';
-
 type NavItem={en:string;ar:string;href:string;roles?:string[]};
 const nav:NavItem[]=[
  {en:'Dashboard',ar:'لوحة التحكم',href:'/admin'},
