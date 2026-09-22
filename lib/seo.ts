@@ -50,7 +50,7 @@ export function localizedMetadata(path: string, locale: 'en' | 'so' | 'ar', base
     title: base.title,
     description: base.description,
     alternates: { canonical, languages: hreflangAlternates(path) },
-    openGraph: { title: base.title, description: base.description, type: 'website', url: `${SITE_URL}${canonical}` },
-    twitter: { card: 'summary_large_image', title: base.title, description: base.description },
+    openGraph: { title: base.title, description: base.description, type: 'website', url: `${SITE_URL}${canonical}`, images: [{ url: `${SITE_URL}/brand/alharamainelite-logo.png`, width: 1200, height: 1200, alt: 'ALHARAMAIN ELITE' }] },
+    twitter: { card: 'summary_large_image', title: base.title, description: base.description, images: [`${SITE_URL}/brand/alharamainelite-logo.png`] },
   };
 }
