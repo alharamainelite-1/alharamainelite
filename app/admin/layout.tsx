@@ -47,10 +47,10 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
     </div>
    </div>
   </div>
-  <div className="container grid gap-6 py-6 lg:grid-cols-[240px_1fr]">
-   <aside className="card h-fit p-3 lg:sticky lg:top-6">
+  <div className="container grid gap-5 py-5 lg:grid-cols-[230px_minmax(0,1fr)] xl:gap-7 xl:py-7">
+   <aside className="card h-fit p-2 lg:sticky lg:top-6">
     <div className="px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-forest/40">{t.workspace}</div>
-    <nav className="grid gap-1">
+    <nav className="grid grid-cols-2 gap-1 lg:grid-cols-1">
      {visibleNav.map(item=><Link key={item.href} href={item.href} className="rounded-xl px-3 py-2.5 text-sm text-forest transition hover:bg-[#f2eee3] hover:text-gold">{label(item)}</Link>)}
     </nav>
    </aside>
