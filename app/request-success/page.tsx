@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-export const metadata: Metadata = { robots: { index: false, follow: false } };
 import Link from 'next/link';
 import Script from 'next/script';
 import {cookies} from 'next/headers';
 import {defaultLocale,isLocale} from '@/lib/i18n';
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const copy={
   en:{eyebrow:'Journey request received',title:'YOUR JOURNEY REQUEST HAS BEEN RECEIVED.',thanks:'Thank you for trusting ALHARAMAIN ELITE with your journey. Your request has been received and our team will review it before contacting you on WhatsApp.',ref:'Request reference',total:'Estimated total',next:'WHAT HAPPENS NEXT?',one:'REQUEST RECEIVED',oneText:'Your journey details are safely with our team.',two:'OUR TEAM REVIEWS YOUR REQUEST',twoText:'We review your travel period, journey and group details.',three:'WE CONTACT YOU PERSONALLY',threeText:'A member of our team will contact you directly on WhatsApp.',bottom:'Your journey begins with a conversation.',bottomText:'We look forward to welcoming you.',home:'Return home'},
