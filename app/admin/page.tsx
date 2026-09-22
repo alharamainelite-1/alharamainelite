@@ -17,7 +17,7 @@ export default async function AdminHome(){
  const isSales=role==="SALES"; const isOps=role==="OPERATIONS_MANAGER"||role==="OPERATIONS";
  const title=isSales?t.sales:isOps?t.ops:t.executive;
  const intro=isSales?t.salesIntro:isOps?t.opsIntro:t.execIntro;
- return <section className="pb-12">
+ return <section className="pb-12"><div className="container">
   <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-3xl sm:text-4xl xl:text-5xl text-forest">{title}</h1><p className="mt-3 max-w-2xl text-forest/55">{intro}</p></div><Link href="/admin/journeys" className="btn btn-primary">{t.openJourneys}</Link></div>
   {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
   <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
