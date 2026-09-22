@@ -1,12 +1,14 @@
 import Link from 'next/link';
-import {cookies} from 'next/headers';
+import {usePathname} from 'next/navigation';
+'use client';
 import {siteConfig} from '@/lib/site';
 import {whatsappUrl} from '@/lib/whatsapp';
 import {defaultLocale,isLocale} from '@/lib/i18n';
 
-export async function SiteFooter(){
-  const raw=(await cookies()).get('he_locale')?.value;
-  const locale=isLocale(raw)?raw:defaultLocale;
+export function SiteFooter(){
+  const pathname=usePathname();
+  if(pathname==='/admin'||pathname.startsWith('/admin/'))return null;
+  const locale=defaultLocale;
   const copy={
     en:{explore:'Explore',speak:'Speak with us',whatsapp:'WhatsApp',request:'Request your journey',description:'Premium Umrah journeys thoughtfully designed for Somali Muslims around the world.',links:[['Packages','/packages'],['Experience','/experience'],["Women's Umrah",'/womens-umrah'],['Jeddah','/jeddah'],['Hotels','/hotels'],['FAQ','/faq']]},
     so:{explore:'Sahami',speak:'Nala xiriir',whatsapp:'WhatsApp',request:'Codso safarkaaga',description:'Safarro Cumro oo heer sare ah, si taxaddar leh loogu diyaariyay Muslimiinta Soomaaliyeed ee dunida ku nool.',links:[['Safarrada','/packages'],['Khibradda','/experience'],['Cumrada Haweenka','/womens-umrah'],['Jeddah','/jeddah'],['Hoteellada','/hotels'],['Su’aalaha','/faq']]},
