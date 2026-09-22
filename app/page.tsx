@@ -23,14 +23,14 @@ const copy={
     signatureDesc:'Premium hotels, breakfast, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
     eliteDesc:'Luxury accommodation, breakfast, Haramain Train where applicable, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
     details:'A COMPLETE JOURNEY',detailsText:'Everything you need for a smooth, comfortable and meaningful journey.',
-    essentials:['Premium Hotels','Private Transportation','Haramain Train','Jeddah Experience'],
-    essentialDescriptions:['Carefully selected hotels in Makkah and Madinah near the Haram, ensuring comfort and convenience.','Travel in comfort with our premium, air-conditioned luxury vans for all transfers and Ziyarat.','Fast and comfortable travel between Makkah and Madinah with the Haramain Train.','Explore local markets, culture and shopping in Jeddah as part of your journey.'],
+    essentials:['Premium Hotels','Private Transportation','Haramain Train in ELITE','Jeddah Experience'],
+    essentialDescriptions:['Carefully selected hotels in Makkah and Madinah near the Haram, ensuring comfort and convenience.','Travel in comfort with our premium, air-conditioned luxury vans for all transfers and Ziyarat.','Haramain Train is included with ELITE where applicable to the confirmed journey plan; it is not included with SIGNATURE.','Explore local markets, culture and shopping in Jeddah as part of your journey.'],
     reviews:'GUEST EXPERIENCES',reviewsTitle:'Real experiences. Real people.',
     empty:'Your experience can be next.',emptyText:'We do not publish invented testimonials. Once our first guests share verified feedback, their words and city will appear here.',
     destinations:'BEYOND UMRAH',destTitle:'Discover Makkah, Madinah & Jeddah',destText:'The sacred cities and the wider experience, thoughtfully arranged around your journey.',
     makkah:'The Sacred Mosque',madinah:'The Prophet’s Mosque',jeddah:'Culture & the Red Sea',explore:'Explore',
     process:'FROM INTEREST TO JOURNEY',request:'Request your journey',chat:'Chat on WhatsApp',
-    steps:[['01','Choose','Select Signature or Elite.'],['02','Tell us your people','Choose 1–8 guests and your expected travel period.'],['03','Speak with us','We review the request and continue with you directly.'],['04','Confirm','Your final itinerary and payment instructions come before confirmation.']],
+    steps:[['01','Choose','Select Signature or Elite.'],['02','Tell us your people','Choose 5–8 guests and your expected travel period.'],['03','Speak with us','We review the request and continue with you directly.'],['04','Confirm','Your final itinerary and payment instructions come before confirmation.']],
     highlights:['Premium service','Small groups','Personal support','Thoughtful planning'],statsTitle:'OUR JOURNEY SO FAR',completed:'Completed journeys',served:'Guests served',launching:'We are now welcoming our first journeys'
   },
   so:{
@@ -47,7 +47,7 @@ const copy={
     destinations:'WAX KA BADAN CUMRO',destTitle:'Baro Makkah, Madiinah & Jeddah',destText:'Magaalooyinka barakeysan iyo khibradda ku xeeran, si taxaddar leh loogu habeeyay safarkaaga.',
     makkah:'Masjidka Xaramka',madinah:'Masjidka Nabiga',jeddah:'Dhaqanka & Badda Cas',explore:'Sahami',
     process:'LAGA BILAABO XIISAHA ILAA SAFARKA',request:'Codso safarkaaga',chat:'Nala hadal WhatsApp',
-    steps:[['01','Dooro','Dooro Signature ama Elite.'],['02','Sheeg dadkaaga','Dooro 1–8 marti iyo muddada aad filayso.'],['03','Nala hadal','Waxaan dib u eegaynaa codsiga oo si toos ah ayaan kula sii wadaynaa.'],['04','Xaqiiji','Jadwalka ugu dambeeya iyo tilmaamaha lacag-bixinta ayaa yimaada ka hor xaqiijinta.']],
+    steps:[['01','Dooro','Dooro Signature ama Elite.'],['02','Sheeg dadkaaga','Dooro 5–8 marti iyo muddada aad filayso.'],['03','Nala hadal','Waxaan dib u eegaynaa codsiga oo si toos ah ayaan kula sii wadaynaa.'],['04','Xaqiiji','Jadwalka ugu dambeeya iyo tilmaamaha lacag-bixinta ayaa yimaada ka hor xaqiijinta.']],
     highlights:['Adeeg heer sare ah','Kooxo yaryar','Taageero qofeed','Qorshe taxaddar leh'],statsTitle:'SAFARKEENNA ILLAA HADDANA',completed:'Safarro la dhammeeyay',served:'Marti la adeegay',launching:'Hadda waxaan soo dhoweynaynaa safarradii ugu horreeyay'
   },
   ar:{
@@ -64,7 +64,7 @@ const copy={
     destinations:'أكثر من العمرة',destTitle:'اكتشف مكة والمدينة وجدة',destText:'المدن المقدسة وما حول الرحلة، بترتيب مدروس يتناسب مع تجربتك.',
     makkah:'المسجد الحرام',madinah:'المسجد النبوي',jeddah:'الثقافة والبحر الأحمر',explore:'استكشف',
     process:'من الاهتمام إلى الرحلة',request:'اطلب رحلتك',chat:'تحدث معنا عبر واتساب',
-    steps:[['01','اختر','اختر SIGNATURE أو ELITE.'],['02','أخبرنا عن مجموعتك','حدد 1–8 ضيوف والفترة المتوقعة للسفر.'],['03','تحدث معنا','نراجع الطلب ونكمل معك مباشرة.'],['04','أكد','يصلك البرنامج النهائي وتعليمات الدفع قبل تأكيد الحجز.']],
+    steps:[['01','اختر','اختر SIGNATURE أو ELITE.'],['02','أخبرنا عن مجموعتك','حدد 5–8 ضيوف والفترة المتوقعة للسفر.'],['03','تحدث معنا','نراجع الطلب ونكمل معك مباشرة.'],['04','أكد','يصلك البرنامج النهائي وتعليمات الدفع قبل تأكيد الحجز.']],
     highlights:['خدمة راقية','مجموعات صغيرة','دعم شخصي','تخطيط مدروس'],statsTitle:'رحلتنا حتى الآن',completed:'رحلات مكتملة',served:'ضيوف تم خدمتهم',launching:'نرحب الآن بأولى رحلاتنا'
   }
 } as const;
@@ -177,14 +177,12 @@ export default async function Home(){
         {reviews.length>0 ? <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {reviews.map((r:any)=><article key={String(r.guest_name)+String(r.review_date)} className="card p-6"><div className="flex gap-1">{Array.from({length:Math.min(5,Math.max(0,Number(r.rating)||0))}).map((_,i)=><Star key={i} size={15} fill="currentColor" className="text-gold"/>)}</div><p className="mt-4 text-sm leading-6 text-forest/70">“{r.review_text}”</p><div className="mt-6 border-t border-forest/10 pt-4"><div className="font-semibold text-forest">{r.guest_name}</div><div className="text-xs text-forest/50">{r.city||r.country}</div></div></article>)}
         </div> : <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            ['5★','Thoughtful planning','Clear communication and a considered itinerary from the first request.'],
-            ['5★','Small-group experience','A more personal journey designed around small groups.'],
-            ['5★','Somali connection','A service shaped around the language and culture of the Somali diaspora.'],
-            ['5★','Comfort & care','Premium accommodation, planned transportation and practical support.'],
-            ['5★','Spiritual focus','Room to focus on Umrah while the important details are arranged.'],
-            ['5★','Clear expectations','Transparent package pricing and confirmation before final arrangements.']
-          ].map(([rating,title,text])=><article className="card p-6" key={title}><div className="flex items-center gap-2"><span className="text-sm font-bold text-gold">{rating}</span><span className="text-xs uppercase tracking-widest text-forest/45">Experience standard</span></div><h3 className="mt-4 font-semibold text-forest">{title}</h3><p className="mt-2 text-sm leading-6 text-forest/55">{text}</p></article>)}
+          <div className="card p-7 md:p-9">
+          <div className="eyebrow">{c.reviews}</div>
+          <h3 className="serif mt-3 text-3xl text-forest">{c.empty}</h3>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-forest/60">{c.emptyText}</p>
+          <Link href="/request-journey" className="btn btn-primary mt-6">{c.request}</Link>
+        </div>
         </div>}
       </div>
     </section>
