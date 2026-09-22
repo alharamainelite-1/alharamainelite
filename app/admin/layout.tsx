@@ -1,4 +1,15 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getCurrentStaff } from '@/lib/supabase/auth';
+import { AdminLogout } from '@/components/admin/AdminLogout';
+import { AdminLanguageSelector } from '@/components/admin/AdminLanguageSelector';
+import { getAdminLocale } from '@/lib/admin-locale';
+import { adminText } from '@/lib/admin-text';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 import { getCurrentStaff } from '@/lib/supabase/auth';
 import { AdminLogout } from '@/components/admin/AdminLogout';
 import { AdminLanguageSelector } from '@/components/admin/AdminLanguageSelector';
