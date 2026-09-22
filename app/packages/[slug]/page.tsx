@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Script from 'next/script';
 import Image from 'next/image';
 import {notFound} from 'next/navigation';
 import {cookies} from 'next/headers';
@@ -110,6 +111,31 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
       : p.positioning;
   const icons=[Hotel,Utensils,Car,MapPinned,MapPinned,Smartphone,Headphones] as const;
 
+  const packageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `AlHaramain Elite ${p.name} Umrah Journey`,
+    description: positioning,
+    brand: { '@type': 'Brand', name: 'ALHARAMAIN ELITE' },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      price: String(p.price),
+      availability: 'https://schema.org/InStock',
+      url: `${SITE_URL}/packages/${slug}`,
+      priceValidUntil: '2027-12-31',
+    },
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'Packages', item: `${SITE_URL}/packages` },
+      { '@type': 'ListItem', position: 3, name: p.name, item: `${SITE_URL}/packages/${slug}` },
+    ],
+  };
+
   return <div>
     <section className='relative overflow-hidden bg-forest text-white'>
       <Image src={hero} alt='Makkah' fill priority className='object-cover opacity-30' sizes='100vw'/>
@@ -185,5 +211,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
         </div>
       </div>
     </section>
+    <Script id="package-schema" type="application/ld+json">{JSON.stringify(packageSchema)}</Script>
+    <Script id="package-breadcrumb-schema" type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</Script>
   </div>;
 }
