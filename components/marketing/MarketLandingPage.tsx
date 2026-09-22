@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Script from 'next/script';
 
 type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
 
@@ -37,7 +38,7 @@ export function MarketLandingPage({market}:{market:Market}){
             <ol className="mt-5 space-y-5">
               {[
                 ['01','Choose your journey','Select SIGNATURE or ELITE.'],
-                ['02','Choose your group','Tell us the number of guests, from 1–8.'],
+                ['02','Choose your group','Tell us the number of guests, from 5–8.'],
                 ['03','Share your period','An expected travel date or approximate period is enough to start.'],
                 ['04','Speak with us','We review your request and continue the details with you.'],
               ].map(([n,t,d])=><li key={n} className="border-b border-forest/10 pb-4"><div className="eyebrow">{n}</div><h3 className="mt-1 font-semibold text-forest">{t}</h3><p className="mt-1 text-sm leading-6 text-forest/55">{d}</p></li>)}
