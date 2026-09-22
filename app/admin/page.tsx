@@ -36,5 +36,5 @@ export default async function AdminHome(){
    </div>
   </div>
   <div className="mt-8 card p-6"><div className="eyebrow">{t.operatingModel}</div><div className="mt-4 grid gap-3 md:grid-cols-4">{[["1",t.inbox,t.followup,"/admin/requests"],["2",t.journeyFile,t.customerBooking,"/admin/journeys"],["3",t.operationsLabel,t.readiness,"/admin/operations"],["4",t.management,t.financeTeam,"/admin/team"]].map(([n,k,d,h])=><Link href={h} key={k} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{n}</div><div className="mt-2 font-semibold text-forest">{k}</div><div className="mt-1 text-xs text-forest/50">{d}</div></Link>)}</div></div>
- </div></section>
+</section>
 }
