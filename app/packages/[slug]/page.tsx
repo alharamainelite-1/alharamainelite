@@ -6,7 +6,7 @@ import {cookies} from 'next/headers';
 import {packages} from '@/lib/site';
 import {defaultLocale,isLocale} from '@/lib/i18n';
 import type {Metadata} from 'next';
-import { SITE_URL,localizedPath } from '@/lib/seo';
+import { SITE_URL } from '@/lib/seo';
 import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane} from 'lucide-react';
 
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
@@ -104,8 +104,6 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
   const raw=(await cookies()).get('he_locale')?.value;
   const l=isLocale(raw)?raw:defaultLocale;
   const t=labels[l];
-  const requestPath=`${localizedPath('/request-journey',l)}?package=${slug}`;
-  const packagesPath=localizedPath('/packages',l);
   const positioning=l==='ar'
     ? (slug==='elite'?'مستوى أعلى من الإقامة والتجربة، مع قطار الحرمين حيث يناسب البرنامج.':'راحة راقية وتجربة عمرة متكاملة، مرتبة بعناية للمجموعات الصغيرة.')
     : l==='so'
@@ -207,8 +205,8 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
           <aside className='card h-fit p-7 lg:sticky lg:top-28'>
             <div className='eyebrow'>{t.ready}</div>
             <p className='mt-4 leading-7 text-forest/65'>{l==='ar'?'لا تحتاج إلى تاريخ رحلة مؤكد للبدء. شاركنا الفترة المتوقعة وسيتواصل معك فريقنا.':l==='so'?'Uma baahnid taariikh duulimaad la xaqiijiyay. Sheeg muddada aad filayso, kooxdayaduna way kula soo xiriiri doontaa.':'You do not need a confirmed flight date to start. Share your expected travel date or period and our team will contact you personally. There is no need to have your international flight booked yet.'}</p>
-            <Link href={requestPath} className='btn btn-primary mt-6 w-full'>{t.request}</Link>
-            <Link href={packagesPath} className='btn btn-outline mt-3 w-full'>{t.compare}</Link>
+            <Link href={'/request-journey?package='+slug} className='btn btn-primary mt-6 w-full'>{t.request}</Link>
+            <Link href='/packages' className='btn btn-outline mt-3 w-full'>{t.compare}</Link>
           </aside>
         </div>
       </div>
