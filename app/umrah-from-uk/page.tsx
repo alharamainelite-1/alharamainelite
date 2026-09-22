@@ -14,8 +14,6 @@ export default function Page(){
     country: 'United Kingdom', countryCode: 'UK', slug: 'uk',
     title: 'Umrah from the UK for Somali Muslims', intro: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United Kingdom. Explore two transparent journeys, choose your group size and share your expected travel period.',
     cities: ["London","Birmingham","Manchester","Leicester"],
-    localIntro: 'For Somali Muslims in the UK, planning Umrah can involve coordinating family members, travel periods and communication across different schedules. ALHARAMAIN ELITE keeps the first step simple: choose a journey, share your group size and expected period, then continue the details with the team.',
-    travelNote: 'Whether your group is starting from London, Birmingham, Manchester or Leicester, you can begin with an expected travel period rather than a confirmed flight date.'
     metaTitle: 'Umrah from the UK for Somali Muslims', metaDescription: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United Kingdom. Explore two transparent journeys, choose your group size and share your expected travel period.'
   }} />;
 }
