@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest){
 
   let res: NextResponse;
   if (localeMatch) {
-    req.cookies.set('he_locale', locale, { path: '/', maxAge: 31536000 });
+    req.cookies.set('he_locale', locale);
     res = NextResponse.rewrite(new URL(publicPath, req.url), { request: { headers: requestHeaders } });
     res.cookies.set('he_locale', locale, { path: '/', maxAge: 31536000 });
   } else {
