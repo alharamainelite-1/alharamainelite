@@ -27,7 +27,6 @@ const nav:NavItem[]=[
  {en:'Communications',ar:'التواصل',href:'/admin/communications',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
  {en:'Reviews',ar:'التقييمات',href:'/admin/reviews',roles:['SUPER_ADMIN','ADMIN']},
  {en:'Influencer Partners',ar:'شركاء المؤثرين',href:'/admin/influencer-partners',roles:['SUPER_ADMIN','ADMIN']},
- {en:'Influencer Partners',ar:'شركاء المؤثرين',href:'/admin/influencer-partners',roles:['SUPER_ADMIN','ADMIN']},
  {en:'Team & Permissions',ar:'الفريق والصلاحيات',href:'/admin/team',roles:['SUPER_ADMIN']},
  {en:'Settings',ar:'الإعدادات',href:'/admin/settings',roles:['SUPER_ADMIN','ADMIN']}
 ];
