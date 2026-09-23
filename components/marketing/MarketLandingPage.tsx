@@ -12,7 +12,8 @@ export async function MarketLandingPage({market}:{market:Market}){
   const rawLocale = h.get('x-he-locale');
   const locale: Locale = isLocale(rawLocale ?? undefined) ? (rawLocale as Locale) : defaultLocale;
   const marketPath = localizedPath(`/umrah-from-${market.slug}`, locale);
-  return <div>
+  return <>
+    <div>
     <section className="relative overflow-hidden bg-forest text-white">
       <div className="container py-24 md:py-32">
         <div className="max-w-4xl">
@@ -74,7 +75,7 @@ export async function MarketLandingPage({market}:{market:Market}){
         <div className="mt-10 rounded-[28px] bg-forest p-8 text-white md:p-10"><div className="eyebrow">Ready to plan?</div><h2 className="serif mt-3 text-4xl">Begin your journey request.</h2><p className="mt-4 max-w-2xl leading-7 text-white/70">Tell us where you are, who is travelling and the period you expect to travel.</p><Link href="/request-journey" className="btn mt-7 bg-gold text-forest">Request your journey</Link></div>
       </div>
     </section>
-  </div>
+    </div>
     <Script id="market-webpage-schema" type="application/ld+json">{JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebPage',
@@ -93,5 +94,5 @@ export async function MarketLandingPage({market}:{market:Market}){
         { '@type': 'ListItem', position: 2, name: market.metaTitle, item: `https://alharamainelite.vercel.app${marketPath}` },
       ],
     })}</Script>
-  </div>;
+  </>;
 }
