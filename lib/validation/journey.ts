@@ -10,7 +10,7 @@ export const journeyRequestSchema = z.object({
   country: z.string().trim().min(2).max(80),
   city: z.string().trim().max(80).optional().or(z.literal('')),
   packageSlug: z.enum(['signature', 'elite']),
-  guestCount: z.coerce.number().int().min(1).max(8),
+  guestCount: z.coerce.number().int().min(5).max(8),
   expectedTravelDate: optionalDate,
   expectedPeriodStart: optionalDate,
   expectedPeriodEnd: optionalDate,
