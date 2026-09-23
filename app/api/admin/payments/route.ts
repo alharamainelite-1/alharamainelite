@@ -28,8 +28,13 @@ export async function PATCH(req: Request) {
   const { data: after, error } = await supabase.from('payments').update(update).eq('id', body.paymentId).select('*').single();
   if (error || !after) return NextResponse.json({ error: error?.message || 'Could not update payment.' }, { status: 500 });
 
-  const bookingStatus = body.status === 'RECEIVED' ? 'PAYMENT_RECEIVED' : undefined;
-  const bookingUpdate: Record<string, unknown> = { payment_status: body.status, updated_at: now };
+  const { data: bookingBefore } = await supabase.from('bookings').select('id,total_amount').eq('id',before.booking_id).single();
+  const { data: receivedRows } = await supabase.from('payments').select('amount,status').eq('booking_id',before.booking_id);
+  const receivedTotal=(receivedRows||[]).filter((p:any)=>p.status==='RECEIVED').reduce((n:number,p:any)=>n+Number(p.amount||0),0);
+  const fullyPaid=Boolean(bookingBefore && receivedTotal>=Number(bookingBefore.total_amount));
+  const bookingStatus=fullyPaid?'PAYMENT_RECEIVED':undefined;
+  const paymentState=fullyPaid?'RECEIVED':(receivedTotal>0?'PARTIALLY_RECEIVED':body.status);
+  const bookingUpdate: Record<string, unknown> = { payment_status: paymentState, updated_at: now };
   if (bookingStatus) bookingUpdate.status = bookingStatus;
   const { data: booking } = await supabase.from('bookings').update(bookingUpdate).eq('id', before.booking_id).select('*').single();
   await supabase.from('audit_logs').insert({ actor_id: staff.profile.id, action: 'PAYMENT_STATUS_UPDATED', entity_type: 'payment', entity_id: before.id, before_data: before, after_data: after });
