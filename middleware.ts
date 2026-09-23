@@ -37,8 +37,8 @@ export async function middleware(req: NextRequest){
     const publicClient=createServerClient(urlForPublic(req),keyForPublic(),{cookies:{getAll(){return req.cookies.getAll()},setAll(){}}});
     const {data:isPartner}=await publicClient.rpc('partner_slug_exists',{p_slug:candidate});
     if(isPartner){
-      res.cookies.set('he_partner_ref',candidate,{path:'/',maxAge:315360000,httpOnly:true,sameSite:'lax'});
       res=NextResponse.rewrite(new URL('/',req.url),{request:{headers:requestHeaders}});
+      res.cookies.set('he_partner_ref',candidate,{path:'/',maxAge:315360000,httpOnly:true,sameSite:'lax'});
     }
   }
 
