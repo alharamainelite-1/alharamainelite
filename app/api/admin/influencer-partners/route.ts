@@ -1,9 +1,10 @@
+import {randomUUID} from 'node:crypto';
 import {NextResponse} from 'next/server';
 import {getCurrentStaff} from '@/lib/supabase/auth';
 import {getSupabaseAdmin} from '@/lib/supabase/server';
 
 const slugify=(v:string)=>v.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'partner';
-const tempPassword=()=>crypto.randomUUID().replace(/-/g,'').slice(0,18)+'Aa1!';
+const tempPassword=()=>randomUUID().replace(/-/g,'').slice(0,18)+'Aa1!';
 
 export async function POST(req:Request){
  const staff=await getCurrentStaff(); if(!staff||staff.profile.role!=='SUPER_ADMIN')return NextResponse.json({error:'SUPER_ADMIN access required.'},{status:403});
