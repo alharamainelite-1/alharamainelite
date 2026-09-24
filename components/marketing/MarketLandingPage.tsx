@@ -3,6 +3,7 @@ import Script from 'next/script';
 import {headers} from 'next/headers';
 import {defaultLocale, isLocale, type Locale} from '@/lib/i18n';
 import {localizedPath, SITE_URL} from '@/lib/seo';
+import {CITY_SEO} from '@/lib/city-seo';
 
 type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
 
@@ -111,7 +112,7 @@ export async function MarketLandingPage({market}:{market:Market}){
       <section className="section bg-[#f7f3ea]">
         <div className="container">
           <div className="max-w-3xl"><div className="eyebrow">{t.diasporaEyebrow}</div><h2 className="serif mt-3 text-4xl text-forest md:text-5xl">{t.diasporaTitle}</h2><p className="mt-5 leading-8 text-forest/65">{t.diasporaText}</p></div>
-          <div className="mt-8 flex flex-wrap gap-3">{market.cities.map(c=><span key={c} className="rounded-full border border-forest/15 bg-white px-4 py-2 text-sm text-forest/70">{c}</span>)}</div>
+          <div className="mt-8 flex flex-wrap gap-3">{market.cities.map(c=><span key={c} className="rounded-full border border-forest/15 bg-white px-4 py-2 text-sm text-forest/70">{c}</span>)}</div><div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{CITY_SEO.filter(city=>city.country===market.country).map(city=><Link key={city.slug} href={localizedPath(`/umrah-from-city/${city.slug}`,locale)} className="card p-4 hover:border-gold"><div className="eyebrow">{city.countryCode}</div><div className="mt-1 font-semibold text-forest">{city.city}</div></Link>)}</div>
         </div>
       </section>
 
