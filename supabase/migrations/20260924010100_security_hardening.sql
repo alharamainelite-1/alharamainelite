@@ -142,7 +142,7 @@ begin
     select format('%I.%I', schemaname, tablename) as rel
     from pg_tables where schemaname = 'public'
   loop
-    execute format('revoke insert, update, delete, truncate, references, trigger on table %s from anon, authenticated', r.rel);
+    execute format('revoke insert, update, delete, truncate, references, trigger on table %s from anon', r.rel);\n    execute format('revoke truncate, references, trigger on table %s from authenticated', r.rel);
   end loop;
 end;
 $$;
