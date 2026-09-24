@@ -35,6 +35,43 @@ const structuredData = {
   knowsLanguage: ['English','Somali','Arabic'],
 };
 
+
+
+const umrahServiceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Premium Umrah Journeys for Somali Muslims',
+  serviceType: 'Umrah travel planning',
+  provider: {
+    '@type': 'TravelAgency',
+    name: siteConfig.brandName,
+    url: SITE_URL,
+  },
+  areaServed: ['United Kingdom','United States','Canada','Europe','Australia'],
+  availableLanguage: ['English','Somali','Arabic'],
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'ALHARAMAIN ELITE Umrah Journeys',
+    itemListElement: [
+      {
+        '@type': 'Offer',
+        name: 'SIGNATURE Umrah Journey',
+        price: '2000',
+        priceCurrency: 'USD',
+        url: SITE_URL + '/packages/signature',
+        availability: 'https://schema.org/InStock',
+      },
+      {
+        '@type': 'Offer',
+        name: 'ELITE Umrah Journey',
+        price: '2500',
+        priceCurrency: 'USD',
+        url: SITE_URL + '/packages/elite',
+        availability: 'https://schema.org/InStock',
+      },
+    ],
+  },
+};
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -58,6 +95,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <SiteFooter locale={locale} />
       <Script id="organization-schema" nonce={nonce} type="application/ld+json">{JSON.stringify(structuredData)}</Script>
       <Script id="website-schema" nonce={nonce} type="application/ld+json">{JSON.stringify(websiteSchema)}</Script>
+      <Script id="umrah-service-schema" nonce={nonce} type="application/ld+json">{JSON.stringify(umrahServiceSchema)}</Script>
       {!isAdmin && <>
         <Script nonce={nonce} src="https://www.googletagmanager.com/gtag/js?id=G-S4SCC036K4" strategy="afterInteractive" />
         <Script nonce={nonce} id="google-analytics" strategy="afterInteractive" dangerouslySetInnerHTML={{__html:"window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S4SCC036K4');"}} />
