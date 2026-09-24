@@ -60,7 +60,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <Script id="website-schema" nonce={nonce} type="application/ld+json">{JSON.stringify(websiteSchema)}</Script>
       {!isAdmin && <>
         <Script nonce={nonce} src="https://www.googletagmanager.com/gtag/js?id=G-S4SCC036K4" strategy="afterInteractive" />
-        <Script nonce={nonce} id="google-analytics" strategy="afterInteractive">"window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S4SCC036K4');"</Script>
+        <Script nonce={nonce} id="google-analytics" strategy="afterInteractive" dangerouslySetInnerHTML={{__html:"window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S4SCC036K4');"}} />
       </>}
     </body>
   </html>;
