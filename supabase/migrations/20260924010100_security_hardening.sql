@@ -127,7 +127,7 @@ revoke all on function public.request_partner_payout(uuid, uuid) from public, an
 grant execute on function public.request_partner_payout(uuid, uuid) to service_role;
 
 alter default privileges for role postgres in schema public
-  revoke select, insert, update, delete on tables from anon, authenticated;
+  revoke select, insert, update, delete, truncate, references, trigger on tables from anon, authenticated;
 
 alter default privileges for role postgres in schema public
   revoke execute on functions from anon, authenticated, public;
@@ -142,7 +142,7 @@ begin
     select format('%I.%I', schemaname, tablename) as rel
     from pg_tables where schemaname = 'public'
   loop
-    execute format('revoke insert, update, delete, truncate, references, trigger on table %s from anon', r.rel);
+    execute format('revoke insert, update, delete, truncate, references, trigger on table %s from anon, authenticated', r.rel);
   end loop;
 end;
 $$;
