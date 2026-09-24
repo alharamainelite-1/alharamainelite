@@ -2,6 +2,8 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import Script from 'next/script';
 import {notFound} from 'next/navigation';
+import {headers} from 'next/headers';
+import {isLocale,defaultLocale,type Locale} from '@/lib/i18n';
 import {SITE_URL,localizedPath,hreflangAlternates} from '@/lib/seo';
 import {CITY_SEO,getCitySeo} from '@/lib/city-seo';
 
@@ -10,8 +12,11 @@ export function generateStaticParams(){return CITY_SEO.map(x=>({city:x.slug}));}
 
 export async function generateMetadata({params}:{params:Promise<{city:string}>}):Promise<Metadata>{
   const {city:slug}=await params; const city=getCitySeo(slug); if(!city)return{};
+  const h=await headers(); const raw=h.get('x-he-locale'); const locale:Locale=isLocale(raw??undefined)?(raw as Locale):defaultLocale;
   const path=`/umrah-from-city/${city.slug}`;
-  return {title:city.title,description:city.description,alternates:{canonical:`${SITE_URL}${path}`,languages:{...hreflangAlternates(path)}},openGraph:{title:city.title,description:city.description,url:`${SITE_URL}${path}`,type:'website',images:[{url:`${SITE_URL}/brand/alharamainelite-logo.png`}]},robots:{index:true,follow:true}};
+  const localizedTitle=locale==='ar'?`العمرة من ${city.city} للمسلمين الصوماليين`:locale==='so'?`Cumro ka socota ${city.city} ee Muslimiinta Soomaalida`:city.title;
+  const localizedDescription=locale==='ar'?`خطط لرحلة عمرة راقية ضمن مجموعة صغيرة للمسلمين الصوماليين المقيمين في ${city.city}. أسعار واضحة ودعم شخصي.`:locale==='so'?`Qorshee safar Cumro oo koox yar ah oo loogu talagalay Muslimiinta Soomaalida ku nool ${city.city}, leh qiime cad iyo taageero gaar ah.`:city.description;
+  return {title:localizedTitle,description:localizedDescription,alternates:{canonical:`${SITE_URL}${path}`,languages:{...hreflangAlternates(path)}},openGraph:{title:city.title,description:city.description,url:`${SITE_URL}${path}`,type:'website',images:[{url:`${SITE_URL}/brand/alharamainelite-logo.png`}]},robots:{index:true,follow:true}};
 }
 
 const text={
@@ -22,10 +27,10 @@ ar:{eyebrow:'عمرة للصوماليين · دليل المدينة',intro:(c:
 
 export default async function CityPage({params}:{params:Promise<{city:string}>}){
   const {city:slug}=await params; const city=getCitySeo(slug); if(!city)notFound();
-  const l='en'; const t=text[l]; const path=`/umrah-from-city/${city.slug}`; const url=`${SITE_URL}${path}`;
+  const h=await headers(); const raw=h.get('x-he-locale'); const l:Locale=isLocale(raw??undefined)?(raw as Locale):defaultLocale; const t=text[l]; const path=`/umrah-from-city/${city.slug}`; const url=`${SITE_URL}${path}`;
   const other=CITY_SEO.filter(x=>x.slug!==city.slug).slice(0,8);
   return <div>
-    <section className="relative overflow-hidden bg-forest text-white"><div className="container py-24 md:py-32"><div className="max-w-4xl"><div className="eyebrow">{t.eyebrow} · {city.countryCode}</div><h1 className="serif mt-5 text-5xl leading-[.98] md:text-7xl">{city.title}</h1><p className="mt-7 max-w-2xl text-lg leading-8 text-white/75">{t.intro(city.city)}</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/packages" className="btn bg-gold text-forest">{t.packages}</Link><Link href="/request-journey" className="btn border border-white/35 text-white">{t.request}</Link></div></div></div></section>
+    <section className="relative overflow-hidden bg-forest text-white"><div className="container py-24 md:py-32"><div className="max-w-4xl"><div className="eyebrow">{t.eyebrow} · {city.countryCode}</div><h1 className="serif mt-5 text-5xl leading-[.98] md:text-7xl">{l==='ar'?`العمرة من ${city.city} للمسلمين الصوماليين`:l==='so'?`Cumro ka socota ${city.city} ee Muslimiinta Soomaalida`:city.title}</h1><p className="mt-7 max-w-2xl text-lg leading-8 text-white/75">{t.intro(city.city)}</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/packages" className="btn bg-gold text-forest">{t.packages}</Link><Link href="/request-journey" className="btn border border-white/35 text-white">{t.request}</Link></div></div></div></section>
     <section className="section"><div className="container">
       <div className="grid gap-6 md:grid-cols-3">
         <div className="card p-7"><div className="eyebrow">{t.journeys}</div><h2 className="serif mt-3 text-3xl text-forest">$2,000 / $2,500</h2><p className="mt-3 text-sm leading-7 text-forest/60">{t.journeysText}</p></div>
@@ -37,7 +42,7 @@ export default async function CityPage({params}:{params:Promise<{city:string}>})
       <div className="mt-12 rounded-[28px] bg-forest p-8 text-white md:p-10"><div className="eyebrow">{t.start}</div><h2 className="serif mt-3 text-4xl">{t.start} from {city.city}</h2><p className="mt-4 max-w-2xl leading-7 text-white/70">{t.intro(city.city)}</p><div className="mt-7 flex flex-wrap gap-3"><Link href="/request-journey" className="btn bg-gold text-forest">{t.request}</Link><Link href="/packages" className="btn border border-white/30 text-white">{t.packages}</Link></div></div>
     </div></section>
     <section className="section bg-[#f7f3ea]"><div className="container"><div className="max-w-3xl"><div className="eyebrow">{t.other}</div><h2 className="serif mt-3 text-4xl text-forest">{t.other}</h2><p className="mt-4 leading-7 text-forest/60">{t.otherText}</p></div><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{other.map(x=><Link key={x.slug} href={`/umrah-from-city/${x.slug}`} className="card p-5 hover:border-gold"><div className="eyebrow">{x.countryCode}</div><div className="mt-2 font-semibold text-forest">{x.city}</div></Link>)}</div></div></section>
-    <Script id="city-schema" type="application/ld+json">{JSON.stringify({'@context':'https://schema.org','@type':'WebPage',name:city.title,description:city.description,url,inLanguage:l,isPartOf:{'@type':'WebSite',name:'ALHARAMAIN ELITE',url:SITE_URL},about:{'@type':'Service',name:'Umrah Journey Planning',areaServed:{'@type':'City',name:city.city}}})}</Script>
+    <Script id="city-schema" type="application/ld+json">{JSON.stringify({'@context':'https://schema.org','@type':'WebPage',name:l==='ar'?`العمرة من ${city.city} للمسلمين الصوماليين`:l==='so'?`Cumro ka socota ${city.city} ee Muslimiinta Soomaalida`:city.title,description:city.description,url,inLanguage:l,isPartOf:{'@type':'WebSite',name:'ALHARAMAIN ELITE',url:SITE_URL},about:{'@type':'Service',name:'Umrah Journey Planning',areaServed:{'@type':'City',name:city.city}}})}</Script>
     <Script id="city-breadcrumb-schema" type="application/ld+json">{JSON.stringify({'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:SITE_URL},{'@type':'ListItem',position:2,name:'Umrah from cities',item:`${SITE_URL}/umrah-from-city`},{'@type':'ListItem',position:3,name:city.title,item:url}]})}</Script>
   </div>;
 }
