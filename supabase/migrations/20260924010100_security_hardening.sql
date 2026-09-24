@@ -7,6 +7,8 @@ create table if not exists public.api_rate_limits (
 );
 
 alter table public.api_rate_limits enable row level security;
+drop policy if exists api_rate_limits_no_client_access on public.api_rate_limits;
+create policy api_rate_limits_no_client_access on public.api_rate_limits for all to anon, authenticated using (false) with check (false);
 revoke all on table public.api_rate_limits from anon, authenticated;
 grant all on table public.api_rate_limits to service_role;
 
