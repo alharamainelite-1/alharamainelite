@@ -8,6 +8,18 @@ const access: Record<string,string[]> = {
 function urlForPublic(req:NextRequest){return process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://vpeagpnsljoaaafrtbed.supabase.co'}
 function keyForPublic(){return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ['sb_publishable_','x3cFwO1f_','MB4mnfS2uqNfg_9CvxRZE_'].join('')}
 
+async function partnerSlugExists(req:NextRequest, slug:string){
+  const client=createServerClient(urlForPublic(req),keyForPublic(),{cookies:{getAll(){return req.cookies.getAll()},setAll(){}}});
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const {data,error}=await client.rpc('partner_slug_exists',{p_slug:slug});
+      if(!error && data===true)return true;
+    }catch{}
+    if(attempt===0)await new Promise(resolve=>setTimeout(resolve,150));
+  }
+  return false;
+}
+
 export async function middleware(req: NextRequest){
   const originalPath = req.nextUrl.pathname;
   const localeMatch = originalPath.match(/^\/(so|ar)(?=\/|$)/);
@@ -34,9 +46,7 @@ export async function middleware(req: NextRequest){
   const candidate=publicPath.replace(/^\//,'');
   const reserved=['packages','experience','womens-umrah','makkah','madinah','jeddah','hotels','transportation','about','reviews','faq','request-journey','request-success','contact','umrah-from-usa','umrah-from-uk','umrah-from-canada','partner-program','partner-login','partner','admin','api'];
   if(candidate && !candidate.includes('/') && /^[a-z0-9-]{2,60}$/.test(candidate) && !reserved.includes(candidate)){
-    const publicClient=createServerClient(urlForPublic(req),keyForPublic(),{cookies:{getAll(){return req.cookies.getAll()},setAll(){}}});
-    const {data:isPartner}=await publicClient.rpc('partner_slug_exists',{p_slug:candidate});
-    if(isPartner){
+    if(await partnerSlugExists(req,candidate)){
       res=NextResponse.rewrite(new URL('/',req.url),{request:{headers:requestHeaders}});
       res.cookies.set('he_partner_ref',candidate,{path:'/',maxAge:315360000,httpOnly:true,sameSite:'lax'});
     }
