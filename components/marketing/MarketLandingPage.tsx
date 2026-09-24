@@ -112,13 +112,6 @@ export async function MarketLandingPage({market}:{market:Market}){
         <div className="container">
           <div className="max-w-3xl"><div className="eyebrow">{t.diasporaEyebrow}</div><h2 className="serif mt-3 text-4xl text-forest md:text-5xl">{t.diasporaTitle}</h2><p className="mt-5 leading-8 text-forest/65">{t.diasporaText}</p></div>
           <div className="mt-8 flex flex-wrap gap-3">{market.cities.map(c=><span key={c} className="rounded-full border border-forest/15 bg-white px-4 py-2 text-sm text-forest/70">{c}</span>)}</div>
-        <div className="mt-10">
-          <div className="eyebrow">City-specific Umrah planning</div>
-          <h3 className="serif mt-3 text-3xl text-forest">Find your city</h3>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {CITY_SEO.filter(x=>x.countryCode===market.countryCode).map(x=><Link key={x.slug} href={`/umrah-from-city/${x.slug}`} className="card p-5 hover:border-gold"><div className="eyebrow">{x.countryCode}</div><div className="mt-2 font-semibold text-forest">{x.city}</div></Link>)}
-          </div>
-        </div>
         </div>
       </section>
 
