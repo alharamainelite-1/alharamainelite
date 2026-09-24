@@ -1,1 +1,5 @@
-import {NextResponse} from 'next/server';export function GET(){return NextResponse.json({ok:true,service:'alharamainelite',version:'1.0.0'})}
+import {NextResponse} from 'next/server';
+
+export async function GET(){
+  return NextResponse.json({ok:true},{status:200,headers:{'Cache-Control':'no-store'}});
+}

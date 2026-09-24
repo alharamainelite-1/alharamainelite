@@ -20,6 +20,27 @@ async function partnerSlugExists(req:NextRequest, slug:string){
   return false;
 }
 
+function createNonce(){return btoa(crypto.randomUUID()).replace(/=+$/,'');}
+
+function applySecurityHeaders(res:NextResponse,nonce:string){
+  const supabaseOrigin=process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://vpeagpnsljoaaafrtbed.supabase.co';
+  const csp=[
+    "default-src 'self'","base-uri 'self'","object-src 'none'","frame-ancestors 'none'","form-action 'self'",
+    "script-src 'self' 'nonce-"+nonce+"' 'strict-dynamic' https://www.googletagmanager.com https://www.google-analytics.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://www.google-analytics.com",
+    "font-src 'self' data:","connect-src 'self' "+supabaseOrigin+" https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com",
+    "frame-src 'self'","worker-src 'self' blob:"
+  ].join('; ');
+  res.headers.set('Content-Security-Policy',csp);
+  res.headers.set('X-Frame-Options','DENY');
+  res.headers.set('X-Content-Type-Options','nosniff');
+  res.headers.set('Referrer-Policy','strict-origin-when-cross-origin');
+  res.headers.set('Permissions-Policy','camera=(), microphone=(), geolocation=()');
+  res.headers.set('Cross-Origin-Opener-Policy','same-origin');
+  res.headers.set('x-nonce',nonce);
+}
+
 export async function middleware(req: NextRequest){
   const originalPath = req.nextUrl.pathname;
   const localeMatch = originalPath.match(/^\/(so|ar)(?=\/|$)/);
@@ -28,6 +49,8 @@ export async function middleware(req: NextRequest){
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-he-locale', locale);
   requestHeaders.set('x-he-path', publicPath);
+  const nonce=createNonce();
+  requestHeaders.set('x-nonce',nonce);
 
   let res: NextResponse;
   if (localeMatch) {
@@ -37,10 +60,7 @@ export async function middleware(req: NextRequest){
   } else {
     res = NextResponse.next({ request: { headers: requestHeaders } });
   }
-
-  res.headers.set('x-content-type-options','nosniff');
-  res.headers.set('referrer-policy','strict-origin-when-cross-origin');
-  res.headers.set('permissions-policy','camera=(), microphone=(), geolocation=()');
+  applySecurityHeaders(res,nonce);
 
   if(originalPath==='/favicon.ico') return NextResponse.redirect(new URL('/brand/alharamainelite-logo.png',req.url));
   const candidate=publicPath.replace(/^\//,'');
@@ -49,13 +69,14 @@ export async function middleware(req: NextRequest){
     if(await partnerSlugExists(req,candidate)){
       res=NextResponse.rewrite(new URL('/',req.url),{request:{headers:requestHeaders}});
       res.cookies.set('he_partner_ref',candidate,{path:'/',maxAge:315360000,httpOnly:true,sameSite:'lax'});
+      applySecurityHeaders(res,nonce);
     }
   }
 
   if(publicPath.startsWith('/admin') && !publicPath.startsWith('/admin/login')){
     const url=process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://vpeagpnsljoaaafrtbed.supabase.co';
     const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ['sb_publishable_', 'x3cFwO1f_', 'MB4mnfS2uqNfg_9CvxRZE_'].join('');
-    const supabase=createServerClient(url,key,{cookies:{getAll(){return req.cookies.getAll()},setAll(cookies){cookies.forEach(({name,value,options})=>req.cookies.set(name,value));res=NextResponse.next({request:req});cookies.forEach(({name,value,options})=>res.cookies.set(name,value,options));}}});
+    const supabase=createServerClient(url,key,{cookies:{getAll(){return req.cookies.getAll()},setAll(cookies){cookies.forEach(({name,value})=>req.cookies.set(name,value));res=NextResponse.next({request:{headers:requestHeaders}});cookies.forEach(({name,value,options})=>res.cookies.set(name,value,options));applySecurityHeaders(res,nonce);}}});
     const {data:{user}}=await supabase.auth.getUser();
     if(!user)return NextResponse.redirect(new URL('/admin/login',req.url));
     const {data:profile}=await supabase.from('profiles').select('role').eq('id',user.id).single();

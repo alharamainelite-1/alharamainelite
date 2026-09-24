@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { journeyRequestSchema } from '@/lib/validation/journey';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
+import { enforceRateLimit, rateLimitResponse } from '@/lib/security/rate-limit';
 
 export async function POST(req: Request) {
   try {
@@ -11,6 +12,16 @@ export async function POST(req: Request) {
     const v = parsed.data;
     const partnerSlug = req.headers.get('cookie')?.match(/(?:^|; )he_partner_ref=([^;]+)/)?.[1] || null;
     if (v.website) return NextResponse.json({ error: 'Please check the highlighted details.' }, { status: 400 });
+
+    const ipLimit = await enforceRateLimit(req, 'journey-request', 10, 60);
+    if (ipLimit.failed) return NextResponse.json({ error: 'Service temporarily unavailable. Please try again shortly.' }, { status: 503 });
+    if (!ipLimit.allowed) return rateLimitResponse(ipLimit.retryAfterSeconds);
+    if (v.email) {
+      const emailLimit = await enforceRateLimit(req, 'journey-request-email', 5, 600, v.email);
+      if (emailLimit.failed) return NextResponse.json({ error: 'Service temporarily unavailable. Please try again shortly.' }, { status: 503 });
+      if (!emailLimit.allowed) return rateLimitResponse(emailLimit.retryAfterSeconds);
+    }
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase.rpc('create_journey_request', {
       p_full_name: v.fullName, p_whatsapp: v.whatsapp, p_email: v.email || null, p_country: v.country, p_city: v.city || null,

@@ -48,6 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const h = await headers();
   const currentPath = h.get('x-he-path') || '/';
+  const nonce = h.get('x-nonce') || undefined;
   const isAdmin = currentPath === '/admin' || currentPath.startsWith('/admin/');
 
   return <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
@@ -55,11 +56,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <SiteHeader locale={locale} />
       <main>{children}</main>
       <SiteFooter locale={locale} />
-      <Script id="organization-schema" type="application/ld+json">{JSON.stringify(structuredData)}</Script>
-      <Script id="website-schema" type="application/ld+json">{JSON.stringify(websiteSchema)}</Script>
+      <Script id="organization-schema" nonce={nonce} type="application/ld+json">{JSON.stringify(structuredData)}</Script>
+      <Script id="website-schema" nonce={nonce} type="application/ld+json">{JSON.stringify(websiteSchema)}</Script>
       {!isAdmin && <>
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-S4SCC036K4" strategy="afterInteractive" />
-        <Script id="google-analytics" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S4SCC036K4');`}</Script>
+        <Script nonce={nonce} src="https://www.googletagmanager.com/gtag/js?id=G-S4SCC036K4" strategy="afterInteractive" />
+        <Script nonce={nonce} id="google-analytics" strategy="afterInteractive" dangerouslySetInnerHTML={{__html:"window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S4SCC036K4');"}} />
       </>}
     </body>
   </html>;
