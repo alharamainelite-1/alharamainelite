@@ -80,25 +80,24 @@ declare
   v_balance numeric := 0;
   v_commission_ids uuid[];
 begin
-  select * into v_partner
-  from public.influencer_partners
-  where id = p_partner_id
-  for update;
-
+  select * into v_partner from public.influencer_partners where id = p_partner_id for update;
   if not found then raise exception 'partner_not_found'; end if;
   if p_actor_id is null or v_partner.user_id <> p_actor_id then raise exception 'partner_actor_mismatch'; end if;
   if v_partner.status not in ('PENDING', 'ACTIVE') then raise exception 'partner_not_eligible'; end if;
 
-  select
-    coalesce(sum(case when c.type = 'RECOVERY' then -c.amount else c.amount end), 0),
-    coalesce(array_agg(c.id order by c.available_at, c.created_at), '{}'::uuid[])
-    into v_balance, v_commission_ids
-  from public.influencer_commissions c
-  where c.partner_id = p_partner_id
-    and c.payout_id is null
-    and c.status = 'PENDING'
-    and c.available_at <= clock_timestamp()
-  for update;
+  select coalesce(sum(case when c.type = 'RECOVERY' then -c.amount else c.amount end), 0),
+         coalesce(array_agg(c.id order by c.available_at, c.created_at), '{}'::uuid[])
+  into v_balance, v_commission_ids
+  from (
+    select c.id,c.amount,c.type,c.available_at,c.created_at
+    from public.influencer_commissions c
+    where c.partner_id = p_partner_id
+      and c.payout_id is null
+      and c.status = 'PENDING'
+      and c.available_at <= clock_timestamp()
+    order by c.available_at, c.created_at
+    for update
+  ) c;
 
   if v_balance < 500 then raise exception 'minimum_payout_balance'; end if;
 
@@ -112,19 +111,12 @@ begin
     and payout_id is null
     and status = 'PENDING'
     and available_at <= clock_timestamp();
-
   if not found then raise exception 'payout_reservation_failed'; end if;
 
   insert into public.audit_logs(actor_id, action, entity_type, entity_id, before_data, after_data)
   values (
     p_actor_id, 'PARTNER_PAYOUT_REQUESTED', 'influencer_payout', v_payout.id, null,
-    jsonb_build_object(
-      'partner_id', p_partner_id,
-      'amount', v_payout.amount,
-      'status', v_payout.status,
-      'requested_at', v_payout.requested_at,
-      'commission_ids', v_commission_ids
-    )
+    jsonb_build_object('partner_id',p_partner_id,'amount',v_payout.amount,'status',v_payout.status,'requested_at',v_payout.requested_at,'commission_ids',v_commission_ids)
   );
 
   return query select v_payout.id, v_payout.amount, v_payout.status, v_payout.requested_at;
