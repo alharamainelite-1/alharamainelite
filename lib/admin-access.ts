@@ -15,6 +15,7 @@ export const ADMIN_ACCESS = {
   reviews: ['SUPER_ADMIN','ADMIN'],
   influencers: ['SUPER_ADMIN','ADMIN'],
   team: ['SUPER_ADMIN'],
+  staffMonitoring: ['SUPER_ADMIN'],
   settings: ['SUPER_ADMIN','ADMIN'],
   audit: ['SUPER_ADMIN','ADMIN'],
   hosts: ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
@@ -34,7 +35,7 @@ export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | 
     ['/admin/bookings','bookings'],['/admin/operations','operations'],['/admin/groups','groups'],
     ['/admin/payments','payments'],['/admin/expenses','expenses'],['/admin/reports','reports'],
     ['/admin/communications','communications'],['/admin/reviews','reviews'],['/admin/influencer-partners','influencers'],
-    ['/admin/team','team'],['/admin/settings','settings'],['/admin/audit-logs','audit'],
+    ['/admin/team','team'],['/admin/staff-monitoring','staffMonitoring'],['/admin/settings','settings'],['/admin/audit-logs','audit'],
     ['/admin/hosts','hosts'],['/admin/hotels','hotels'],['/admin/train','train'],['/admin/transportation','transportation'],['/admin/host-tasks','hostTasks'],
   ];
   const match = map.find(([prefix]) => pathname === prefix || pathname.startsWith(prefix + '/'));
