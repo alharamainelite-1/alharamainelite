@@ -23,8 +23,8 @@ export default async function InfluencerPartnersPage(){
   return {...p,bookings,sales,due,paid};
  }).sort((a:any,b:any)=>b.sales-a.sales);
  return <section className="pb-12">
-  <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-4xl text-forest">Influencer Partners</h1><p className="mt-2 max-w-2xl text-forest/55">Partner referrals, sales, commissions and payout requests.</p></div><Link href="/admin" className="btn btn-outline">Back to dashboard</Link></div>
-  <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[['Total Partners',ps.length],['Active',ps.filter((p:any)=>p.status==='ACTIVE').length],['Pending',ps.filter((p:any)=>p.status==='PENDING').length],['Payout Requests',pay.filter((p:any)=>p.status==='REQUESTED').length]].map(([l,v])=><div className="card p-6" key={String(l)}><div className="eyebrow">{l}</div><div className="serif mt-2 text-4xl text-forest">{v}</div></div>)}</div>
+  <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-4xl text-forest">شركاء المؤثرين</h1><p className="mt-2 max-w-2xl text-forest/55">إحالات الشركاء والمبيعات والعمولات وطلبات الصرف.</p></div><Link href="/admin" className="btn btn-outline">العودة إلى لوحة التحكم</Link></div>
+  <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[['إجمالي الشركاء',ps.length],['نشطون',ps.filter((p:any)=>p.status==='ACTIVE').length],['معلقون',ps.filter((p:any)=>p.status==='PENDING').length],['طلبات الصرف',pay.filter((p:any)=>p.status==='REQUESTED').length]].map(([l,v])=><div className="card p-6" key={String(l)}><div className="eyebrow">{l}</div><div className="serif mt-2 text-4xl text-forest">{v}</div></div>)}</div>
   <div className="mt-7"><InfluencerPartnersAdmin initialRows={rows} payouts={pay} role={staff.profile.role}/></div>
  </section>;
 }
