@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','HANDED_TO_OPERATIONS','OPERATIONS_IN_PROGRESS','PREPARING','JOURNEY_READY','ACTIVE','COMPLETED','CANCELLED'] as const;
+const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED','CANCELLED'] as const;
 
 export function BookingStatusForm({ bookingId, currentStatus, paymentStatus }: { bookingId:string; currentStatus:string; paymentStatus:string }) {
   const [status,setStatus]=useState(currentStatus);
