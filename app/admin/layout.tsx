@@ -5,6 +5,9 @@ import { AdminLogout } from '@/components/admin/AdminLogout';
 import { AdminLanguageSelector } from '@/components/admin/AdminLanguageSelector';
 import { getAdminLocale } from '@/lib/admin-locale';
 import { adminText } from '@/lib/admin-text';
+import { ADMIN_ACCESS } from '@/lib/admin-access';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -13,22 +16,22 @@ export const metadata: Metadata = {
 type NavItem={en:string;ar:string;href:string;roles?:string[]};
 const nav:NavItem[]=[
  {en:'Dashboard',ar:'لوحة التحكم',href:'/admin'},
- {en:'Journey Requests',ar:'طلبات الرحلات',href:'/admin/requests',roles:['SUPER_ADMIN','ADMIN','SALES']},
- {en:'Customers',ar:'العملاء',href:'/admin/guests',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Journeys',ar:'الرحلات',href:'/admin/journeys',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Bookings',ar:'الحجوزات',href:'/admin/bookings',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Operations',ar:'العمليات والمهام',href:'/admin/operations',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Groups',ar:'المجموعات',href:'/admin/groups',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Resources',ar:'الموارد',href:'/admin/operations',roles:['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Payments',ar:'المدفوعات',href:'/admin/payments',roles:['SUPER_ADMIN','ADMIN','SALES','FINANCE']},
- {en:'Expenses',ar:'المصروفات',href:'/admin/expenses',roles:['SUPER_ADMIN','ADMIN','FINANCE']},
- {en:'Reports',ar:'التقارير',href:'/admin/reports',roles:['SUPER_ADMIN','ADMIN']},
- {en:'Audit Logs',ar:'سجل النشاط',href:'/admin/audit-logs',roles:['SUPER_ADMIN','ADMIN']},
- {en:'Communications',ar:'التواصل',href:'/admin/communications',roles:['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS']},
- {en:'Reviews',ar:'التقييمات',href:'/admin/reviews',roles:['SUPER_ADMIN','ADMIN']},
- {en:'Influencer Partners',ar:'شركاء المؤثرين',href:'/admin/influencer-partners',roles:['SUPER_ADMIN','ADMIN']},
- {en:'Team & Permissions',ar:'الفريق والصلاحيات',href:'/admin/team',roles:['SUPER_ADMIN']},
- {en:'Settings',ar:'الإعدادات',href:'/admin/settings',roles:['SUPER_ADMIN','ADMIN']}
+ {en:'Journey Requests',ar:'طلبات الرحلات',href:'/admin/requests',roles:[...ADMIN_ACCESS.requests]},
+ {en:'Customers',ar:'العملاء',href:'/admin/guests',roles:[...ADMIN_ACCESS.guests]},
+ {en:'Journeys',ar:'الرحلات',href:'/admin/journeys',roles:[...ADMIN_ACCESS.journeys]},
+ {en:'Bookings',ar:'الحجوزات',href:'/admin/bookings',roles:[...ADMIN_ACCESS.bookings]},
+ {en:'Operations',ar:'العمليات والمهام',href:'/admin/operations',roles:[...ADMIN_ACCESS.operations]},
+ {en:'Groups',ar:'المجموعات',href:'/admin/groups',roles:[...ADMIN_ACCESS.groups]},
+ {en:'Resources',ar:'الموارد',href:'/admin/operations',roles:[...ADMIN_ACCESS.resources]},
+ {en:'Payments',ar:'المدفوعات',href:'/admin/payments',roles:[...ADMIN_ACCESS.payments]},
+ {en:'Expenses',ar:'المصروفات',href:'/admin/expenses',roles:[...ADMIN_ACCESS.expenses]},
+ {en:'Reports',ar:'التقارير',href:'/admin/reports',roles:[...ADMIN_ACCESS.reports]},
+ {en:'Audit Logs',ar:'سجل النشاط',href:'/admin/audit-logs',roles:[...ADMIN_ACCESS.audit]},
+ {en:'Communications',ar:'التواصل',href:'/admin/communications',roles:[...ADMIN_ACCESS.communications]},
+ {en:'Reviews',ar:'التقييمات',href:'/admin/reviews',roles:[...ADMIN_ACCESS.reviews]},
+ {en:'Influencer Partners',ar:'شركاء المؤثرين',href:'/admin/influencer-partners',roles:[...ADMIN_ACCESS.influencers]},
+ {en:'Team & Permissions',ar:'الفريق والصلاحيات',href:'/admin/team',roles:[...ADMIN_ACCESS.team]},
+ {en:'Settings',ar:'الإعدادات',href:'/admin/settings',roles:[...ADMIN_ACCESS.settings]}
 ];
 
 export default async function AdminLayout({children}:{children:React.ReactNode}){
