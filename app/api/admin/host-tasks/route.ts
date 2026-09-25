@@ -15,7 +15,7 @@ export async function PATCH(req:Request){
    const allowed:any={ASSIGNED:['ACCEPTED'],ACCEPTED:['IN_PROGRESS'],IN_PROGRESS:['COMPLETED']};
    if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:'Invalid task transition.'},{status:403});
  }else if(!['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'].includes(staff.profile.role))return NextResponse.json({error:'Operations access required.'},{status:403});
- const {data,error}=await s.from('host_tasks').update({status:b.status,updated_at:new Date().toISOString()}).eq('id',b.id).select('*').single(); if(error)return NextResponse.json({error:error.message},{status:500});
+ const {data,error}=await s.from('host_tasks').update({status:b.status}).eq('id',b.id).select('*').single(); if(error)return NextResponse.json({error:error.message},{status:500});
  await s.from('audit_logs').insert({actor_id:staff.profile.id,action:'HOST_TASK_STATUS_UPDATED',entity_type:'host_task',entity_id:b.id,before_data:before,after_data:data});
  revalidatePath('/admin/host-tasks'); revalidatePath('/admin/operations'); return NextResponse.json({task:data});
 }
