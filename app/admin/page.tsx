@@ -80,7 +80,7 @@ function RoleShell({cfg,children}:{cfg:any;children:React.ReactNode}){
 }
 
 function WorkspaceSteps({items,links}:{items:string[];links:string[]}){
- return <div className="mt-8 card p-6"><div className="eyebrow">{locale==='ar'?'سير العمل':'WORKFLOW'}</div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{items.map((item,i)=><Link key={item} href={links[i]} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{i+1}</div><div className="mt-2 font-semibold text-forest">{item}</div></Link>)}</div></div>
+ return <div className="mt-8 card p-6"><div className="eyebrow">سير العمل</div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{items.map((item,i)=><Link key={item} href={links[i]} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{i+1}</div><div className="mt-2 font-semibold text-forest">{item}</div></Link>)}</div></div>
 }
 
 export default async function AdminHome(){
