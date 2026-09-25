@@ -24,7 +24,7 @@ export const ADMIN_ACCESS = {
 } as const satisfies Record<string, readonly StaffRole[]>;
 
 export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS) {
-  return ADMIN_ACCESS[area].includes(role);
+  return (ADMIN_ACCESS[area] as readonly StaffRole[]).includes(role);
 }
 
 export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | null {
