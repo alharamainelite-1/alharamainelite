@@ -3,9 +3,11 @@ import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {getCurrentStaff} from '@/lib/supabase/auth';
 import {getSupabaseAdmin} from '@/lib/supabase/server';
+import {getAdminLocale} from '@/lib/admin-locale';
 import {InfluencerPartnersAdmin} from '@/components/admin/InfluencerPartnersAdmin';
 
 export default async function InfluencerPartnersPage(){
+ const locale=await getAdminLocale();
  const staff=await getCurrentStaff(); if(!staff||!['SUPER_ADMIN','ADMIN'].includes(staff.profile.role))redirect('/admin');
  const s=getSupabaseAdmin();
  const [{data:partners},{data:commissions},{data:payouts}]=await Promise.all([
