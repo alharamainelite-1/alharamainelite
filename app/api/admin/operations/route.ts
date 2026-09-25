@@ -7,6 +7,11 @@ const ROLES=["SUPER_ADMIN","ADMIN","OPERATIONS_MANAGER","OPERATIONS"];
 const STATUS=["PENDING","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","CANCELLED"];
 const TASK_TYPES=["AIRPORT_TRANSFER","AIRPORT_ASSISTANCE","HOTEL_TRANSFER","TRAIN_ASSISTANCE","MAKKAH_ZIYARAT","MADINAH_ZIYARAT","JEDDAH_EXPERIENCE","SPECIAL_ASSISTANCE","OTHER"];
 
+function getSlaBase(date:string,startTime?:string|null){
+  const base=startTime?new Date(`${date}T${startTime}:00`):new Date(`${date}T00:00:00`);
+  return Number.isNaN(base.getTime())?null:base;
+}
+
 export async function POST(req:Request){
   const staff=await getCurrentStaff();
   if(!staff)return NextResponse.json({error:"Unauthorized."},{status:401});
@@ -29,6 +34,9 @@ export async function POST(req:Request){
     const {data:conflict}=await q.limit(1);
     if(conflict?.length)return NextResponse.json({error:"Vehicle has a conflicting task at this time."},{status:409});
   }
+  const{data:sla}=await s.from("operations_task_slas").select("target_minutes").eq("task_type",String(b.task_type)).eq("active",true).maybeSingle();
+  const base=getSlaBase(String(b.date),b.start_time||null);
+  const slaDueAt=sla?.target_minutes&&base?new Date(base.getTime()+Number(sla.target_minutes)*60000).toISOString():null;
   const{data,error}=await s.from("operations_tasks").insert({
     task_id:"OT-"+Date.now().toString().slice(-8),
     group_id:b.group_id||null,
@@ -38,13 +46,15 @@ export async function POST(req:Request){
     task_type:String(b.task_type),
     assigned_host:b.assigned_host||null,
     assigned_vehicle:b.assigned_vehicle||null,
+    assigned_staff_id:b.assigned_staff_id||null,
     location:b.location?String(b.location).slice(0,300):null,
-    status:b.assigned_host||b.assigned_vehicle?"ASSIGNED":"PENDING",
-    notes:b.notes?String(b.notes).slice(0,4000):null
+    status:b.assigned_host||b.assigned_vehicle||b.assigned_staff_id?"ASSIGNED":"PENDING",
+    notes:b.notes?String(b.notes).slice(0,4000):null,
+    sla_due_at:slaDueAt
   }).select("*").single();
   if(error)return NextResponse.json({error:error.message},{status:500});
   await s.from("audit_logs").insert({actor_id:staff.profile.id,action:"OPERATIONS_TASK_CREATED",entity_type:"operations_task",entity_id:data.id,after_data:data});
-  revalidatePath("/admin/operations");
+  revalidatePath("/admin/operations");revalidatePath("/admin/staff-monitoring");
   return NextResponse.json({task:data},{status:201});
 }
 
@@ -57,17 +67,19 @@ export async function PATCH(req:Request){
   const s=getSupabaseAdmin();
   const{data:before}=await s.from("operations_tasks").select("*").eq("id",b.id).single();
   if(!before)return NextResponse.json({error:"Task not found."},{status:404});
-  if(staff.profile.role==="OPERATIONS" && before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});
+  if(staff.profile.role==="OPERATIONS"&&before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});
   const update:any={};
   if(b.status!==undefined){
     if(!STATUS.includes(b.status))return NextResponse.json({error:"Invalid task status."},{status:400});
     if(staff.profile.role==="OPERATIONS"){const allowed:any={PENDING:["ACCEPTED"],ASSIGNED:["ACCEPTED"],ACCEPTED:["IN_PROGRESS"],IN_PROGRESS:["COMPLETED"]};if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:"Invalid task transition."},{status:403});}
     update.status=b.status;
+    if(b.status==="IN_PROGRESS"&&!before.started_at)update.started_at=new Date().toISOString();
+    if(b.status==="COMPLETED"){if(!before.started_at)update.started_at=new Date().toISOString();update.completed_at=new Date().toISOString();}
   }
   if(!Object.keys(update).length)return NextResponse.json({error:"No changes supplied."},{status:400});
   const{data,error}=await s.from("operations_tasks").update(update).eq("id",b.id).select("*").single();
   if(error)return NextResponse.json({error:error.message},{status:500});
   await s.from("audit_logs").insert({actor_id:staff.profile.id,action:"OPERATIONS_TASK_UPDATED",entity_type:"operations_task",entity_id:b.id,before_data:before,after_data:data});
-  revalidatePath("/admin/operations");
+  revalidatePath("/admin/operations");revalidatePath("/admin/staff-monitoring");
   return NextResponse.json({task:data});
 }
