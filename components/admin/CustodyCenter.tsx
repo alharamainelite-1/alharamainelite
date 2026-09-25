@@ -10,7 +10,7 @@ const labels:any={
 const money=(n:number,c='SAR')=>`${c} ${Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2})}`;
 export default function CustodyCenter({role}:{role:string}){
  const [d,setD]=useState<Any|null>(null),[tab,setTab]=useState<'EMPLOYEE'|'FINANCE'>('EMPLOYEE'),[msg,setMsg]=useState(''),[busy,setBusy]=useState(false);
- const ar=true;
+ const ar=typeof document!=='undefined'&&!document.cookie.includes('he_locale=en');
  async function load(){const r=await fetch('/api/admin/custody',{cache:'no-store'});const j=await r.json();if(r.ok)setD(j);else setMsg(j.error||'تعذر تحميل العهد.')}
  useEffect(()=>{load()},[]);
  async function post(body:Any){setBusy(true);setMsg('');const r=await fetch('/api/admin/custody',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const j=await r.json();setMsg(r.ok?'تم تسجيل العهدة بنجاح.':j.error||'تعذر الحفظ.');setBusy(false);if(r.ok)load()}
