@@ -21,6 +21,7 @@ export const ADMIN_ACCESS = {
   hotels: ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   train: ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   transportation: ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
+  hostTasks: ['HOST'],
 } as const satisfies Record<string, readonly StaffRole[]>;
 
 export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS) {
@@ -34,7 +35,7 @@ export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | 
     ['/admin/payments','payments'],['/admin/expenses','expenses'],['/admin/reports','reports'],
     ['/admin/communications','communications'],['/admin/reviews','reviews'],['/admin/influencer-partners','influencers'],
     ['/admin/team','team'],['/admin/settings','settings'],['/admin/audit-logs','audit'],
-    ['/admin/hosts','hosts'],['/admin/hotels','hotels'],['/admin/train','train'],['/admin/transportation','transportation'],
+    ['/admin/hosts','hosts'],['/admin/hotels','hotels'],['/admin/train','train'],['/admin/transportation','transportation'],['/admin/host-tasks','hostTasks'],
   ];
   const match = map.find(([prefix]) => pathname === prefix || pathname.startsWith(prefix + '/'));
   return match?.[1] ?? null;
