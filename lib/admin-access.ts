@@ -11,7 +11,7 @@ export const ADMIN_ACCESS = {
   payments: ['SUPER_ADMIN','FINANCE'],
   expenses: ['SUPER_ADMIN','FINANCE'],
   reports: ['SUPER_ADMIN','FINANCE'],
-  communications: ['SUPER_ADMIN','ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS'],
+  communications: ['SUPER_ADMIN','ADMIN','SALES'],
   reviews: ['SUPER_ADMIN','ADMIN'],
   influencers: ['SUPER_ADMIN','ADMIN'],
   team: ['SUPER_ADMIN'],
