@@ -54,8 +54,11 @@ export async function PATCH(req:Request){
   const admin=getSupabaseAdmin();
   if(action==='role'){
     if(!role||!roles.includes(role as typeof STAFF_ROLES[number]))return NextResponse.json({error:'Invalid role.'},{status:400});
+    const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role,active').eq('id',userId).single();
+    if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
     const {error}=await admin.from('profiles').update({role,updated_at:new Date().toISOString()}).eq('id',userId);
     if(error)return NextResponse.json({error:error.message},{status:500});
+    await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_ROLE_CHANGED',entity_type:'profile',entity_id:userId,before_data:before,after_data:{...before,role}});
     return NextResponse.json({ok:true});
   }
   if(action==='active'){
@@ -67,8 +70,11 @@ export async function PATCH(req:Request){
         if(profile.data?.role==='SUPER_ADMIN')return NextResponse.json({error:'The last Super Admin cannot be deactivated.'},{status:409});
       }
     }
+    const {data:before}=await admin.from('profiles').select('id,full_name,role,active').eq('id',userId).single();
     const {error}=await admin.auth.admin.updateUserById(userId,{ban_duration:active?'none':'876000h'});
     if(error)return NextResponse.json({error:error.message},{status:500});
+    await admin.from('profiles').update({active,updated_at:new Date().toISOString()}).eq('id',userId);
+    await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:active?'STAFF_ACTIVATED':'STAFF_DEACTIVATED',entity_type:'profile',entity_id:userId,before_data:before,after_data:{...before,active}});
     return NextResponse.json({ok:true});
   }
   return NextResponse.json({error:'Unsupported action.'},{status:400});
