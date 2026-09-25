@@ -14,7 +14,7 @@ export default async function JourneyFile({params}:{params:Promise<{id:string}>}
   const role=staff.profile.role;
   const canViewالمالية=role==='SUPER_ADMIN'||role==='FINANCE';
   const canUpdateStatus=['SUPER_ADMIN','ADMIN','SALES','FINANCE','OPERATIONS_MANAGER','OPERATIONS'].includes(role);
-  const period=row.expected_travel_date||row.expected_period_start||(row.expected_period_end?((locale==='ar'?'حتى ':'Until ')+row.expected_period_end):(locale==='ar'?'غير محدد':'Not set'));
+  const period=row.expected_travel_date||row.expected_period_start||(row.expected_period_end?((locale==='ar'?'حتى ':'Until ')+row.expected_period_end):(locale==='ar'?'غير محدد':locale==='ar'?'غير محدد':'Not set'));
   const stage=['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED'].indexOf(row.status);
   const stages=[(locale==='ar'?['طلب','المبيعات','التفاصيل','الدفع','تم التحقق','مؤكد','التجهيز','نشطة','مكتملة']:['Request','Sales','Details','الدفع','Verified','Confirmed','Preparing','Active','Completed'])];
   return <section classالاسم="pb-12">
