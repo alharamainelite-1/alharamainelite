@@ -20,10 +20,10 @@ export default async function JourneysPage(){ const locale=await getAdminLocale(
     {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
     <div className="mt-8 grid gap-4">
       {rows.length===0?<div className="card p-12 text-center text-forest/45">{t.noJourneys}</div>:rows.map(r=>{
-        const period=r.expected_travel_date||r.expected_period_start||(r.expected_period_end?('Until '+r.expected_period_end):'Not set');
+        const period=r.expected_travel_date||r.expected_period_start||(r.expected_period_end?((locale==='ar'?'حتى ':'Until ')+r.expected_period_end):(locale==='ar'?'غير محدد':'Not set'));
         return <Link key={r.id} href={'/admin/journeys/'+r.id} className="card group p-6 transition hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-lg">
           <div className="grid gap-5 lg:grid-cols-[1.2fr_.7fr_.7fr_.9fr_auto] lg:items-center">
-            <div><div className="text-xs font-semibold tracking-wider text-gold">{r.booking_id}</div><div className="mt-1 text-lg font-semibold text-forest">{r.customers?.full_name||'Unnamed customer'}</div><div className="mt-1 text-sm text-forest/50">{r.customers?.country||t.notSet} · {r.guest_count} guests</div></div>
+            <div><div className="text-xs font-semibold tracking-wider text-gold">{r.booking_id}</div><div className="mt-1 text-lg font-semibold text-forest">{r.customers?.full_name||(locale==='ar'?'عميل بدون اسم':'Unnamed customer')}</div><div className="mt-1 text-sm text-forest/50">{r.customers?.country||t.notSet} · {r.guest_count} guests</div></div>
             <div><div className="text-xs text-forest/40">Journey</div><div className="mt-1 font-semibold text-forest">{r.packages?.name||'—'}</div><div className="text-xs text-forest/50">{period}</div></div>
             <div><div className="text-xs text-forest/40">Status</div><div className="mt-1 font-semibold text-forest">{r.status.replaceAll('_',' ')}</div>{canViewFinancial&&<div className="text-xs text-forest/50">{r.payment_status.replaceAll('_',' ')}</div>}</div>
             <div><div className="text-xs text-forest/40">{t.stage}</div><div className="mt-2 inline-flex rounded-full bg-[#f7f3ea] px-3 py-1.5 text-xs font-semibold text-forest">${r.status.replaceAll('_',' ')}</div></div>
