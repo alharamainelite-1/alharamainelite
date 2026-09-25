@@ -34,7 +34,7 @@ export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | 
   const map: Array<[string, keyof typeof ADMIN_ACCESS]> = [
     ['/admin/requests','requests'],['/admin/guests','guests'],['/admin/journeys','journeys'],
     ['/admin/bookings','bookings'],['/admin/operations','operations'],['/admin/groups','groups'],
-    ['/admin/payments','payments'],['/admin/expenses','expenses'],['/admin/reports','reports'],
+    ['/admin/payments','payments'],['/admin/finance','finance'],['/admin/expenses','expenses'],['/admin/reports','reports'],
     ['/admin/communications','communications'],['/admin/reviews','reviews'],['/admin/influencer-partners','influencers'],
     ['/admin/team','team'],['/admin/staff-monitoring','staffMonitoring'],['/admin/settings','settings'],['/admin/audit-logs','audit'],
     ['/admin/hosts','hosts'],['/admin/hotels','hotels'],['/admin/train','train'],['/admin/transportation','transportation'],['/admin/host-tasks','hostTasks'],
