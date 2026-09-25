@@ -14,5 +14,5 @@ export default async function PartnerDetail({params}:{params:Promise<{id:string}
   s.from('influencer_payouts').select('*').eq('partner_id',id).order('requested_at',{ascending:false}).limit(100)
  ]);
  if(!partner)notFound();
- return <section className="pb-12"><Link href="/admin/influencer-partners" className="text-sm font-semibold text-gold">← Influencer Partners</Link><div className="mt-5"><InfluencerPartnerDetail partner={partner} commissions={commissions||[]} payouts={payouts||[]} role={staff.profile.role}/></div></section>;
+ return <section className="pb-12"><Link href="/admin/influencer-partners" className="text-sm font-semibold text-gold">← شركاء المؤثرين</Link><div className="mt-5"><InfluencerPartnerDetail partner={partner} commissions={commissions||[]} payouts={payouts||[]} role={staff.profile.role}/></div></section>;
 }
