@@ -31,7 +31,8 @@ const nav:NavItem[]=[
  {en:'Reviews',ar:'التقييمات',href:'/admin/reviews',roles:[...ADMIN_ACCESS.reviews]},
  {en:'Influencer Partners',ar:'شركاء المؤثرين',href:'/admin/influencer-partners',roles:[...ADMIN_ACCESS.influencers]},
  {en:'Team & Permissions',ar:'الفريق والصلاحيات',href:'/admin/team',roles:[...ADMIN_ACCESS.team]},
- {en:'Settings',ar:'الإعدادات',href:'/admin/settings',roles:[...ADMIN_ACCESS.settings]}
+ {en:'Settings',ar:'الإعدادات',href:'/admin/settings',roles:[...ADMIN_ACCESS.settings]},
+ {en:'My Tasks',ar:'مهامي',href:'/admin/host-tasks',roles:[...ADMIN_ACCESS.hostTasks]}
 ];
 
 export default async function AdminLayout({children}:{children:React.ReactNode}){
