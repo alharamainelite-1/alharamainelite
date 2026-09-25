@@ -2,6 +2,7 @@ import {getSupabaseAdmin} from '@/lib/supabase/server';
 import {getCurrentStaff} from '@/lib/supabase/auth';
 import {getAdminLocale} from '@/lib/admin-locale';
 import {adminText} from '@/lib/admin-text';
+import {HostTaskStatusButton} from '@/components/admin/HostTaskStatusButton';
 
 export default async function HostTasksPage(){
   const staff=await getCurrentStaff(); if(!staff)return null;
@@ -18,7 +19,7 @@ export default async function HostTasksPage(){
       <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="text-xs font-semibold tracking-wider text-gold">{task.task_id}</div><h2 className="mt-1 text-lg font-semibold text-forest">{String(task.task_type||'Task').replaceAll('_',' ')}</h2></div><span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-xs font-semibold text-forest">{String(task.status||'PENDING').replaceAll('_',' ')}</span></div>
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div><div className="text-xs text-forest/40">Date</div><div className="mt-1 font-semibold text-forest">{task.date||'—'}</div></div><div><div className="text-xs text-forest/40">Time</div><div className="mt-1 font-semibold text-forest">{task.start_time||'—'}{task.end_time?' – '+task.end_time:''}</div></div><div><div className="text-xs text-forest/40">Location</div><div className="mt-1 font-semibold text-forest">{task.location||'—'}</div></div><div><div className="text-xs text-forest/40">Group</div><div className="mt-1 font-semibold text-forest">{task.group_id||'—'}</div></div></div>
       {task.notes&&<div className="mt-4 rounded-xl bg-[#f7f3ea] p-4 text-sm leading-6 text-forest/70">{task.notes}</div>}
-      {task.status!=='COMPLETED'&&task.status!=='CANCELLED'&&<form action="/api/admin/host-tasks" method="post" className="mt-5"><input type="hidden" name="id" value={task.id}/><input type="hidden" name="status" value={task.status==='ASSIGNED'?'ACCEPTED':task.status==='ACCEPTED'?'IN_PROGRESS':'COMPLETED'}/><button className="btn btn-primary">{task.status==='ASSIGNED'?'Accept task':task.status==='ACCEPTED'?'Start task':'Mark completed'}</button></form>}
+      {task.status!=='COMPLETED'&&task.status!=='CANCELLED'&&<div className="mt-5"><HostTaskStatusButton id={task.id} nextStatus={task.status==='ASSIGNED'?'ACCEPTED':task.status==='ACCEPTED'?'IN_PROGRESS':'COMPLETED'} label={task.status==='ASSIGNED'?'Accept task':task.status==='ACCEPTED'?'Start task':'Mark completed'}/></div>}
     </div>)}</div>
   </section>;
 }
