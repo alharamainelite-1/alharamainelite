@@ -42,6 +42,17 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
  if(!staff)return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="admin-shell min-h-screen min-w-0 overflow-x-hidden bg-[#f3f0e7]"><div className="border-b border-forest/10 bg-forest text-white"><div className="container flex min-h-16 items-center justify-between"><Link href="/admin/login" className="font-semibold tracking-wide">ALHARAMAIN ELITE <span className="text-gold">/ ADMIN</span></Link><AdminLanguageSelector/></div></div>{children}</div>;
  const role=staff.profile.role;
  const visibleNav=nav.filter(item=>!item.roles||item.roles.includes(role));
+ const roleNav:Record<string,string[]>={
+  SALES:['/admin/requests','/admin/guests','/admin/journeys','/admin/bookings','/admin/communications'],
+  FINANCE:['/admin/bookings','/admin/payments','/admin/expenses','/admin/reports'],
+  OPERATIONS_MANAGER:['/admin/guests','/admin/journeys','/admin/bookings','/admin/operations','/admin/groups','/admin/hosts','/admin/hotels','/admin/train','/admin/transportation'],
+  OPERATIONS:['/admin/operations','/admin/transportation'],
+  HOST:['/admin/host-tasks'],
+  ADMIN:['/admin/requests','/admin/guests','/admin/journeys','/admin/bookings','/admin/operations','/admin/groups','/admin/communications','/admin/reviews','/admin/influencer-partners','/admin/settings','/admin/audit-logs'],
+  SUPER_ADMIN:nav.map(x=>x.href)
+ };
+ const allowed=roleNav[role]||[];
+ const filteredNav=visibleNav.filter(item=>item.href==='/admin'||allowed.includes(item.href));
  const label=(item:NavItem)=>locale==='ar'?item.ar:item.en;
  return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="admin-shell min-h-screen min-w-0 max-w-full overflow-x-hidden bg-[#f3f0e7]">
   <div className="border-b border-forest/10 bg-forest text-white">
@@ -61,7 +72,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
    <aside className="card h-fit min-w-0 overflow-x-auto p-2 lg:sticky lg:top-6 lg:overflow-visible">
     <div className="px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-forest/40">{t.workspace}</div>
     <nav className="flex min-w-max gap-1 lg:grid lg:min-w-0 lg:grid-cols-1">
-     {visibleNav.map(item=><Link key={item.href} href={item.href} className="whitespace-nowrap rounded-xl px-3 py-2.5 text-sm text-forest transition hover:bg-[#f2eee3] hover:text-gold">{label(item)}</Link>)}
+     {filteredNav.map(item=><Link key={item.href} href={item.href} className="whitespace-nowrap rounded-xl px-3 py-2.5 text-sm text-forest transition hover:bg-[#f2eee3] hover:text-gold">{label(item)}</Link>)}
     </nav>
    </aside>
    <div className="min-w-0 overflow-hidden">{children}</div>
