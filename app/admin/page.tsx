@@ -39,9 +39,20 @@ export default async function AdminHome(){
  const isSales=role==="SALES"; const isOps=role==="OPERATIONS_MANAGER"||role==="OPERATIONS";
  const title=isSales?t.sales:isOps?t.ops:t.executive;
  const intro=isSales?t.salesIntro:isOps?t.opsIntro:t.execIntro;
+ const taskByRole:any={
+  SUPER_ADMIN:{en:['Executive control','Team, security, settings and the full operating picture.','/admin/team'],ar:['الإدارة العليا','الفريق والأمان والإعدادات والصورة التشغيلية الكاملة.','/admin/team']},
+  ADMIN:{en:['Management workspace','Manage customers, journeys and operations. Financial workspaces are restricted.','/admin/operations'],ar:['مساحة الإدارة','إدارة العملاء والرحلات والعمليات. المساحات المالية مقيدة.','/admin/operations']},
+  SALES:{en:['Sales task','Follow new requests, speak with customers and move qualified journeys to payment.','/admin/requests'],ar:['مهمة المبيعات','متابعة الطلبات الجديدة والتواصل مع العملاء ونقل الرحلات المؤهلة إلى مرحلة الدفع.','/admin/requests']},
+  FINANCE:{en:['Finance task','Verify incoming payments and maintain expenses and financial reports.','/admin/payments'],ar:['المهمة المالية','التحقق من المدفوعات الواردة وإدارة المصروفات والتقارير المالية.','/admin/payments']},
+  OPERATIONS_MANAGER:{en:['Operations manager task','Build groups, assign resources and keep every operational task on schedule.','/admin/operations'],ar:['مهمة مدير العمليات','بناء المجموعات وتوزيع الموارد والحفاظ على جاهزية جميع المهام التشغيلية.','/admin/operations']},
+  OPERATIONS:{en:['Operations task','Execute assigned operational work and update task status.','/admin/operations'],ar:['المهمة التشغيلية','تنفيذ المهام التشغيلية المسندة وتحديث حالتها.','/admin/operations']},
+  HOST:{en:['Host task','See only your assigned host tasks and update them as you complete each step.','/admin/host-tasks'],ar:['مهمة المضيف','عرض مهامك المسندة فقط وتحديثها عند إكمال كل خطوة.','/admin/host-tasks']}
+ };
+ const task=taskByRole[role]?.[locale]||taskByRole[role]?.en;
  return <section className="pb-12">
   <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-3xl sm:text-4xl xl:text-5xl text-forest">{title}</h1><p className="mt-3 max-w-2xl text-forest/55">{intro}</p></div><Link href="/admin/journeys" className="btn btn-primary">{t.openJourneys}</Link></div>
   {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
+  {task&&<div className="mt-7 card border-gold/30 bg-white p-6"><div className="eyebrow">{locale==='ar'?'مهمتك الآن':'Your responsibility'}</div><div className="mt-2 flex flex-wrap items-center justify-between gap-4"><div><h2 className="serif text-2xl text-forest">{task[0]}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-forest/55">{task[1]}</p></div><Link href={task[2]} className="btn btn-outline">{locale==='ar'?'فتح مساحة العمل':'Open workspace'}</Link></div></div>}
   <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
    <Link href="/admin/requests" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.newRequests}</div><div className="serif mt-2 text-4xl text-forest">{stats.requests}</div><div className="mt-2 text-xs text-forest/45">Start the customer conversation →</div></Link>
    <Link href="/admin/journeys" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.activeJourneys}</div><div className="serif mt-2 text-4xl text-forest">{stats.active}</div><div className="mt-2 text-xs text-forest/45">Open journey workspace →</div></Link>
