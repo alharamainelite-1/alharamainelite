@@ -36,7 +36,7 @@ export default async function BookingsPage() {
             <td className="px-4 py-4">{row.status}</td>
             {canViewFinancial&&<td className="px-4 py-4">{row.payment_status}</td>}
             <td className="px-4 py-4 text-xs text-forest/45">{new Date(row.created_at).toLocaleDateString('en-GB')}</td>
-            <td className="px-4 py-4"><BookingStatusForm bookingId={row.id} currentStatus={row.status} paymentStatus={row.payment_status}/></td>
+            <td className="px-4 py-4">{staff.profile.role==='FINANCE'?<span className="text-xs text-forest/55">Finance: payment verification only</span>:<BookingStatusForm bookingId={row.id} currentStatus={row.status} paymentStatus={row.payment_status}/>}</td>
           </tr>)}
         </tbody>
       </table>
