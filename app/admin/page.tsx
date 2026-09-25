@@ -9,6 +9,33 @@ export default async function AdminHome(){
  const locale=await getAdminLocale(); const t=adminText[locale];
  const role=staff.profile.role;
  const canViewFinancial=role==='SUPER_ADMIN'||role==='FINANCE';
+
+ if(role==='HOST'){
+  const {data:host}=await getSupabaseAdmin().from('hosts').select('id,name').eq('user_id',staff.profile.id).maybeSingle();
+  const {data:hostTasks,error:hostError}=host?await getSupabaseAdmin().from('host_tasks').select('id,task_id,date,start_time,end_time,location,task_type,status,notes,group_id').eq('host_id',host.id).order('date',{ascending:true}).order('start_time',{ascending:true}).limit(50):{data:[],error:null};
+  return <section className="pb-12">
+   <div className="flex flex-wrap items-end justify-between gap-5">
+    <div><div className="eyebrow">HOST WORKSPACE</div><h1 className="serif mt-2 text-4xl text-forest">{host?.name||'Host'}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-forest/55">{locale==='ar'?'هذه مساحتك التشغيلية. تظهر هنا المهام المسندة إليك فقط.':'This is your operational workspace. Only tasks assigned to you are shown here.'}</p></div>
+    <Link href="/admin/host-tasks" className="btn btn-primary">{locale==='ar'?'فتح مهامي':'Open My Tasks'}</Link>
+   </div>
+   {hostError&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{hostError.message}</div>}
+   {!host&&<div className="mt-7 card p-8"><h2 className="serif text-2xl text-forest">{locale==='ar'?'لم يتم ربط حساب المضيف':'No host profile linked'}</h2><p className="mt-2 text-sm text-forest/55">{locale==='ar'?'تواصل مع مدير العمليات لربط حسابك بملف المضيف.':'Ask the Operations Manager to link your staff account to a host profile.'}</p></div>}
+   <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="card p-6"><div className="eyebrow">{locale==='ar'?'المهام النشطة':'ACTIVE TASKS'}</div><div className="serif mt-2 text-4xl text-forest">{(hostTasks||[]).filter((x:any)=>!['COMPLETED','CANCELLED'].includes(x.status)).length}</div></div>
+    <div className="card p-6"><div className="eyebrow">{locale==='ar'?'مهام اليوم':'TODAY'}</div><div className="serif mt-2 text-4xl text-forest">{(hostTasks||[]).filter((x:any)=>x.date===new Date().toISOString().slice(0,10)).length}</div></div>
+   </div>
+   <div className="mt-7 card p-6">
+    <div className="eyebrow">{locale==='ar'?'المهام المسندة إليك':'YOUR ASSIGNED TASKS'}</div>
+    <div className="mt-5 grid gap-3">
+     {(!hostTasks||hostTasks.length===0)?<div className="rounded-xl bg-[#f7f3ea] p-5 text-sm text-forest/50">{locale==='ar'?'لا توجد مهام مسندة إليك حالياً.':'No tasks are currently assigned to you.'}</div>:
+      hostTasks.map((x:any)=><Link key={x.id} href="/admin/host-tasks" className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-forest/10 p-4 hover:border-gold/50">
+       <div><div className="text-xs font-semibold text-gold">{x.task_id}</div><div className="mt-1 font-semibold text-forest">{String(x.task_type||'Task').replaceAll('_',' ')}</div><div className="mt-1 text-xs text-forest/45">{x.date||'—'} · {x.start_time||'—'} · {x.location||'—'}</div></div>
+       <span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-[11px] font-semibold text-forest">{String(x.status||'PENDING').replaceAll('_',' ')}</span>
+      </Link>)}
+    </div>
+   </div>
+  </section>;
+ }
  let stats={requests:0,active:0,pendingPayments:0,completed:0,overdue:0,revenue:0};
  let recent:any[]=[]; let error="";
  try{
