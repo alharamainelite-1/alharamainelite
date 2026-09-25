@@ -23,6 +23,7 @@ const nav:NavItem[]=[
  {en:'Operations',ar:'العمليات والمهام',href:'/admin/operations',roles:[...ADMIN_ACCESS.operations]},
  {en:'Groups',ar:'المجموعات',href:'/admin/groups',roles:[...ADMIN_ACCESS.groups]},
  {en:'Resources',ar:'الموارد',href:'/admin/operations',roles:[...ADMIN_ACCESS.resources]},
+ {en:'Finance Center',ar:'المركز المالي',href:'/admin/finance',roles:[...ADMIN_ACCESS.finance]},
  {en:'Payments',ar:'المدفوعات',href:'/admin/payments',roles:[...ADMIN_ACCESS.payments]},
  {en:'Expenses',ar:'المصروفات',href:'/admin/expenses',roles:[...ADMIN_ACCESS.expenses]},
  {en:'Reports',ar:'التقارير',href:'/admin/reports',roles:[...ADMIN_ACCESS.reports]},
@@ -45,7 +46,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
  const visibleNav=nav.filter(item=>!item.roles||item.roles.includes(role));
  const roleNav:Record<string,string[]>={
   SALES:['/admin/requests','/admin/guests','/admin/journeys','/admin/bookings','/admin/communications'],
-  FINANCE:['/admin/bookings','/admin/payments','/admin/expenses','/admin/reports'],
+  FINANCE:['/admin/finance','/admin/bookings','/admin/payments','/admin/expenses','/admin/reports'],
   OPERATIONS_MANAGER:['/admin/guests','/admin/journeys','/admin/bookings','/admin/operations','/admin/groups','/admin/hosts','/admin/hotels','/admin/train','/admin/transportation'],
   OPERATIONS:['/admin/operations','/admin/transportation'],
   HOST:['/admin/host-tasks'],
