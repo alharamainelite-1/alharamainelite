@@ -2,7 +2,7 @@ import{NextResponse}from"next/server";import{revalidatePath}from"next/cache";imp
 const ROLES=["SUPER_ADMIN","ADMIN","OPERATIONS_MANAGER","OPERATIONS"];
 export async function PATCH(req:Request){
  const staff=await getCurrentStaff();if(!staff||!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Operations access required."},{status:staff?403:401});
- const b=await req.json().catch(()=>null)as any;if(!b?.id)return NextResponse.json({error:"Task id is required."},{status:400});
+ const b=await req.json().catch(()=>null)as any;if(staff.profile.role==="OPERATIONS")return NextResponse.json({error:"Only Operations Management can assign resources."},{status:403});if(!b?.id)return NextResponse.json({error:"Task id is required."},{status:400});
  const s=getSupabaseAdmin();const{data:before}=await s.from("operations_tasks").select("*").eq("id",b.id).single();if(!before)return NextResponse.json({error:"Task not found."},{status:404});
  const update:any={};if(b.assigned_host!==undefined)update.assigned_host=b.assigned_host||null;if(b.assigned_vehicle!==undefined)update.assigned_vehicle=b.assigned_vehicle||null;if(b.assigned_staff_id!==undefined)update.assigned_staff_id=b.assigned_staff_id||null;if(Object.keys(update).length===0)return NextResponse.json({error:"No assignment supplied."},{status:400});
  const date=before.date,start=before.start_time,end=before.end_time;
