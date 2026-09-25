@@ -2,9 +2,11 @@ import { getSupabaseAdmin } from '@/lib/supabase/server';
 import { getCurrentStaff } from '@/lib/supabase/auth';
 import Link from 'next/link';
 import { BookingStatusForm } from '@/components/admin/BookingStatusForm';
+import { getAdminLocale } from '@/lib/admin-locale';
 
 export default async function JourneyFile({params}:{params:Promise<{id:string}>}){
   const staff=await getCurrentStaff(); if(!staff)return null;
+  const locale=await getAdminLocale();
   const {id}=await params;
   const s=getSupabaseAdmin();
   const {data:row,error}=await s.from('bookings').select('id,booking_id,guest_count,total_amount,currency,status,payment_status,expected_travel_date,expected_period_start,expected_period_end,notes,created_at,customers(full_name,country,city,whatsapp,email,preferred_language),packages(name,slug,positioning)').eq('id',id).single();
