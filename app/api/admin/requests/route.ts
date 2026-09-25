@@ -1,9 +1,11 @@
 import{NextResponse}from"next/server";import{revalidatePath}from"next/cache";import{getCurrentStaff}from"@/lib/supabase/auth";import{getSupabaseAdmin}from"@/lib/supabase/server";
 const ROLES=["SUPER_ADMIN","ADMIN","SALES"];
 const STATUS=["NEW_REQUEST","CONTACTED","DETAILS_PENDING","PAYMENT_PENDING","PAYMENT_RECEIVED","CONFIRMED","PREPARING","ACTIVE","COMPLETED","CANCELLED"];
+const ALLOWED:Record<string,string[]>={SALES:["CONTACTED","DETAILS_PENDING","PAYMENT_PENDING","CANCELLED"],ADMIN:[...STATUS],SUPER_ADMIN:[...STATUS]};
 export async function PATCH(req:Request){
  const staff=await getCurrentStaff();if(!staff||!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Sales access required."},{status:staff?403:401});
  const b=await req.json().catch(()=>null)as any;if(!b?.id||!STATUS.includes(b.status))return NextResponse.json({error:"Request and valid status are required."},{status:400});
+ const allowed=ALLOWED[staff.profile.role]||[]; if(!allowed.includes(b.status))return NextResponse.json({error:"You do not have permission for this status."},{status:403});
  const s=getSupabaseAdmin();const{data:before}=await s.from("journey_requests").select("*").eq("id",b.id).single();if(!before)return NextResponse.json({error:"Request not found."},{status:404});
  const{data:booking}=await s.from("bookings").select("*").eq("request_id",b.id).maybeSingle();
  if(b.status==="CONFIRMED"&&booking&&booking.payment_status!=="RECEIVED")return NextResponse.json({error:"The booking must have a received payment before confirmation."},{status:409});
