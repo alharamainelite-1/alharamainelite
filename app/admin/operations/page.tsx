@@ -17,7 +17,7 @@ export default async function OperationsPage(){
    (()=>{let q=s.from('operations_tasks').select('id,task_id,group_id,date,start_time,end_time,task_type,assigned_host,assigned_vehicle,assigned_staff_id,location,status,notes').order('date',{ascending:true}).order('start_time',{ascending:true}).limit(100);if(isWorker)q=q.eq('assigned_staff_id',staff.profile.id);return q;})(),
    s.from('hosts').select('id,name').order('name').limit(100),
    s.from('vehicles').select('id,vehicle_id').order('vehicle_id').limit(100),
-   s.from('profiles').select('id,full_name,role').in('role',['OPERATIONS','OPERATIONS_MANAGER']).eq('active',true).order('full_name').limit(100)
+   s.from('profiles').select('id,full_name,role').in('role',['OPERATIONS','OPERATIONS_MANAGER']).order('full_name').limit(100)
   ]);
   const e=tasks.error||hs.error||vs.error||ts.error;if(e)throw e;
   rows=tasks.data||[];hosts=hs.data||[];vehicles=vs.data||[];team=(ts.data||[]).map((x:any)=>({id:x.id,name:x.full_name||x.role}));
