@@ -40,3 +40,4 @@ export default async function BookingsPage(){
   </table></div>
  </section>;
 }
+
