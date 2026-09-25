@@ -1,8 +1,9 @@
 import {getSupabaseAdmin} from '@/lib/supabase/server';
 import {GroupForm} from '@/components/admin/GroupForm';
 import {GroupMemberForm} from '@/components/admin/GroupMemberForm'; import {getAdminLocale} from '@/lib/admin-locale'; import {adminText} from '@/lib/admin-text';
+import {getCurrentStaff} from '@/lib/supabase/auth';
 
-export default async function GroupsPage(){ const locale=await getAdminLocale(); const t=adminText[locale];
+export default async function GroupsPage(){ const staff=await getCurrentStaff(); if(!staff)return null; const canManage=['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role); const locale=await getAdminLocale(); const t=adminText[locale];
   let rows:any[]=[];let packages:any[]=[];let bookings:any[]=[];let members:any[]=[];let hosts:any[]=[];let hotels:any[]=[];let error='';
   try{
     const s=getSupabaseAdmin();
@@ -21,8 +22,7 @@ export default async function GroupsPage(){ const locale=await getAdminLocale();
   }catch(e){error=e instanceof Error?e.message:'Unable to load groups.'}
   return <section className="pb-12">
     <div className="eyebrow">Operations manager</div><h1 className="serif mt-2 text-4xl text-forest">{t.page.groups}</h1><p className="mt-2 text-sm text-forest/55">{locale==='ar'?'تخطيط المجموعات الصغيرة المعتمدة وتعيين الموارد التشغيلية.':'Approved small-group planning and operational assignments.'}</p>
-    <GroupForm packages={packages} hosts={hosts} hotels={hotels}/>
-    <GroupMemberForm groups={rows.map((r:any)=>({id:r.id,group_id:r.group_id}))} bookings={bookings}/>
+    {canManage&&<><GroupForm packages={packages} hosts={hosts} hotels={hotels}/><GroupMemberForm groups={rows.map((r:any)=>({id:r.id,group_id:r.group_id}))} bookings={bookings}/></>}
     {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4">{error}</div>}
     <div className="card mt-6 overflow-x-auto"><table className="w-full min-w-[900px] text-left text-sm"><thead><tr>{['Group','Package','Period','Capacity','Host','Hotels','Status'].map(h=><th key={h} className="px-4 py-4">{h}</th>)}</tr></thead><tbody>
       {rows.length===0?<tr><td colSpan={7} className="p-12 text-center text-forest/45">{t.common.noGroups}</td></tr>:rows.map((r:any)=><tr key={r.id}><td className="px-4 py-4 font-semibold">{r.group_id||'—'}</td><td className="px-4 py-4">{r.package_id?'Assigned':'—'}</td><td className="px-4 py-4">{r.departure_period_start||r.departure_period_end?(r.departure_period_start||'—')+' → '+(r.departure_period_end||'—'):'—'}</td><td className="px-4 py-4">{r.capacity||0} <span className="text-forest/40">· {members.filter((m:any)=>m.group_id===r.id).reduce((n:number,m:any)=>n+Number(m.guest_count||0),0)} assigned</span></td><td className="px-4 py-4">{r.host_id?'Assigned':'Unassigned'}</td><td className="px-4 py-4">{[r.hotel_makkah_id,r.hotel_madinah_id,r.hotel_jeddah_id].filter(Boolean).length}/3</td><td className="px-4 py-4">{r.status||'—'}</td></tr>)}
