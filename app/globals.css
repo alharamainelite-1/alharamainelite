@@ -20,3 +20,5 @@
 .admin-shell [dir="rtl"] .text-right{text-align:left}
 .admin-shell [dir="rtl"] table{text-align:right}
 .admin-shell [dir="rtl"] .ltr-data{direction:ltr;text-align:left}
+
+.admin-shell[lang="ar"],.admin-shell[lang="ar"] input,.admin-shell[lang="ar"] select,.admin-shell[lang="ar"] textarea,.admin-shell[lang="ar"] button{font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;letter-spacing:0}.admin-shell[lang="ar"]{line-height:1.75}.admin-shell[lang="ar"] .eyebrow{text-transform:none;letter-spacing:0;font-weight:700}.admin-shell[lang="ar"] .btn{text-transform:none;letter-spacing:0}.admin-shell[lang="ar"] table{letter-spacing:0}.admin-shell[lang="ar"] input,.admin-shell[lang="ar"] select,.admin-shell[lang="ar"] textarea{line-height:1.7}
