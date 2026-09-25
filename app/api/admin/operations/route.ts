@@ -11,6 +11,7 @@ export async function POST(req:Request){
   const staff=await getCurrentStaff();
   if(!staff)return NextResponse.json({error:"Unauthorized."},{status:401});
   if(!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Operations access required."},{status:403});
+  if(staff.profile.role==="OPERATIONS")return NextResponse.json({error:"Operations staff can only update assigned tasks."},{status:403});
   const b=await req.json().catch(()=>null)as any;
   if(!b?.date||!b?.task_type)return NextResponse.json({error:"Date and task type are required."},{status:400});
   if(!TASK_TYPES.includes(String(b.task_type)))return NextResponse.json({error:"Invalid task type."},{status:400});
@@ -56,9 +57,11 @@ export async function PATCH(req:Request){
   const s=getSupabaseAdmin();
   const{data:before}=await s.from("operations_tasks").select("*").eq("id",b.id).single();
   if(!before)return NextResponse.json({error:"Task not found."},{status:404});
+  if(staff.profile.role==="OPERATIONS" && before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});
   const update:any={};
   if(b.status!==undefined){
     if(!STATUS.includes(b.status))return NextResponse.json({error:"Invalid task status."},{status:400});
+    if(staff.profile.role==="OPERATIONS"){const allowed:any={PENDING:["ACCEPTED"],ASSIGNED:["ACCEPTED"],ACCEPTED:["IN_PROGRESS"],IN_PROGRESS:["COMPLETED"]};if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:"Invalid task transition."},{status:403});}
     update.status=b.status;
   }
   if(!Object.keys(update).length)return NextResponse.json({error:"No changes supplied."},{status:400});
