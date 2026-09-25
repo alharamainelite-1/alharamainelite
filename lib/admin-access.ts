@@ -9,6 +9,7 @@ export const ADMIN_ACCESS = {
   groups: ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   resources: ['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
   payments: ['SUPER_ADMIN','FINANCE'],
+  finance: ['SUPER_ADMIN','FINANCE'],
   expenses: ['SUPER_ADMIN','FINANCE'],
   reports: ['SUPER_ADMIN','FINANCE'],
   communications: ['SUPER_ADMIN','ADMIN','SALES'],
