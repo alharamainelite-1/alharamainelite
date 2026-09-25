@@ -2,7 +2,7 @@ import{NextResponse}from"next/server";
 import{revalidatePath}from"next/cache";
 import{getCurrentStaff}from"@/lib/supabase/auth";
 import{getSupabaseAdmin}from"@/lib/supabase/server";
-const ROLES=["SUPER_ADMIN","ADMIN","SALES"];
+const ROLES=["SUPER_ADMIN","ADMIN"];
 const STATUS=["DRAFT","PUBLISHED"];
 export async function PATCH(req:Request){
  const staff=await getCurrentStaff();
@@ -10,7 +10,7 @@ export async function PATCH(req:Request){
  if(!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Sales access required."},{status:403});
  const b=await req.json().catch(()=>null)as any;
  if(!b?.id||!STATUS.includes(b.status)||typeof b.verified!=="boolean")return NextResponse.json({error:"Invalid review update."},{status:400});
- if((b.status==="PUBLISHED"||b.verified)&&!["SUPER_ADMIN","ADMIN"].includes(staff.profile.role))return NextResponse.json({error:"Only Admin can verify or publish reviews."},{status:403});
+ 
  const s=getSupabaseAdmin();
  const{data:before}=await s.from("reviews").select("*").eq("id",b.id).single();
  if(!before)return NextResponse.json({error:"Review not found."},{status:404});
