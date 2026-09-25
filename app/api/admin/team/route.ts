@@ -73,7 +73,6 @@ export async function PATCH(req:Request){
     const {data:before}=await admin.from('profiles').select('id,full_name,role,active').eq('id',userId).single();
     const {error}=await admin.auth.admin.updateUserById(userId,{ban_duration:active?'none':'876000h'});
     if(error)return NextResponse.json({error:error.message},{status:500});
-    await admin.from('profiles').update({active,updated_at:new Date().toISOString()}).eq('id',userId);
     await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:active?'STAFF_ACTIVATED':'STAFF_DEACTIVATED',entity_type:'profile',entity_id:userId,before_data:before,after_data:{...before,active}});
     return NextResponse.json({ok:true});
   }
