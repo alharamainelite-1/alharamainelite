@@ -39,7 +39,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
  const role=staff.profile.role;
  const visibleNav=nav.filter(item=>!item.roles||item.roles.includes(role));
  const label=(item:NavItem)=>locale==='ar'?item.ar:item.en;
- return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="min-h-screen bg-[#f3f0e7]">
+ return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="admin-shell min-h-screen min-w-0 max-w-full overflow-x-hidden bg-[#f3f0e7]">
   <div className="border-b border-forest/10 bg-forest text-white">
    <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 py-2 sm:flex-nowrap sm:py-0">
     <Link href="/admin" className="font-semibold tracking-wide">ALHARAMAIN ELITE <span className="text-gold">/ ADMIN</span></Link>
