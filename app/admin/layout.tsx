@@ -31,6 +31,7 @@ const nav:NavItem[]=[
  {en:'Reviews',ar:'التقييمات',href:'/admin/reviews',roles:[...ADMIN_ACCESS.reviews]},
  {en:'Influencer Partners',ar:'شركاء المؤثرين',href:'/admin/influencer-partners',roles:[...ADMIN_ACCESS.influencers]},
  {en:'Team & Permissions',ar:'الفريق والصلاحيات',href:'/admin/team',roles:[...ADMIN_ACCESS.team]},
+ {en:'Staff Monitoring',ar:'رقابة الموظفين',href:'/admin/staff-monitoring',roles:[...ADMIN_ACCESS.staffMonitoring]},
  {en:'Settings',ar:'الإعدادات',href:'/admin/settings',roles:[...ADMIN_ACCESS.settings]},
  {en:'My Tasks',ar:'مهامي',href:'/admin/host-tasks',roles:[...ADMIN_ACCESS.hostTasks]}
 ];
