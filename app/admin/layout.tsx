@@ -56,7 +56,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
  };
  const allowed=roleNav[role]||[];
  const filteredNav=visibleNav.filter(item=>item.href==='/admin'||allowed.includes(item.href));
- const label=(item:NavItem)=>locale==='ar'?item.ar:item.en;
+ const label=(item:NavItem)=>locale==='ar'?item.ar:item.en; const roleLabel=(r:string)=>locale==='ar'?({SUPER_ADMIN:'المدير العام',ADMIN:'مدير الإدارة',OPERATIONS_MANAGER:'مدير العمليات',OPERATIONS:'موظف العمليات',SALES:'المبيعات',FINANCE:'المالية',HOST:'المضيف'} as Record<string,string>)[r]||r:r.replaceAll('_',' ');
  return <div dir={locale==='ar'?'rtl':'ltr'} lang={locale} className="admin-shell min-h-screen min-w-0 max-w-full overflow-x-hidden bg-[#f3f0e7]">
   <div className="border-b border-forest/10 bg-forest text-white">
    <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 py-2 sm:flex-nowrap sm:py-0">
@@ -65,7 +65,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
      <AdminLanguageSelector/>
      <div className={`${locale==='ar'?'text-left':'text-right'} min-w-0 max-w-[38vw] text-xs sm:max-w-none`}>
       <div className="break-words">{staff.profile.full_name||staff.user.email}</div>
-      <div className="mt-1 text-white/55">{role}</div>
+      <div className="mt-1 text-white/55">{roleLabel(role)}</div>
      </div>
      <AdminLogout locale={locale}/>
     </div>
