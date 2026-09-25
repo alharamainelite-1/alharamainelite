@@ -4,97 +4,98 @@ import {getCurrentStaff} from "@/lib/supabase/auth";
 import {getAdminLocale} from "@/lib/admin-locale";
 import {adminText} from "@/lib/admin-text";
 
+const roleConfig:any={
+ SALES:{en:{eyebrow:"SALES WORKSPACE",title:"Sales",intro:"Your workspace is focused on new leads, customer conversations and moving qualified requests forward.",primary:"Open Requests",href:"/admin/requests"},ar:{eyebrow:"مساحة المبيعات",title:"المبيعات",intro:"مساحتك مخصصة للطلبات الجديدة والتواصل مع العملاء ونقل الطلبات المؤهلة إلى المرحلة التالية.",primary:"فتح الطلبات",href:"/admin/requests"}},
+ FINANCE:{en:{eyebrow:"FINANCE WORKSPACE",title:"Finance",intro:"Your workspace is focused on payment verification, expenses and financial reporting.",primary:"Open Payments",href:"/admin/payments"},ar:{eyebrow:"المساحة المالية",title:"المالية",intro:"مساحتك مخصصة للتحقق من المدفوعات والمصروفات والتقارير المالية.",primary:"فتح المدفوعات",href:"/admin/payments"}},
+ OPERATIONS_MANAGER:{en:{eyebrow:"OPERATIONS MANAGEMENT",title:"Operations Manager",intro:"Your workspace is focused on groups, resources, hosts and keeping every journey operationally ready.",primary:"Open Operations",href:"/admin/operations"},ar:{eyebrow:"إدارة العمليات",title:"مدير العمليات",intro:"مساحتك مخصصة للمجموعات والموارد والمضيفين وجاهزية الرحلات التشغيلية.",primary:"فتح العمليات",href:"/admin/operations"}},
+ OPERATIONS:{en:{eyebrow:"OPERATIONS WORKSPACE",title:"Operations",intro:"Your workspace is focused on assigned operational work, schedules, resources and task completion.",primary:"Open My Operations",href:"/admin/operations"},ar:{eyebrow:"مساحة العمليات",title:"العمليات",intro:"مساحتك مخصصة للمهام التشغيلية والجدولة والموارد وإنجاز المهام المسندة.",primary:"فتح العمليات",href:"/admin/operations"}},
+ ADMIN:{en:{eyebrow:"MANAGEMENT WORKSPACE",title:"Administration",intro:"Manage customers, journeys and operational coordination. Financial workspaces are intentionally separated.",primary:"Open Journeys",href:"/admin/journeys"},ar:{eyebrow:"مساحة الإدارة",title:"الإدارة",intro:"إدارة العملاء والرحلات والتنسيق التشغيلي. تم فصل المساحات المالية عن الإدارة.",primary:"فتح الرحلات",href:"/admin/journeys"}},
+ SUPER_ADMIN:{en:{eyebrow:"EXECUTIVE CONTROL",title:"Super Admin",intro:"Full control of the platform, team permissions, security and business operations.",primary:"Open Team",href:"/admin/team"},ar:{eyebrow:"الإدارة العليا",title:"المدير الأعلى",intro:"تحكم كامل في المنصة والفريق والصلاحيات والأمان والعمليات.",primary:"فتح الفريق",href:"/admin/team"}}
+};
+
+function Stat({label,value,href}:{label:string;value:number|string;href?:string}) {
+ const body=<div className="card p-6"><div className="eyebrow">{label}</div><div className="serif mt-2 text-4xl text-forest">{value}</div></div>;
+ return href?<Link href={href} className="block hover:border-gold/50">{body}</Link>:body;
+}
+
+async function SalesDashboard({locale}:{locale:'en'|'ar'}){
+ const s=getSupabaseAdmin();
+ const [requests,contacted,pending,customers]=await Promise.all([
+  s.from("journey_requests").select("*",{count:"exact",head:true}).eq("status","NEW_REQUEST"),
+  s.from("journey_requests").select("*",{count:"exact",head:true}).in("status",["CONTACTED","DETAILS_PENDING"]),
+  s.from("journey_requests").select("*",{count:"exact",head:true}).eq("status","PAYMENT_PENDING"),
+  s.from("customers").select("*",{count:"exact",head:true})
+ ]);
+ return <RoleShell cfg={roleConfig.SALES[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <Stat label={locale==='ar'?'طلبات جديدة':'NEW REQUESTS'} value={requests.count||0} href="/admin/requests"/><Stat label={locale==='ar'?'متابعة مطلوبة':'FOLLOW-UP'} value={contacted.count||0} href="/admin/requests"/><Stat label={locale==='ar'?'بانتظار الدفع':'PAYMENT PENDING'} value={pending.count||0} href="/admin/requests"/><Stat label={locale==='ar'?'العملاء':'CUSTOMERS'} value={customers.count||0} href="/admin/guests"/>
+ </div><WorkspaceSteps items={locale==='ar'?["استلام الطلب","التواصل مع العميل","استكمال التفاصيل","تحويل الطلب للمالية"]:["Receive request","Contact customer","Complete details","Hand off to Finance"]} links={["/admin/requests","/admin/requests","/admin/requests","/admin/requests"]}/></RoleShell>
+}
+
+async function FinanceDashboard({locale}:{locale:'en'|'ar'}){
+ const s=getSupabaseAdmin();
+ const [pending,received,expenses]=await Promise.all([
+  s.from("payments").select("*",{count:"exact",head:true}).in("status",["PENDING","PENDING_VERIFICATION","PAYMENT_INSTRUCTIONS_SENT"]),
+  s.from("payments").select("amount,status").eq("status","RECEIVED"),
+  s.from("expenses").select("*",{count:"exact",head:true})
+ ]);
+ const revenue=((received.data||[]) as any[]).reduce((n,x)=>n+Number(x.amount||0),0);
+ return <RoleShell cfg={roleConfig.FINANCE[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Stat label={locale==='ar'?'إجراءات الدفع':'PAYMENT ACTIONS'} value={pending.count||0} href="/admin/payments"/><Stat label={locale==='ar'?'المبالغ المستلمة':'RECEIVED'} value={'USD '+revenue.toLocaleString()} href="/admin/payments"/><Stat label={locale==='ar'?'المصروفات':'EXPENSES'} value={expenses.count||0} href="/admin/expenses"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة التحويل","مطابقة الحجز","تأكيد الاستلام","تحديث السجلات"]:["Review transfer","Match booking","Confirm receipt","Update records"]} links={["/admin/payments","/admin/payments","/admin/payments","/admin/reports"]}/></RoleShell>
+}
+
+async function OperationsManagerDashboard({locale}:{locale:'en'|'ar'}){
+ const s=getSupabaseAdmin();
+ const [tasks,groups,hosts,vehicles]=await Promise.all([
+  s.from("operations_tasks").select("*",{count:"exact",head:true}).neq("status","COMPLETED").neq("status","CANCELLED"),
+  s.from("groups").select("*",{count:"exact",head:true}),
+  s.from("hosts").select("*",{count:"exact",head:true}).in("status",["AVAILABLE","ASSIGNED"]),
+  s.from("vehicles").select("*",{count:"exact",head:true}).in("status",["AVAILABLE","ASSIGNED"])
+ ]);
+ return <RoleShell cfg={roleConfig.OPERATIONS_MANAGER[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'المهام المفتوحة':'OPEN TASKS'} value={tasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'المجموعات':'GROUPS'} value={groups.count||0} href="/admin/groups"/><Stat label={locale==='ar'?'المضيفون':'HOSTS'} value={hosts.count||0} href="/admin/hosts"/><Stat label={locale==='ar'?'المركبات':'VEHICLES'} value={vehicles.count||0} href="/admin/transportation"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الرحلات المؤكدة","بناء المجموعات","توزيع الموارد","متابعة الجاهزية"]:["Review confirmed journeys","Build groups","Assign resources","Monitor readiness"]} links={["/admin/journeys","/admin/groups","/admin/operations","/admin/operations"]}/></RoleShell>
+}
+
+async function OperationsDashboard({locale}:{locale:'en'|'ar'}){
+ const s=getSupabaseAdmin();
+ const [open,accepted,today]=await Promise.all([
+  s.from("operations_tasks").select("*",{count:"exact",head:true}).not("status","in","(COMPLETED,CANCELLED)"),
+  s.from("operations_tasks").select("*",{count:"exact",head:true}).eq("status","ACCEPTED"),
+  s.from("operations_tasks").select("*",{count:"exact",head:true}).eq("date",new Date().toISOString().slice(0,10))
+ ]);
+ return <RoleShell cfg={roleConfig.OPERATIONS[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Stat label={locale==='ar'?'المهام المفتوحة':'OPEN TASKS'} value={open.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مقبولة':'ACCEPTED'} value={accepted.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهام اليوم':'TODAY'} value={today.count||0} href="/admin/operations"/></div><WorkspaceSteps items={locale==='ar'?["راجع جدولك","نفذ المهمة","حدّث الحالة","أبلغ عن أي تعارض"]:["Review schedule","Execute task","Update status","Report conflicts"]} links={["/admin/operations","/admin/operations","/admin/operations","/admin/operations"]}/></RoleShell>
+}
+
+async function ManagementDashboard({locale,superAdmin=false}:{locale:'en'|'ar';superAdmin?:boolean}){
+ const s=getSupabaseAdmin();
+ const [requests,journeys,tasks,completed]=await Promise.all([
+  s.from("journey_requests").select("*",{count:"exact",head:true}).in("status",["NEW_REQUEST","CONTACTED","DETAILS_PENDING"]),
+  s.from("bookings").select("*",{count:"exact",head:true}).in("status",["CONFIRMED","PREPARING","ACTIVE"]),
+  s.from("operations_tasks").select("*",{count:"exact",head:true}).not("status","in","(COMPLETED,CANCELLED)"),
+  s.from("bookings").select("*",{count:"exact",head:true}).eq("status","COMPLETED")
+ ]);
+ const cfg=superAdmin?roleConfig.SUPER_ADMIN[locale]:roleConfig.ADMIN[locale];
+ return <RoleShell cfg={cfg}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'طلبات تحتاج متابعة':'REQUESTS TO REVIEW'} value={requests.count||0} href="/admin/requests"/><Stat label={locale==='ar'?'رحلات نشطة':'ACTIVE JOURNEYS'} value={journeys.count||0} href="/admin/journeys"/><Stat label={locale==='ar'?'مهام تشغيلية':'OPEN OPERATIONS'} value={tasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'رحلات مكتملة':'COMPLETED'} value={completed.count||0} href="/admin/journeys"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الطلبات","متابعة الرحلات","متابعة التشغيل","مراجعة الأداء"]:["Review requests","Monitor journeys","Monitor operations","Review performance"]} links={["/admin/requests","/admin/journeys","/admin/operations","/admin/reports"]}/></RoleShell>
+}
+
+function RoleShell({cfg,children}:{cfg:any;children:React.ReactNode}){
+ return <section className="pb-12"><div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">{cfg.eyebrow}</div><h1 className="serif mt-2 text-4xl xl:text-5xl text-forest">{cfg.title}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-forest/55">{cfg.intro}</p></div><Link href={cfg.href} className="btn btn-primary">{cfg.primary}</Link></div><div className="mt-8">{children}</div></section>
+}
+
+function WorkspaceSteps({items,links}:{items:string[];links:string[]}){
+ return <div className="mt-8 card p-6"><div className="eyebrow">WORKFLOW</div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{items.map((item,i)=><Link key={item} href={links[i]} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{i+1}</div><div className="mt-2 font-semibold text-forest">{item}</div></Link>)}</div></div>
+}
+
 export default async function AdminHome(){
  const staff=await getCurrentStaff(); if(!staff)return null;
- const locale=await getAdminLocale(); const t=adminText[locale];
- const role=staff.profile.role;
- const canViewFinancial=role==='SUPER_ADMIN'||role==='FINANCE';
-
+ const locale=await getAdminLocale(); const role=staff.profile.role as keyof typeof roleConfig;
  if(role==='HOST'){
-  const {data:host}=await getSupabaseAdmin().from('hosts').select('id,name').eq('user_id',staff.profile.id).maybeSingle();
-  const {data:hostTasks,error:hostError}=host?await getSupabaseAdmin().from('host_tasks').select('id,task_id,date,start_time,end_time,location,task_type,status,notes,group_id').eq('host_id',host.id).order('date',{ascending:true}).order('start_time',{ascending:true}).limit(50):{data:[],error:null};
-  return <section className="pb-12">
-   <div className="flex flex-wrap items-end justify-between gap-5">
-    <div><div className="eyebrow">HOST WORKSPACE</div><h1 className="serif mt-2 text-4xl text-forest">{host?.name||'Host'}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-forest/55">{locale==='ar'?'هذه مساحتك التشغيلية. تظهر هنا المهام المسندة إليك فقط.':'This is your operational workspace. Only tasks assigned to you are shown here.'}</p></div>
-    <Link href="/admin/host-tasks" className="btn btn-primary">{locale==='ar'?'فتح مهامي':'Open My Tasks'}</Link>
-   </div>
-   {hostError&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{hostError.message}</div>}
-   {!host&&<div className="mt-7 card p-8"><h2 className="serif text-2xl text-forest">{locale==='ar'?'لم يتم ربط حساب المضيف':'No host profile linked'}</h2><p className="mt-2 text-sm text-forest/55">{locale==='ar'?'تواصل مع مدير العمليات لربط حسابك بملف المضيف.':'Ask the Operations Manager to link your staff account to a host profile.'}</p></div>}
-   <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    <div className="card p-6"><div className="eyebrow">{locale==='ar'?'المهام النشطة':'ACTIVE TASKS'}</div><div className="serif mt-2 text-4xl text-forest">{(hostTasks||[]).filter((x:any)=>!['COMPLETED','CANCELLED'].includes(x.status)).length}</div></div>
-    <div className="card p-6"><div className="eyebrow">{locale==='ar'?'مهام اليوم':'TODAY'}</div><div className="serif mt-2 text-4xl text-forest">{(hostTasks||[]).filter((x:any)=>x.date===new Date().toISOString().slice(0,10)).length}</div></div>
-   </div>
-   <div className="mt-7 card p-6">
-    <div className="eyebrow">{locale==='ar'?'المهام المسندة إليك':'YOUR ASSIGNED TASKS'}</div>
-    <div className="mt-5 grid gap-3">
-     {(!hostTasks||hostTasks.length===0)?<div className="rounded-xl bg-[#f7f3ea] p-5 text-sm text-forest/50">{locale==='ar'?'لا توجد مهام مسندة إليك حالياً.':'No tasks are currently assigned to you.'}</div>:
-      hostTasks.map((x:any)=><Link key={x.id} href="/admin/host-tasks" className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-forest/10 p-4 hover:border-gold/50">
-       <div><div className="text-xs font-semibold text-gold">{x.task_id}</div><div className="mt-1 font-semibold text-forest">{String(x.task_type||'Task').replaceAll('_',' ')}</div><div className="mt-1 text-xs text-forest/45">{x.date||'—'} · {x.start_time||'—'} · {x.location||'—'}</div></div>
-       <span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-[11px] font-semibold text-forest">{String(x.status||'PENDING').replaceAll('_',' ')}</span>
-      </Link>)}
-    </div>
-   </div>
-  </section>;
- }
- let stats={requests:0,active:0,pendingPayments:0,completed:0,overdue:0,revenue:0};
- let recent:any[]=[]; let error="";
- try{
   const s=getSupabaseAdmin();
-  const base=[
-    s.from("journey_requests").select("*",{count:"exact",head:true}),
-    s.from("bookings").select("*",{count:"exact",head:true}).in("status",["CONFIRMED","PREPARING","ACTIVE"]),
-    s.from("operations_tasks").select("id,date,status",{count:"exact",head:true}).lt("date",new Date().toISOString().slice(0,10)).neq("status","COMPLETED").neq("status","CANCELLED"),
-    s.from("bookings").select("id,booking_id,status,guest_count,created_at,customers(full_name),packages(name)").order("created_at",{ascending:false}).limit(6)
-  ];
-  const [r,a,taskCount,j]=await Promise.all(base);
-  if([r,a,taskCount,j].some(x=>x.error))throw new Error("Unable to load live dashboard data.");
-  stats.requests=r.count||0; stats.active=a.count||0; stats.overdue=taskCount.count||0; recent=j.data||[];
-  if(canViewFinancial){
-    const [p,d,pay]=await Promise.all([
-      s.from("bookings").select("*",{count:"exact",head:true}).in("payment_status",["PAYMENT_INSTRUCTIONS_SENT","PENDING_VERIFICATION"]),
-      s.from("bookings").select("*",{count:"exact",head:true}).eq("status","COMPLETED"),
-      s.from("payments").select("amount,status")
-    ]);
-    if([p,d,pay].some(x=>x.error))throw new Error("Unable to load financial dashboard data.");
-    stats.pendingPayments=p.count||0; stats.completed=d.count||0;
-    stats.revenue=((pay.data||[]) as any[]).filter(x=>x.status==="RECEIVED").reduce((n,x)=>n+Number(x.amount||0),0);
-  }else{
-    const d=await s.from("bookings").select("*",{count:"exact",head:true}).eq("status","COMPLETED");
-    stats.completed=d.count||0;
-  }
- }catch(e){error=e instanceof Error?e.message:"Unable to load dashboard."}
- const isSales=role==="SALES"; const isOps=role==="OPERATIONS_MANAGER"||role==="OPERATIONS";
- const title=isSales?t.sales:isOps?t.ops:t.executive;
- const intro=isSales?t.salesIntro:isOps?t.opsIntro:t.execIntro;
- const taskByRole:any={
-  SUPER_ADMIN:{en:['Executive control','Team, security, settings and the full operating picture.','/admin/team'],ar:['الإدارة العليا','الفريق والأمان والإعدادات والصورة التشغيلية الكاملة.','/admin/team']},
-  ADMIN:{en:['Management workspace','Manage customers, journeys and operations. Financial workspaces are restricted.','/admin/operations'],ar:['مساحة الإدارة','إدارة العملاء والرحلات والعمليات. المساحات المالية مقيدة.','/admin/operations']},
-  SALES:{en:['Sales task','Follow new requests, speak with customers and move qualified journeys to payment.','/admin/requests'],ar:['مهمة المبيعات','متابعة الطلبات الجديدة والتواصل مع العملاء ونقل الرحلات المؤهلة إلى مرحلة الدفع.','/admin/requests']},
-  FINANCE:{en:['Finance task','Verify incoming payments and maintain expenses and financial reports.','/admin/payments'],ar:['المهمة المالية','التحقق من المدفوعات الواردة وإدارة المصروفات والتقارير المالية.','/admin/payments']},
-  OPERATIONS_MANAGER:{en:['Operations manager task','Build groups, assign resources and keep every operational task on schedule.','/admin/operations'],ar:['مهمة مدير العمليات','بناء المجموعات وتوزيع الموارد والحفاظ على جاهزية جميع المهام التشغيلية.','/admin/operations']},
-  OPERATIONS:{en:['Operations task','Execute assigned operational work and update task status.','/admin/operations'],ar:['المهمة التشغيلية','تنفيذ المهام التشغيلية المسندة وتحديث حالتها.','/admin/operations']},
-  HOST:{en:['Host task','See only your assigned host tasks and update them as you complete each step.','/admin/host-tasks'],ar:['مهمة المضيف','عرض مهامك المسندة فقط وتحديثها عند إكمال كل خطوة.','/admin/host-tasks']}
- };
- const task=taskByRole[role]?.[locale]||taskByRole[role]?.en;
- return <section className="pb-12">
-  <div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">ALHARAMAIN ELITE</div><h1 className="serif mt-2 text-3xl sm:text-4xl xl:text-5xl text-forest">{title}</h1><p className="mt-3 max-w-2xl text-forest/55">{intro}</p></div><Link href="/admin/journeys" className="btn btn-primary">{t.openJourneys}</Link></div>
-  {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
-  {task&&<div className="mt-7 card border-gold/30 bg-white p-6"><div className="eyebrow">{locale==='ar'?'مهمتك الآن':'Your responsibility'}</div><div className="mt-2 flex flex-wrap items-center justify-between gap-4"><div><h2 className="serif text-2xl text-forest">{task[0]}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-forest/55">{task[1]}</p></div><Link href={task[2]} className="btn btn-outline">{locale==='ar'?'فتح مساحة العمل':'Open workspace'}</Link></div></div>}
-  <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-   <Link href="/admin/requests" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.newRequests}</div><div className="serif mt-2 text-4xl text-forest">{stats.requests}</div><div className="mt-2 text-xs text-forest/45">Start the customer conversation →</div></Link>
-   <Link href="/admin/journeys" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.activeJourneys}</div><div className="serif mt-2 text-4xl text-forest">{stats.active}</div><div className="mt-2 text-xs text-forest/45">Open journey workspace →</div></Link>
-   {canViewFinancial&&<Link href="/admin/payments" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.paymentActions}</div><div className="serif mt-2 text-4xl text-forest">{stats.pendingPayments}</div><div className="mt-2 text-xs text-forest/45">Verify or follow up →</div></Link>}
-   <Link href="/admin/operations" className="card p-6 hover:border-gold/50"><div className="eyebrow">{t.operationalIssues}</div><div className="serif mt-2 text-4xl text-forest">{stats.overdue}</div><div className="mt-2 text-xs text-forest/45">Open operations →</div></Link>
-  </div>
-  <div className="mt-7 grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(280px,.7fr)]">
-   <div className="card min-w-0 overflow-hidden p-4 sm:p-6"><div className="flex flex-wrap items-end justify-between gap-3"><div><div className="eyebrow">Journey queue</div><h2 className="serif mt-2 text-3xl text-forest">{t.recentJourneys}</h2></div><Link href="/admin/journeys" className="text-sm font-semibold text-gold">{t.viewAll}</Link></div>
-    <div className="mt-5 grid gap-3">{recent.length===0?<div className="rounded-xl bg-[#f7f3ea] p-5 text-sm text-forest/50">No journeys yet.</div>:recent.map(r=><Link key={r.id} href={"/admin/journeys/"+r.id} className="flex min-w-0 flex-wrap items-center justify-between gap-4 rounded-xl border border-forest/10 p-4 hover:border-gold/50"><div className="min-w-0"><div className="text-xs font-semibold text-gold">{r.booking_id}</div><div className="mt-1 break-words font-semibold text-forest">{r.customers?.full_name||"Unnamed customer"}</div><div className="mt-1 text-xs text-forest/45">{r.packages?.name||"—"} · {r.guest_count} guests</div></div><div className="shrink-0 text-right"><div className="mt-1 rounded-full bg-[#f7f3ea] px-3 py-1 text-[11px] font-semibold text-forest">{r.status.replaceAll("_"," ")}</div></div></Link>)}</div>
-   </div>
-   <div className="grid gap-6">
-    <div className="card p-6"><div className="eyebrow">{t.needsAttention}</div><div className="mt-4 grid gap-3">{canViewFinancial&&stats.pendingPayments>0&&<Link href="/admin/payments" className="rounded-xl border border-amber-200 bg-amber-50 p-4"><div className="font-semibold text-forest">{stats.pendingPayments} payment action{stats.pendingPayments===1?"":"s"}</div><div className="mt-1 text-xs text-forest/55">Review payment status.</div></Link>}{stats.overdue>0&&<Link href="/admin/operations" className="rounded-xl border border-red-200 bg-red-50 p-4"><div className="font-semibold text-forest">{stats.overdue} operational issue{stats.overdue===1?"":"s"}</div><div className="mt-1 text-xs text-forest/55">Resolve delayed or overdue tasks.</div></Link>}{(!canViewFinancial||stats.pendingPayments===0)&&stats.overdue===0&&<div className="rounded-xl bg-[#f7f3ea] p-4 text-sm text-forest/55">{t.nothingUrgent}</div>}</div></div>
-    {canViewFinancial&&<div className="card p-6"><div className="eyebrow">{t.businessSnapshot}</div><div className="mt-4 grid gap-4"><div className="flex justify-between border-b border-forest/10 pb-3"><span className="text-sm text-forest/55">{t.paymentsReceived}</span><b className="text-forest">USD {stats.revenue.toLocaleString()}</b></div><div className="flex justify-between"><span className="text-sm text-forest/55">{t.completedJourneys}</span><b className="text-forest">{stats.completed}</b></div></div></div>}
-   </div>
-  </div>
-  <div className="mt-8 card p-6"><div className="eyebrow">{t.operatingModel}</div><div className="mt-4 grid gap-3 md:grid-cols-4">{[["1",t.inbox,t.followup,"/admin/requests"],["2",t.journeyFile,t.customerBooking,"/admin/journeys"],["3",t.operationsLabel,t.readiness,"/admin/operations"],["4",t.management,t.financeTeam,"/admin/team"]].map(([n,k,d,h])=><Link href={h} key={k} className="rounded-xl bg-[#f7f3ea] p-5 hover:bg-white"><div className="text-xs font-bold text-gold">{n}</div><div className="mt-2 font-semibold text-forest">{k}</div><div className="mt-1 text-xs text-forest/50">{d}</div></Link>)}</div></div>
- </section>
+  const {data:host}=await s.from('hosts').select('id,name').eq('user_id',staff.profile.id).maybeSingle();
+  const {data:tasks}=host?await s.from('host_tasks').select('id,task_id,date,start_time,end_time,location,task_type,status').eq('host_id',host.id).order('date',{ascending:true}).order('start_time',{ascending:true}).limit(50):{data:[]};
+  return <section className="pb-12"><div className="flex flex-wrap items-end justify-between gap-5"><div><div className="eyebrow">HOST WORKSPACE</div><h1 className="serif mt-2 text-4xl text-forest">{host?.name||'Host'}</h1><p className="mt-3 max-w-2xl text-sm text-forest/55">{locale==='ar'?'هذه مساحتك التشغيلية. تظهر هنا المهام المسندة إليك فقط.':'Only tasks assigned to you are shown here.'}</p></div><Link href="/admin/host-tasks" className="btn btn-primary">{locale==='ar'?'فتح مهامي':'Open My Tasks'}</Link></div><div className="mt-8 grid gap-4 sm:grid-cols-2"><Stat label={locale==='ar'?'المهام النشطة':'ACTIVE TASKS'} value={(tasks||[]).filter((x:any)=>!['COMPLETED','CANCELLED'].includes(x.status)).length} href="/admin/host-tasks"/><Stat label={locale==='ar'?'مهام اليوم':'TODAY'} value={(tasks||[]).filter((x:any)=>x.date===new Date().toISOString().slice(0,10)).length} href="/admin/host-tasks"/></div><div className="mt-7 card p-6"><div className="eyebrow">{locale==='ar'?'المهام المسندة إليك':'YOUR ASSIGNED TASKS'}</div><div className="mt-5 grid gap-3">{(!tasks||tasks.length===0)?<div className="rounded-xl bg-[#f7f3ea] p-5 text-sm text-forest/50">No assigned tasks.</div>:tasks.map((x:any)=><Link key={x.id} href="/admin/host-tasks" className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-forest/10 p-4"><div><div className="text-xs font-semibold text-gold">{x.task_id}</div><div className="mt-1 font-semibold text-forest">{String(x.task_type||'Task').replaceAll('_',' ')}</div><div className="mt-1 text-xs text-forest/45">{x.date||'—'} · {x.start_time||'—'} · {x.location||'—'}</div></div><span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-[11px] font-semibold text-forest">{String(x.status||'PENDING').replaceAll('_',' ')}</span></Link>)}</div></div></section>;
+ }
+ if(role==='SALES') return <SalesDashboard locale={locale}/>;
+ if(role==='FINANCE') return <FinanceDashboard locale={locale}/>;
+ if(role==='OPERATIONS_MANAGER') return <OperationsManagerDashboard locale={locale}/>;
+ if(role==='OPERATIONS') return <OperationsDashboard locale={locale}/>;
+ if(role==='ADMIN') return <ManagementDashboard locale={locale}/>;
+ return <ManagementDashboard locale={locale} superAdmin/>;
 }
