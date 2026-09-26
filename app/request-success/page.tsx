@@ -20,7 +20,7 @@ export default async function RequestSuccess({searchParams}:{searchParams:Promis
   const total=p.total?Number(p.total):null;
   const reference=p.reference||'';
   const safeReference=JSON.stringify(reference).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
-  const analytics="window.gtag&&window.gtag('event','request_success',{request_reference:"+safeReference+"})";
+  const analytics="window.gtag&&window.gtag('event','generate_lead',{currency:'USD',value:"+(total!==null&&Number.isFinite(total)?total:0)+",lead_source:'journey_request',request_reference:"+safeReference+"})";
   return <><Script id="request-success-event">{analytics}</Script><section className="section"><div className="container max-w-3xl"><div className="card overflow-hidden p-8 md:p-14">
     <div className="eyebrow">{t.eyebrow}</div>
     <h1 className="serif mt-4 text-4xl leading-tight text-forest md:text-6xl">{t.title}</h1>
