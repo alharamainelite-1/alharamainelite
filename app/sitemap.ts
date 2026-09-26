@@ -12,14 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const basePath = path ? '/' + path : '/';
     return (['en', 'so', 'ar'] as const).map((locale) => ({
       url: SITE_URL + localizedPath(basePath, locale),
-      lastModified,
       changeFrequency: path === '' ? 'weekly' as const : 'monthly' as const,
       priority: path === '' ? 1 : path.startsWith('packages') || path.startsWith('umrah-from-') || path === 'request-journey' ? 0.9 : 0.7,
     }));
   });
   const cityPages = CITY_SEO.flatMap((city) => (['en', 'so', 'ar'] as const).map((locale) => ({
     url: SITE_URL + localizedPath('/umrah-from-city/' + city.slug, locale),
-    lastModified,
     changeFrequency: 'monthly' as const,
     priority: 0.85,
   })));
