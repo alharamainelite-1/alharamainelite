@@ -25,6 +25,7 @@ export const SEO_PAGES: Record<string, { title: string; description: string }> =
   '/umrah-from-usa': { title: 'Umrah from the USA for Somali Muslims | AlHaramain Elite', description: 'Plan a premium small-group Umrah journey from the United States for Somali Muslims, with transparent packages and personal support.' },
   '/umrah-from-uk': { title: 'Umrah from the UK for Somali Muslims | AlHaramain Elite', description: 'Plan a premium small-group Umrah journey from the United Kingdom for Somali Muslims, with transparent packages and personal support.' },
   '/umrah-from-canada': { title: 'Umrah from Canada for Somali Muslims | AlHaramain Elite', description: 'Plan a premium small-group Umrah journey from Canada for Somali Muslims, with transparent packages and personal support.' },
+  '/umrah-from-city': { title: 'Umrah from Cities for Somali Muslims | AlHaramain Elite', description: 'Explore city-specific Umrah planning guides for Somali Muslims in the USA, UK, Canada, Australia and Europe, with transparent packages and personal support.' },
 };
 
 export function stripLocale(pathname: string) {

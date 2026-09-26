@@ -22,13 +22,26 @@ export async function POST(req:Request){
   if(!TASK_TYPES.includes(String(b.task_type)))return NextResponse.json({error:"Invalid task type."},{status:400});
   if(b.start_time&&b.end_time&&b.end_time<=b.start_time)return NextResponse.json({error:"End time must be after start time."},{status:400});
   const s=getSupabaseAdmin();
+  if(b.assigned_staff_id){
+    const {data:assignedStaff}=await s.from("profiles").select("id,role").eq("id",b.assigned_staff_id).maybeSingle();
+    if(!assignedStaff)return NextResponse.json({error:"Assigned staff member was not found."},{status:404});
+    if(!["OPERATIONS_MANAGER","OPERATIONS"].includes(String(assignedStaff.role)))return NextResponse.json({error:"Only Operations Manager or Operations staff can be assigned to an operations task."},{status:400});
+  }
   if(b.assigned_host){
+    const {data:host}=await s.from("hosts").select("id,status").eq("id",b.assigned_host).maybeSingle();
+    if(!host)return NextResponse.json({error:"Assigned host was not found."},{status:404});
+    if(["OFF_DUTY","UNAVAILABLE"].includes(String(host.status)))return NextResponse.json({error:"The selected host is not available."},{status:409});
+
     const q=s.from("operations_tasks").select("id").eq("assigned_host",b.assigned_host).eq("date",b.date).neq("status","CANCELLED");
     if(b.start_time&&b.end_time)q.lt("start_time",b.end_time).gt("end_time",b.start_time);
     const {data:conflict}=await q.limit(1);
     if(conflict?.length)return NextResponse.json({error:"Host has a conflicting task at this time."},{status:409});
   }
   if(b.assigned_vehicle){
+    const {data:vehicle}=await s.from("vehicles").select("id,status").eq("id",b.assigned_vehicle).maybeSingle();
+    if(!vehicle)return NextResponse.json({error:"Assigned vehicle was not found."},{status:404});
+    if(["INACTIVE","UNAVAILABLE","OUT_OF_SERVICE"].includes(String(vehicle.status)))return NextResponse.json({error:"The selected vehicle is not available."},{status:409});
+
     const q=s.from("operations_tasks").select("id").eq("assigned_vehicle",b.assigned_vehicle).eq("date",b.date).neq("status","CANCELLED");
     if(b.start_time&&b.end_time)q.lt("start_time",b.end_time).gt("end_time",b.start_time);
     const {data:conflict}=await q.limit(1);

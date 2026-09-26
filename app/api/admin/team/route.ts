@@ -53,6 +53,9 @@ export async function PATCH(req:Request){
   if(!userId)return NextResponse.json({error:'User id is required.'},{status:400});
   const isSelf=userId===staff.profile.id;
   const admin=getSupabaseAdmin();
+  if(isSelf && action==='delete')return NextResponse.json({error:'You cannot delete your own account.'},{status:409});
+  if(isSelf && action==='role')return NextResponse.json({error:'You cannot change your own role.'},{status:409});
+  if(isSelf && action==='active' && body?.active!==true)return NextResponse.json({error:'You cannot deactivate your own account.'},{status:409});
   if(action==='details'){
     const full_name=String(body?.full_name||'').trim();
     const email=String(body?.email||'').trim().toLowerCase();
@@ -62,6 +65,14 @@ export async function PATCH(req:Request){
     if(isSelf && (email!==String(staff.user.email||'').toLowerCase() || nextRole!==staff.profile.role))return NextResponse.json({error:'You can change your name and phone, but not your own email or role.'},{status:409});
     const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role,phone').eq('id',userId).single();
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    if(isSelf){
+      const {data:after,error}=await admin.from('profiles').update({full_name,phone:phone||null,updated_at:new Date().toISOString()}).eq('id',userId).select('id,full_name,role,phone').single();
+      if(error||!after)return NextResponse.json({error:error?.message||'Unable to update your staff profile.'},{status:500});
+      const authUpdate=await admin.auth.admin.updateUserById(userId,{user_metadata:{full_name}});
+      if(authUpdate.error)return NextResponse.json({error:authUpdate.error.message},{status:400});
+      await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_DETAILS_UPDATED',entity_type:'profile',entity_id:userId,before_data:{...before,email:undefined},after_data:after});
+      return NextResponse.json({ok:true});
+    }
     const authUpdate=await admin.auth.admin.updateUserById(userId,{email,user_metadata:{full_name}});
     if(authUpdate.error)return NextResponse.json({error:authUpdate.error.message},{status:400});
     const {data:after,error}=await admin.from('profiles').update({full_name,phone:phone||null,role:nextRole,updated_at:new Date().toISOString()}).eq('id',userId).select('id,full_name,role,phone').single();
