@@ -12,7 +12,7 @@ export async function GET(){
  const [bookings,payments,costs,expenses,comp,bonuses,payroll,suppliers,catalog,profiles,groups]=await Promise.all([
   s.from('bookings').select('id,booking_id,total_amount,currency,status,payment_status,guest_count,package_id,created_at').order('created_at',{ascending:false}).limit(200),
   s.from('payments').select('id,payment_id,booking_id,amount,currency,status,date,method,reference,verified_at').order('created_at',{ascending:false}).limit(200),
-  s.from('journey_costs').select('id,booking_id,group_id,category,description,amount,currency,date,supplier_id,catalog_item_id').order('date',{ascending:false}).limit(200),
+  s.from('journey_costs').select('id,booking_id,group_id,category,description,amount,currency,amount_usd,cost_stage,date,supplier_id,catalog_item_id,notes').order('date',{ascending:false}).limit(200),
   s.from('expenses').select('id,booking_id,group_id,supplier,category,amount,currency,date,reference,notes,status,created_by,approved_by').order('date',{ascending:false}).limit(200),
   s.from('staff_compensation').select('id,staff_id,base_salary,currency,pay_frequency,effective_from,notes,updated_at'),
   s.from('staff_bonuses').select('id,staff_id,amount,currency,bonus_date,reason,status,approved_at,paid_at').order('bonus_date',{ascending:false}).limit(200),
@@ -45,14 +45,13 @@ export async function POST(req:Request){
   if(error)return NextResponse.json({error:error.message},{status:500});await audit(s,staff,'COST_CATALOG_CREATED','finance_cost_catalog',data.id,null,data);return NextResponse.json({data});
  }
  if(action==='journey_cost'){
-  const amount=Number(b.amount),qty=Number(b.quantity||1);const currency=String(b.currency||'USD').toUpperCase();const fx=currency==='USD'?1:currency==='SAR'?0.2666666667:Number(b.fx_rate_to_usd||0);const stage=String(b.cost_stage||'ACTUAL');
+  const amount=Number(b.amount),qty=1;const currency=String(b.currency||'SAR').toUpperCase();const fx=currency==='USD'?1:currency==='SAR'?0.2666666667:0;
   if(!b.booking_id)return NextResponse.json({error:'A journey cost must be linked to a specific booking.'},{status:400});
-  if(!b.description||!b.category||!Number.isFinite(amount)||amount<0||!Number.isFinite(qty)||qty<=0)return NextResponse.json({error:'Description, category, quantity and valid amount are required.'},{status:400});
-  if(!['HOTEL','TRANSPORTATION','TRAIN','EXPERIENCE','HOST','OTHER','EXPENSE'].includes(String(b.category)))return NextResponse.json({error:'Invalid cost category.'},{status:400});
-  if(!['PLANNED','ACTUAL'].includes(stage))return NextResponse.json({error:'Invalid cost stage.'},{status:400});
-  if(!Number.isFinite(fx)||fx<=0)return NextResponse.json({error:'A valid USD exchange rate is required.'},{status:400});
+  if(!b.description||!b.category||!Number.isFinite(amount)||amount<0)return NextResponse.json({error:'Description, category and valid amount are required.'},{status:400});
+  if(!['HOTEL','TRANSPORTATION','TRAIN','EXPERIENCE','HOST','OTHER'].includes(String(b.category)))return NextResponse.json({error:'Invalid cost category.'},{status:400});
+  if(!['SAR','USD'].includes(currency))return NextResponse.json({error:'Only SAR or USD are supported.'},{status:400});
   const {data:booking}=await s.from('bookings').select('id').eq('id',b.booking_id).single();if(!booking)return NextResponse.json({error:'Booking not found.'},{status:404});
-  const {data,error}=await s.from('journey_costs').insert({booking_id:b.booking_id,group_id:b.group_id||null,supplier_id:b.supplier_id||null,catalog_item_id:b.catalog_item_id||null,category:b.category,description:String(b.description).slice(0,200),quantity:qty,amount,currency,date:b.date||new Date().toISOString().slice(0,10),cost_stage:stage,fx_rate_to_usd:fx,amount_usd:Number((amount*fx).toFixed(2)),notes:b.notes||null,created_by:staff.profile.id}).select('*').single();
+  const {data,error}=await s.from('journey_costs').insert({booking_id:b.booking_id,group_id:b.group_id||null,supplier_id:b.supplier_id||null,catalog_item_id:b.catalog_item_id||null,category:b.category,description:String(b.description).slice(0,200),quantity:qty,amount,currency,date:b.date||new Date().toISOString().slice(0,10),cost_stage:'ACTUAL',fx_rate_to_usd:fx,amount_usd:Number((amount*fx).toFixed(2)),notes:b.notes||null,created_by:staff.profile.id}).select('*').single();
   if(error)return NextResponse.json({error:error.message},{status:500});await audit(s,staff,'JOURNEY_COST_CREATED','journey_cost',data.id,null,data);return NextResponse.json({data});
  }
  if(action==='compensation'){
