@@ -53,6 +53,34 @@ export async function PATCH(req:Request){
   if(!userId)return NextResponse.json({error:'User id is required.'},{status:400});
   if(userId===staff.profile.id)return NextResponse.json({error:'You cannot change your own access from this screen.'},{status:409});
   const admin=getSupabaseAdmin();
+  if(action==='details'){
+    const full_name=String(body?.full_name||'').trim();
+    const email=String(body?.email||'').trim().toLowerCase();
+    const phone=String(body?.phone||'').trim();
+    const nextRole=String(body?.role||'');
+    if(!full_name||!email.includes('@')||!roles.includes(nextRole as typeof STAFF_ROLES[number]))return NextResponse.json({error:'Name, valid email and role are required.'},{status:400});
+    const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role,phone').eq('id',userId).single();
+    if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    const authUpdate=await admin.auth.admin.updateUserById(userId,{email,user_metadata:{full_name}});
+    if(authUpdate.error)return NextResponse.json({error:authUpdate.error.message},{status:400});
+    const {data:after,error}=await admin.from('profiles').update({full_name,phone:phone||null,role:nextRole,updated_at:new Date().toISOString()}).eq('id',userId).select('id,full_name,role,phone').single();
+    if(error||!after)return NextResponse.json({error:error?.message||'Unable to update staff profile.'},{status:500});
+    await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_DETAILS_UPDATED',entity_type:'profile',entity_id:userId,before_data:{...before,email:undefined},after_data:after});
+    return NextResponse.json({ok:true});
+  }
+  if(action==='delete'){
+    const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role,phone').eq('id',userId).single();
+    if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    if(before.role==='SUPER_ADMIN'){
+      const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');
+      if((count||0)<=1)return NextResponse.json({error:'The last Super Admin cannot be deleted.'},{status:409});
+    }
+    await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_ACCOUNT_DELETED',entity_type:'profile',entity_id:userId,before_data:before,after_data:null});
+    const {error}=await admin.auth.admin.deleteUser(userId);
+    if(error)return NextResponse.json({error:error.message},{status:500});
+    await admin.from('profiles').delete().eq('id',userId);
+    return NextResponse.json({ok:true});
+  }
   if(action==='role'){
     if(!role||!roles.includes(role as typeof STAFF_ROLES[number]))return NextResponse.json({error:'Invalid role.'},{status:400});
     const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).single();
