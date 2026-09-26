@@ -20,7 +20,8 @@ export async function GET(){
   const {data:profiles,error:profileError}=await admin.from('profiles').select('id,full_name,role,phone,created_at,updated_at').in('id',ids);
   if(profileError)return NextResponse.json({error:profileError.message},{status:500});
   const byId=new Map((profiles||[]).map(p=>[p.id,p]));
-  return NextResponse.json({users:(data.users||[]).map(u=>{const p=byId.get(u.id);return {id:u.id,email:u.email||'',full_name:p?.full_name||u.user_metadata?.full_name||'',phone:p?.phone||'',role:p?.role||'SALES',created_at:p?.created_at||u.created_at,email_confirmed:!!u.email_confirmed_at,banned:!!u.banned_until};})});
+  // Only profiles are staff records. Partner/customer auth users must not appear in Team.
+  return NextResponse.json({users:(data.users||[]).filter(u=>byId.has(u.id)).map(u=>{const p=byId.get(u.id)!;return {id:u.id,email:u.email||'',full_name:p.full_name||'',phone:p.phone||'',role:p.role,created_at:p.created_at||u.created_at,email_confirmed:!!u.email_confirmed_at,banned:!!u.banned_until};})});
 }
 
 export async function POST(req:Request){
