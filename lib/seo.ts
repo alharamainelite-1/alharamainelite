@@ -64,6 +64,7 @@ const LOCALIZED_SEO: Record<'so' | 'ar', Record<string, { title: string; descrip
     '/contact': { title: 'La Xiriir AlHaramain Elite | Taageerada Cumrada', description: 'La xiriir AlHaramain Elite si aad uga hadasho safarkaaga Cumrada, muddada la filayo iyo faahfaahinta kooxda.' },
     '/umrah-from-usa': { title: 'Cumro ka Tagaysa USA ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Qorshee safar Cumro oo koox yar ah oo ka imanaya Mareykanka, leh qiime cad iyo taageero gaar ah.' },
     '/umrah-from-uk': { title: 'Cumro ka Tagaysa UK ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Qorshee safar Cumro oo koox yar ah oo ka imanaya Boqortooyada Midowday, leh qiime cad iyo taageero gaar ah.' },
+    '/umrah-from-city': { title: 'Hagaha Cumrada ee Magaalooyinka Muslimiinta Soomaalida | AlHaramain Elite', description: 'Sahami hagayaasha magaalooyinka ee qorshaynta Cumrada Muslimiinta Soomaalida ee UK, USA, Canada, Australia iyo Yurub.' },
     '/umrah-from-canada': { title: 'Cumro ka Tagaysa Canada ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Qorshee safar Cumro oo koox yar ah oo ka imanaya Canada, leh qiime cad iyo taageero gaar ah.' },
   },
   ar: {
@@ -85,6 +86,7 @@ const LOCALIZED_SEO: Record<'so' | 'ar', Record<string, { title: string; descrip
     '/contact': { title: 'تواصل مع AlHaramain Elite | دعم العمرة', description: 'تواصل معنا بشأن رحلة العمرة والفترة المتوقعة للسفر وتفاصيل المجموعة والباقات.' },
     '/umrah-from-usa': { title: 'العمرة من الولايات المتحدة للمسلمين الصوماليين | AlHaramain Elite', description: 'خطط لرحلة عمرة راقية ضمن مجموعة صغيرة من الولايات المتحدة مع أسعار واضحة ودعم شخصي.' },
     '/umrah-from-uk': { title: 'العمرة من المملكة المتحدة للمسلمين الصوماليين | AlHaramain Elite', description: 'خطط لرحلة عمرة راقية ضمن مجموعة صغيرة من المملكة المتحدة مع أسعار واضحة ودعم شخصي.' },
+    '/umrah-from-city': { title: 'العمرة من المدن للمسلمين الصوماليين | AlHaramain Elite', description: 'استكشف أدلة تخطيط العمرة حسب المدينة للمسلمين الصوماليين في المملكة المتحدة والولايات المتحدة وكندا وأستراليا وأوروبا.' },
     '/umrah-from-canada': { title: 'العمرة من كندا للمسلمين الصوماليين | AlHaramain Elite', description: 'خطط لرحلة عمرة راقية ضمن مجموعة صغيرة من كندا مع أسعار واضحة ودعم شخصي.' },
   },
 };
