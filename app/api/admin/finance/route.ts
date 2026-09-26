@@ -12,7 +12,7 @@ export async function GET(){
  const [bookings,payments,costs,expenses,comp,bonuses,payroll,suppliers,catalog,profiles,groups]=await Promise.all([
   s.from('bookings').select('id,booking_id,total_amount,currency,status,payment_status,guest_count,package_id,created_at').order('created_at',{ascending:false}).limit(200),
   s.from('payments').select('id,payment_id,booking_id,amount,currency,status,date,method,reference,verified_at').order('created_at',{ascending:false}).limit(200),
-  s.from('journey_costs').select('id,booking_id,group_id,category,description,amount,currency,amount_usd,cost_stage,date,supplier_id,catalog_item_id').order('date',{ascending:false}).limit(200),
+  s.from('journey_costs').select('id,booking_id,group_id,category,description,amount,currency,date,supplier_id,catalog_item_id').order('date',{ascending:false}).limit(200),
   s.from('expenses').select('id,booking_id,group_id,supplier,category,amount,currency,date,reference,notes,status,created_by,approved_by').order('date',{ascending:false}).limit(200),
   s.from('staff_compensation').select('id,staff_id,base_salary,currency,pay_frequency,effective_from,notes,updated_at'),
   s.from('staff_bonuses').select('id,staff_id,amount,currency,bonus_date,reason,status,approved_at,paid_at').order('bonus_date',{ascending:false}).limit(200),
