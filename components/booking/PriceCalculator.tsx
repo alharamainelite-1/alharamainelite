@@ -33,7 +33,7 @@ export function PriceCalculator(){
         <div className="eyebrow">Design your journey</div>
         <h3 className="serif mt-3 text-3xl md:text-4xl">A clear estimate, in seconds.</h3>
         <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">
-          Choose your journey and the number of guests. Your estimate updates instantly.
+          Choose your journey and the number of guests. You can travel with a small party, and we can match smaller parties into a compatible group. Your estimate updates instantly.
         </p>
       </div>
 

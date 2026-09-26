@@ -5,7 +5,7 @@ export const siteConfig = {
   description: 'Premium Umrah journeys thoughtfully designed for Somali Muslims around the world.',
   whatsapp: '+966 57 912 0989',
   whatsappDigits: '966579120989',
-  groupMin: 5,
+  groupMin: 1,
   groupMax: 8,
   languages: ['EN', 'SO', 'AR'] as const,
 } as const;
