@@ -1,6 +1,6 @@
 "use client";
 import {useMemo,useState} from "react";
-type Cost={id:string;category:string;description:string;quantity:number;amount:number;currency:string;amount_usd:number|null;cost_stage:string;date:string;supplier_id?:string|null};
+type Cost={id:string;category:string;description:string;quantity:number;amount:number;currency:string;amount_usd:number|null;cost_stage:string;date:string;supplier_id?:string|null;notes?:string|null};
 const cats=[["HOTEL","الفنادق"],["TRANSPORTATION","النقل"],["TRAIN","قطار الحرمين"],["EXPERIENCE","الفعاليات والتجارب"],["HOST","المضيف"],["OTHER","أخرى"]];
 const money=(n:number,c="USD")=>`${c} ${Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2})}`;
 export default function JourneyFinancials({bookingId,revenue,guestCount,costs,canEdit}:{bookingId:string;revenue:number;guestCount:number;costs:Cost[];canEdit:boolean}){
