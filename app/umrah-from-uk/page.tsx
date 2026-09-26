@@ -16,7 +16,7 @@ export default function Page(){
     country: 'United Kingdom', countryCode: 'UK', slug: 'uk',
     title: 'Umrah from the UK for Somali Muslims', intro: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United Kingdom. Explore two transparent journeys, choose your group size and share your expected travel period.',
     cities: ["London","Birmingham","Manchester","Leicester"],
-    metaTitle: 'Umrah from the UK for Somali Muslims', metaDescription: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United Kingdom. Explore two transparent journeys, choose your group size and share your expected travel period.'
+    metaTitle: 'Umrah from the UK for Somali Muslims', metaDescription: 'A premium, small-group Umrah planning experience for Somali Muslims living in the United Kingdom. Explore two transparent journeys, choose your group size and share your expected travel period.',
     localized:{so:{title:'Cumro laga bilaabo UK oo loogu talagalay Muslimiinta Soomaalida',intro:'Qorshayn Cumro oo koox yar ah oo loogu talagalay Muslimiinta Soomaalida ku nool UK, leh qiime cad, 5–8 marti iyo taageero qofeed.'},ar:{title:'العمرة من المملكة المتحدة للمسلمين الصوماليين',intro:'تخطيط رحلة عمرة ضمن مجموعة صغيرة للمسلمين الصوماليين في المملكة المتحدة، مع أسعار واضحة ودعم شخصي.'}}
   }} />;
 }
