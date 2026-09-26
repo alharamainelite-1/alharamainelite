@@ -51,7 +51,7 @@ export async function PATCH(req:Request){
   const action=String(body?.action||'');
   const role=body?.role?String(body.role):null;
   if(!userId)return NextResponse.json({error:'User id is required.'},{status:400});
-  if(userId===staff.profile.id)return NextResponse.json({error:'You cannot change your own access from this screen.'},{status:409});
+  const isSelf=userId===staff.profile.id;
   const admin=getSupabaseAdmin();
   if(action==='details'){
     const full_name=String(body?.full_name||'').trim();
@@ -59,6 +59,7 @@ export async function PATCH(req:Request){
     const phone=String(body?.phone||'').trim();
     const nextRole=String(body?.role||'');
     if(!full_name||!email.includes('@')||!roles.includes(nextRole as typeof STAFF_ROLES[number]))return NextResponse.json({error:'Name, valid email and role are required.'},{status:400});
+    if(isSelf && (email!==String(staff.profile.email||'').toLowerCase() || nextRole!==staff.profile.role))return NextResponse.json({error:'You can change your name and phone, but not your own email or role.'},{status:409});
     const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role,phone').eq('id',userId).single();
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
     const authUpdate=await admin.auth.admin.updateUserById(userId,{email,user_metadata:{full_name}});
