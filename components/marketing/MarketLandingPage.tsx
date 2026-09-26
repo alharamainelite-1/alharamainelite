@@ -3,6 +3,7 @@ import Script from 'next/script';
 import {headers} from 'next/headers';
 import {defaultLocale, isLocale, type Locale} from '@/lib/i18n';
 import {localizedPath, SITE_URL} from '@/lib/seo';
+import {CITY_SEO} from '@/lib/city-seo';
 
 type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
 
@@ -63,6 +64,8 @@ export async function MarketLandingPage({market}:{market:Market}){
   const locale: Locale = isLocale(rawLocale ?? undefined) ? (rawLocale as Locale) : defaultLocale;
   const t = copy[locale];
   const marketPath = localizedPath(`/umrah-from-${market.slug}`, locale);
+  const countryCode = market.countryCode === 'USA' ? 'USA' : market.countryCode === 'UK' ? 'UK' : market.countryCode;
+  const cityPages = CITY_SEO.filter(city => city.countryCode === countryCode).slice(0, 12);
   const pageUrl = `${SITE_URL}${marketPath}`;
   const breadcrumbHome = `${SITE_URL}${localizedPath('/', locale)}`;
   return <>
@@ -104,6 +107,23 @@ export async function MarketLandingPage({market}:{market:Market}){
                 ].map(([n,title,d])=><li key={n} className="border-b border-forest/10 pb-4"><div className="eyebrow">{n}</div><h3 className="mt-1 font-semibold text-forest">{title}</h3><p className="mt-1 text-sm leading-6 text-forest/55">{d}</p></li>)}
               </ol>
             </aside>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="max-w-3xl">
+            <div className="eyebrow">{locale==='ar'?'دليل المدن':locale==='so'?'Hagaha Magaalooyinka':'City guides'}</div>
+            <h2 className="serif mt-3 text-4xl text-forest md:text-5xl">{locale==='ar'?'العمرة من مدينتك':locale==='so'?'Cumro ka socota magaaladaada':'Umrah from your city'}</h2>
+            <p className="mt-5 leading-8 text-forest/65">{locale==='ar'?'استكشف صفحة مدينتك للحصول على معلومات تخطيط أكثر تحديدًا.':locale==='so'?'Sahami bogga magaaladaada si aad u hesho macluumaad qorshayn oo gaar ah.':'Explore a city-specific planning page for more relevant local information.'}</p>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {cityPages.map(city=><Link key={city.slug} href={localizedPath(`/umrah-from-city/${city.slug}`,locale)} className="card p-5 hover:border-gold">
+              <div className="eyebrow">{city.countryCode}</div>
+              <div className="mt-2 font-semibold text-forest">{city.city}</div>
+              <div className="mt-1 text-sm text-forest/55">{locale==='ar'?'دليل تخطيط العمرة':locale==='so'?'Hagaha qorshaynta Cumrada':'Umrah planning guide'}</div>
+            </Link>)}
           </div>
         </div>
       </section>
