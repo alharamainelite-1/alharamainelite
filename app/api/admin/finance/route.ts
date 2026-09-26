@@ -28,8 +28,10 @@ export async function GET(){
 }
 
 export async function POST(req:Request){
- const staff=await auth();if(!staff)return NextResponse.json({error:'Finance access required.'},{status:403});
+ const staff=await getCurrentStaff();if(!staff)return NextResponse.json({error:'Unauthorized.'},{status:401});
  const b=await req.json().catch(()=>null) as any;const action=String(b?.action||'');const s=getSupabaseAdmin();
+ if(action!=='journey_cost'&&!FINANCE.includes(staff.profile.role))return NextResponse.json({error:'Finance access required.'},{status:403});
+ if(action==='journey_cost'&&!['SUPER_ADMIN','FINANCE','ADMIN','OPERATIONS_MANAGER','OPERATIONS'].includes(staff.profile.role))return NextResponse.json({error:'Finance or Operations access required.'},{status:403});
  if(action==='supplier'){
   if(!MANAGEMENT.includes(staff.profile.role))return NextResponse.json({error:'Only Admin or Super Admin can change supplier records.'},{status:403});
   if(!b.name||!b.supplier_type)return NextResponse.json({error:'Supplier name and type are required.'},{status:400});
@@ -43,8 +45,14 @@ export async function POST(req:Request){
   if(error)return NextResponse.json({error:error.message},{status:500});await audit(s,staff,'COST_CATALOG_CREATED','finance_cost_catalog',data.id,null,data);return NextResponse.json({data});
  }
  if(action==='journey_cost'){
-  const amount=Number(b.amount),qty=Number(b.quantity||1);if(!b.description||!b.category||!Number.isFinite(amount)||amount<0||!Number.isFinite(qty)||qty<=0)return NextResponse.json({error:'Description, category, quantity and valid amount are required.'},{status:400});
-  const {data,error}=await s.from('journey_costs').insert({booking_id:b.booking_id||null,group_id:b.group_id||null,supplier_id:b.supplier_id||null,catalog_item_id:b.catalog_item_id||null,category:b.category,description:String(b.description).slice(0,200),quantity:qty,amount,currency:b.currency||'USD',date:b.date||new Date().toISOString().slice(0,10),notes:b.notes||null,created_by:staff.profile.id}).select('*').single();
+  const amount=Number(b.amount),qty=Number(b.quantity||1);const currency=String(b.currency||'USD').toUpperCase();const fx=currency==='USD'?1:currency==='SAR'?0.2666666667:Number(b.fx_rate_to_usd||0);const stage=String(b.cost_stage||'ACTUAL');
+  if(!b.booking_id)return NextResponse.json({error:'A journey cost must be linked to a specific booking.'},{status:400});
+  if(!b.description||!b.category||!Number.isFinite(amount)||amount<0||!Number.isFinite(qty)||qty<=0)return NextResponse.json({error:'Description, category, quantity and valid amount are required.'},{status:400});
+  if(!['HOTEL','TRANSPORTATION','TRAIN','EXPERIENCE','HOST','OTHER','EXPENSE'].includes(String(b.category)))return NextResponse.json({error:'Invalid cost category.'},{status:400});
+  if(!['PLANNED','ACTUAL'].includes(stage))return NextResponse.json({error:'Invalid cost stage.'},{status:400});
+  if(!Number.isFinite(fx)||fx<=0)return NextResponse.json({error:'A valid USD exchange rate is required.'},{status:400});
+  const {data:booking}=await s.from('bookings').select('id').eq('id',b.booking_id).single();if(!booking)return NextResponse.json({error:'Booking not found.'},{status:404});
+  const {data,error}=await s.from('journey_costs').insert({booking_id:b.booking_id,group_id:b.group_id||null,supplier_id:b.supplier_id||null,catalog_item_id:b.catalog_item_id||null,category:b.category,description:String(b.description).slice(0,200),quantity:qty,amount,currency,date:b.date||new Date().toISOString().slice(0,10),cost_stage:stage,fx_rate_to_usd:fx,amount_usd:Number((amount*fx).toFixed(2)),notes:b.notes||null,created_by:staff.profile.id}).select('*').single();
   if(error)return NextResponse.json({error:error.message},{status:500});await audit(s,staff,'JOURNEY_COST_CREATED','journey_cost',data.id,null,data);return NextResponse.json({data});
  }
  if(action==='compensation'){
