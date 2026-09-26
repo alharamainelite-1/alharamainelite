@@ -53,7 +53,7 @@ export async function POST(req:Request){
   if(!Number.isFinite(fx)||fx<=0)return NextResponse.json({error:'A valid USD exchange rate is required.'},{status:400});
   const {data:booking}=await s.from('bookings').select('id').eq('id',b.booking_id).single();if(!booking)return NextResponse.json({error:'Booking not found.'},{status:404});
   const {data,error}=await s.from('journey_costs').insert({booking_id:b.booking_id,group_id:b.group_id||null,supplier_id:b.supplier_id||null,catalog_item_id:b.catalog_item_id||null,category:b.category,description:String(b.description).slice(0,200),quantity:qty,amount,currency,date:b.date||new Date().toISOString().slice(0,10),cost_stage:stage,fx_rate_to_usd:fx,amount_usd:Number((amount*fx).toFixed(2)),notes:b.notes||null,created_by:staff.profile.id}).select('*').single();
-  if(error)return NextResponse.json({error:error.message},{status:500});await audit(s,staff,'JOURNEY_COST_CREATED','journey_cost',data.id,null,data);return NextResponse.json({data});
+  if(error)return NextResponse.json({error:error.message},{status:500});void audit(s,staff,'JOURNEY_COST_CREATED','journey_cost',data.id,null,data);return NextResponse.json({data},{headers:{'Cache-Control':'no-store'}});
  }
  if(action==='compensation'){
   if(staff.profile.role!=='SUPER_ADMIN')return NextResponse.json({error:'Only Super Admin can set base salaries.'},{status:403});
