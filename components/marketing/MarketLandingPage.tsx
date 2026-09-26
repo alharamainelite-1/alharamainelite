@@ -5,7 +5,7 @@ import {defaultLocale, isLocale, type Locale} from '@/lib/i18n';
 import {localizedPath, SITE_URL} from '@/lib/seo';
 import {CITY_SEO} from '@/lib/city-seo';
 
-type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string };
+type Market = { country:string; countryCode:string; slug:string; title:string; intro:string; cities:string[]; metaTitle:string; metaDescription:string; localized:{so:{title:string;intro:string};ar:{title:string;intro:string}} };
 
 const copy = {
   en: {
