@@ -5,7 +5,7 @@ import{getSupabaseAdmin}from"@/lib/supabase/server";
 
 const ROLES=["SUPER_ADMIN","ADMIN","OPERATIONS_MANAGER","OPERATIONS"];
 const STATUS=["PENDING","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","CANCELLED"];
-const TASK_TYPES=["AIRPORT_TRANSFER","AIRPORT_ASSISTANCE","HOTEL_TRANSFER","TRAIN_ASSISTANCE","MAKKAH_ZIYARAT","MADINAH_ZIYARAT","JEDDAH_EXPERIENCE","SPECIAL_ASSISTANCE","OTHER"];
+const LEAD_SOURCES=["PUBLIC","WOMENS_UMRAH"]; const TASK_TYPES=["AIRPORT_TRANSFER","AIRPORT_ASSISTANCE","HOTEL_TRANSFER","TRAIN_ASSISTANCE","MAKKAH_ZIYARAT","MADINAH_ZIYARAT","JEDDAH_EXPERIENCE","SPECIAL_ASSISTANCE","OTHER"];
 
 function getSlaBase(date:string,startTime?:string|null){
   const base=startTime?new Date(`${date}T${startTime}:00`):new Date(`${date}T00:00:00`);
@@ -20,6 +20,7 @@ export async function POST(req:Request){
   const b=await req.json().catch(()=>null)as any;
   if(!b?.date||!b?.task_type)return NextResponse.json({error:"Date and task type are required."},{status:400});
   if(!TASK_TYPES.includes(String(b.task_type)))return NextResponse.json({error:"Invalid task type."},{status:400});
+  if(b.lead_source!==undefined&&!LEAD_SOURCES.includes(String(b.lead_source)))return NextResponse.json({error:"Invalid journey source."},{status:400});
   if(b.start_time&&b.end_time&&b.end_time<=b.start_time)return NextResponse.json({error:"End time must be after start time."},{status:400});
   const s=getSupabaseAdmin();
   if(b.assigned_staff_id){
@@ -57,6 +58,7 @@ export async function POST(req:Request){
     start_time:b.start_time||null,
     end_time:b.end_time||null,
     task_type:String(b.task_type),
+    lead_source:String(b.lead_source||"PUBLIC"),
     assigned_host:b.assigned_host||null,
     assigned_vehicle:b.assigned_vehicle||null,
     assigned_staff_id:b.assigned_staff_id||null,

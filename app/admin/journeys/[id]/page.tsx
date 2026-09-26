@@ -9,7 +9,7 @@ export default async function JourneyFile({params}:{params:Promise<{id:string}>}
   const locale=await getAdminLocale();
   const {id}=await params;
   const s=getSupabaseAdmin();
-  const {data:row,error}=await s.from('bookings').select('id,booking_id,guest_count,total_amount,currency,status,payment_status,expected_travel_date,expected_period_start,expected_period_end,notes,created_at,customers(full_name,country,city,whatsapp,email,preferred_language),packages(name,slug,positioning)').eq('id',id).single();
+  const {data:row,error}=await s.from('bookings').select('id,booking_id,guest_count,total_amount,currency,status,payment_status,lead_source,expected_travel_date,expected_period_start,expected_period_end,notes,created_at,customers(full_name,country,city,whatsapp,email,preferred_language),packages(name,slug,positioning)').eq('id',id).single();
   if(error||!row)return <section className="pb-12"><div className="card p-10"><h1 className="serif text-3xl text-forest">لم يتم العثور على الرحلة</h1><Link className="btn btn-outline mt-6" href="/admin/journeys">العودة إلى الرحلات</Link></div></section>;
   const customer=(Array.isArray(row.customers)?row.customers[0]:row.customers) as {full_name?:string;country?:string;city?:string;whatsapp?:string;email?:string;preferred_language?:string}|null;
   const pkg=(Array.isArray(row.packages)?row.packages[0]:row.packages) as {name?:string;slug?:string;positioning?:string}|null;
