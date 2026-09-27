@@ -14,13 +14,13 @@ export async function POST(req:Request){
   const s=getSupabaseAdmin(); const password=tempPassword(); const created=await s.auth.admin.createUser({email,password,email_confirm:true});
   if(created.error||!created.data.user)return NextResponse.json({error:created.error?.message||'Unable to create account.'},{status:500});
   let slug=slugify(fullName),n=1; while((await s.from('influencer_partners').select('id').eq('slug',slug).maybeSingle()).data){n++;slug=slugify(fullName)+'-'+n;}
-  const {error}=await s.from('influencer_partners').insert({user_id:created.data.user.id,full_name:fullName,email,whatsapp,country,slug,status:'PENDING'});
-  if(error){await s.auth.admin.deleteUser(created.data.user.id);return NextResponse.json({error:'Unable to create partner profile.'},{status:500});}
+  const {data:partner,error}=await s.from('influencer_partners').insert({user_id:created.data.user.id,full_name:fullName,email,whatsapp,country,slug,status:'PENDING'}).select('id').single();
+  if(error||!partner){await s.auth.admin.deleteUser(created.data.user.id);return NextResponse.json({error:'Unable to create partner profile.'},{status:500});}
   // Auth creates a generic SALES profile via the global user trigger. Partners are not staff,
   // so remove that accidental staff profile immediately after creating the partner record.
   const {error:profileCleanupError}=await s.from('profiles').delete().eq('id',created.data.user.id);
   if(profileCleanupError){
-    await s.from('influencer_partners').delete().eq('id',created.data.user.id);
+    await s.from('influencer_partners').delete().eq('id',partner.id);
     await s.auth.admin.deleteUser(created.data.user.id);
     return NextResponse.json({error:'Unable to finalize partner account.'},{status:500});
   }
