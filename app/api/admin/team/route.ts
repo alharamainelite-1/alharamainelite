@@ -56,6 +56,24 @@ export async function PATCH(req:Request){
   if(isSelf && action==='delete')return NextResponse.json({error:'You cannot delete your own account.'},{status:409});
   if(isSelf && action==='role')return NextResponse.json({error:'You cannot change your own role.'},{status:409});
   if(isSelf && action==='active' && body?.active!==true)return NextResponse.json({error:'You cannot deactivate your own account.'},{status:409});
+  if(body?.newPassword!==undefined){
+    const newPassword=String(body.newPassword||'');
+    if(newPassword.length<8)return NextResponse.json({error:'Password must be at least 8 characters.'},{status:400});
+    if(userId===staff.profile.id)return NextResponse.json({error:'Use your own account recovery flow to change your password.'},{status:409});
+    const {data:target,error:targetError}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).single();
+    if(targetError||!target)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    const {error:passwordError}=await admin.auth.admin.updateUserById(userId,{password:newPassword});
+    if(passwordError)return NextResponse.json({error:passwordError.message||'Unable to reset password.'},{status:500});
+    await admin.from('audit_logs').insert({
+      actor_id:staff.profile.id,
+      action:'STAFF_PASSWORD_RESET',
+      entity_type:'profile',
+      entity_id:userId,
+      before_data:{id:target.id,full_name:target.full_name,role:target.role},
+      after_data:{id:target.id,full_name:target.full_name,role:target.role,password_reset:true}
+    });
+    return NextResponse.json({ok:true});
+  }
   if(action==='details'){
     const full_name=String(body?.full_name||'').trim();
     const email=String(body?.email||'').trim().toLowerCase();
