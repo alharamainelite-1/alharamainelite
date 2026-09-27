@@ -2,6 +2,7 @@
 
 import {useState} from 'react';
 import {getSupabaseBrowser} from '@/lib/supabase/browser';
+import {SITE_URL} from '@/lib/seo';
 
 export function PartnerPasswordResetRequest(){
  const[email,setEmail]=useState('');
@@ -14,7 +15,7 @@ export function PartnerPasswordResetRequest(){
   try{
    const supabase=getSupabaseBrowser();
    const normalized=email.trim().toLowerCase();
-   const{error:resetError}=await supabase.auth.resetPasswordForEmail(normalized,{redirectTo:`${window.location.origin}/partner-reset-password/update`});
+   const{error:resetError}=await supabase.auth.resetPasswordForEmail(normalized,{redirectTo:`${SITE_URL}/partner-reset-password/update`});
    if(resetError) throw resetError;
    setMsg('If this email belongs to a partner account, a secure reset link has been sent. Please check your inbox and spam folder.');
   }catch(err){
