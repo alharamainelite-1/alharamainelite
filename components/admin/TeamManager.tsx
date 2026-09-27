@@ -3,7 +3,9 @@ import {useEffect,useState} from 'react';
 import {adminText} from '@/lib/admin-text';
 
 type Role='SUPER_ADMIN'|'ADMIN'|'OPERATIONS_MANAGER'|'OPERATIONS'|'SALES'|'FINANCE'|'HOST';
-type User={id:string;email:string;full_name:string;phone:string;role:Role;created_at:string;email_confirmed:boolean;banned:boolean};
+type Compensation={staff_id:string;base_salary:number;currency:'USD'|'SAR';pay_frequency:string;effective_from:string;notes?:string|null};
+type Bonus={id:string;staff_id:string;amount:number;currency:'USD'|'SAR';bonus_date:string;reason:string;status:string;approved_at?:string|null;paid_at?:string|null;notes?:string|null};
+type User={id:string;email:string;full_name:string;phone:string;role:Role;created_at:string;email_confirmed:boolean;banned:boolean;compensation:Compensation|null;bonuses:Bonus[]};
 const roles:Role[]=['ADMIN','OPERATIONS_MANAGER','OPERATIONS','SALES','FINANCE','HOST'];
 const roleLabels:Record<Role,string>={SUPER_ADMIN:'المدير العام',ADMIN:'مدير الإدارة',OPERATIONS_MANAGER:'مدير العمليات',OPERATIONS:'موظف العمليات',SALES:'المبيعات',FINANCE:'المالية',HOST:'المضيف'};
 const descriptions:Record<Role,{en:string;ar:string}>={
@@ -26,6 +28,16 @@ export default function TeamManager(){
  const [edit,setEdit]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role});
  const [password,setPassword]=useState('');
  const [passwordMsg,setPasswordMsg]=useState('');
+ const [salary,setSalary]=useState('');
+ const [salaryCurrency,setSalaryCurrency]=useState<'SAR'|'USD'>('SAR');
+ const [payFrequency,setPayFrequency]=useState('MONTHLY');
+ const [effectiveFrom,setEffectiveFrom]=useState(new Date().toISOString().slice(0,10));
+ const [salaryMsg,setSalaryMsg]=useState('');
+ const [bonusAmount,setBonusAmount]=useState('');
+ const [bonusReason,setBonusReason]=useState('');
+ const [bonusCurrency,setBonusCurrency]=useState<'SAR'|'USD'>('SAR');
+ const [bonusDate,setBonusDate]=useState(new Date().toISOString().slice(0,10));
+ const [bonusMsg,setBonusMsg]=useState('');
  const [form,setForm]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role});
  const t=adminText[locale];
 
@@ -60,6 +72,16 @@ export default function TeamManager(){
   setEdit({full_name:u.full_name,email:u.email,phone:u.phone||'',role:u.role});
   setPassword('');
   setPasswordMsg('');
+  setSalary(u.compensation?String(u.compensation.base_salary):'');
+  setSalaryCurrency(u.compensation?.currency==='USD'?'USD':'SAR');
+  setPayFrequency(u.compensation?.pay_frequency||'MONTHLY');
+  setEffectiveFrom(u.compensation?.effective_from||new Date().toISOString().slice(0,10));
+  setSalaryMsg('');
+  setBonusAmount('');
+  setBonusReason('');
+  setBonusCurrency('SAR');
+  setBonusDate(new Date().toISOString().slice(0,10));
+  setBonusMsg('');
   setMessage('');
  }
  function closeProfile(){if(!busy)setSelected(null);}
@@ -117,6 +139,44 @@ export default function TeamManager(){
      <label className="text-sm font-semibold text-forest">{locale==='ar'?'الدور والصلاحية':'Role & permission'}<select value={edit.role} onChange={e=>setEdit(Object.assign({},edit,{role:e.target.value as Role}))} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold">{['SUPER_ADMIN'].concat(roles).map(r=><option key={r} value={r}>{locale==='ar'?roleLabels[r as Role]:r}</option>)}</select></label>
     </div>
     <div className="mt-6 rounded-xl bg-[#f7f3ea] p-4"><div className="text-xs font-semibold text-forest/55">{locale==='ar'?'حالة الحساب':'Account status'}</div><div className="mt-2 font-semibold text-forest">{selected.banned?(locale==='ar'?'معطل':'Disabled'):(locale==='ar'?'نشط':'Active')}</div></div>
+    <div className="mt-6 rounded-xl border border-gold/20 bg-[#fffaf0] p-5">
+     <div className="eyebrow">{locale==='ar'?'الملف المالي للموظف':'Employee finance'}</div>
+     <h4 className="serif mt-2 text-2xl text-forest">{locale==='ar'?'الراتب والمكافآت':'Salary & bonuses'}</h4>
+     <p className="mt-2 text-sm leading-6 text-forest/55">{locale==='ar'?'إدارة الراتب الأساسي، دورية الصرف، والمكافآت مع حفظ السجل المالي للموظف.':'Manage base salary, pay frequency and bonuses with a financial history.'}</p>
+     <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <label className="text-sm font-semibold text-forest">{locale==='ar'?'الراتب الأساسي':'Base salary'}<input type="number" min="0" step="0.01" value={salary} onChange={e=>setSalary(e.target.value)} className="mt-2 w-full"/></label>
+      <label className="text-sm font-semibold text-forest">{locale==='ar'?'العملة':'Currency'}<select value={salaryCurrency} onChange={e=>setSalaryCurrency(e.target.value as 'SAR'|'USD')} className="mt-2 w-full"><option value="SAR">SAR</option><option value="USD">USD</option></select></label>
+      <label className="text-sm font-semibold text-forest">{locale==='ar'?'دورية الراتب':'Pay frequency'}<select value={payFrequency} onChange={e=>setPayFrequency(e.target.value)} className="mt-2 w-full"><option value="MONTHLY">{locale==='ar'?'شهري':'Monthly'}</option><option value="WEEKLY">{locale==='ar'?'أسبوعي':'Weekly'}</option><option value="BIWEEKLY">{locale==='ar'?'كل أسبوعين':'Biweekly'}</option></select></label>
+      <label className="text-sm font-semibold text-forest">{locale==='ar'?'ساري من':'Effective from'}<input type="date" value={effectiveFrom} onChange={e=>setEffectiveFrom(e.target.value)} className="mt-2 w-full"/></label>
+     </div>
+     <button type="button" disabled={busy||!salary||Number(salary)<0} onClick={async()=>{
+      setBusy(true);setSalaryMsg('');
+      try{const r=await fetch('/api/admin/finance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'compensation',staff_id:selected.id,base_salary:Number(salary),currency:salaryCurrency,pay_frequency:payFrequency,effective_from:effectiveFrom})});const j=await r.json();if(!r.ok)throw new Error(j.error||'Unable to save salary.');setSalaryMsg(locale==='ar'?'تم حفظ الراتب الأساسي.':'Base salary saved.');await load();}
+      catch(e){setSalaryMsg(e instanceof Error?e.message:'Unable to save salary.')}finally{setBusy(false)}
+     }} className="btn btn-primary mt-4">{locale==='ar'?'حفظ الراتب':'Save salary'}</button>
+     {salaryMsg&&<p className="mt-3 text-sm text-forest/60">{salaryMsg}</p>}
+
+     <div className="mt-6 border-t border-forest/10 pt-5">
+      <div className="font-semibold text-forest">{locale==='ar'?'إضافة مكافأة':'Add bonus'}</div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+       <input type="number" min="0.01" step="0.01" value={bonusAmount} onChange={e=>setBonusAmount(e.target.value)} placeholder={locale==='ar'?'قيمة المكافأة':'Bonus amount'}/>
+       <select value={bonusCurrency} onChange={e=>setBonusCurrency(e.target.value as 'SAR'|'USD')}><option value="SAR">SAR</option><option value="USD">USD</option></select>
+       <input type="date" value={bonusDate} onChange={e=>setBonusDate(e.target.value)}/>
+       <input value={bonusReason} onChange={e=>setBonusReason(e.target.value)} placeholder={locale==='ar'?'سبب المكافأة':'Bonus reason'}/>
+      </div>
+      <button type="button" disabled={busy||!bonusAmount||Number(bonusAmount)<=0||!bonusReason.trim()} onClick={async()=>{
+       setBusy(true);setBonusMsg('');
+       try{const r=await fetch('/api/admin/finance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'bonus',staff_id:selected.id,amount:Number(bonusAmount),currency:bonusCurrency,bonus_date:bonusDate,reason:bonusReason.trim()})});const j=await r.json();if(!r.ok)throw new Error(j.error||'Unable to add bonus.');setBonusAmount('');setBonusReason('');setBonusMsg(locale==='ar'?'تمت إضافة المكافأة واعتمادها.':'Bonus added and approved.');await load();const fresh=(await fetch('/api/admin/team',{cache:'no-store'})).json();const data=await fresh;const updated=(data.users||[]).find((u:User)=>u.id===selected.id);if(updated)setSelected(updated);}
+       catch(e){setBonusMsg(e instanceof Error?e.message:'Unable to add bonus.')}finally{setBusy(false)}
+      }} className="btn btn-primary mt-4">{locale==='ar'?'إضافة المكافأة':'Add bonus'}</button>
+      {bonusMsg&&<p className="mt-3 text-sm text-forest/60">{bonusMsg}</p>}
+     </div>
+
+     <div className="mt-6 rounded-xl border border-forest/10 bg-white p-4">
+      <div className="text-sm font-semibold text-forest">{locale==='ar'?'سجل المكافآت':'Bonus history'}</div>
+      <div className="mt-3 grid gap-2">{selected.bonuses.length?selected.bonuses.map(b=><div key={b.id} className="flex flex-col gap-1 rounded-lg bg-[#f7f3ea] p-3 text-sm sm:flex-row sm:items-center sm:justify-between"><span>{b.reason}</span><span className="font-semibold">{Number(b.amount).toLocaleString()} {b.currency} · {b.status}</span></div>):<div className="text-sm text-forest/45">{locale==='ar'?'لا توجد مكافآت مسجلة.':'No bonuses recorded.'}</div>}</div>
+     </div>
+    </div>
     <div className="mt-6 rounded-xl border border-forest/10 bg-white p-5">
      <div className="eyebrow">{locale==='ar'?'صلاحية الدخول':'Account access'}</div>
      <h4 className="serif mt-2 text-2xl text-forest">{locale==='ar'?'تغيير كلمة مرور الموظف':'Reset employee password'}</h4>
