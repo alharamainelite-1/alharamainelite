@@ -1,6 +1,7 @@
 'use client';
 
 import {useEffect,useState} from 'react';
+import type {FormEvent} from 'react';
 import {useRouter} from 'next/navigation';
 import {getSupabaseBrowser} from '@/lib/supabase/browser';
 
@@ -28,7 +29,7 @@ export default function PartnerPasswordResetUpdatePage(){
   return()=>{active=false};
  },[]);
 
- async function submit(e:React.FormEvent){
+ async function submit(e:FormEvent){
   e.preventDefault(); setMsg(''); setError('');
   if(password.length<8){setError('Password must be at least 8 characters.');return}
   if(password!==confirm){setError('Passwords do not match.');return}
