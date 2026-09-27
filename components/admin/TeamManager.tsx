@@ -24,6 +24,8 @@ export default function TeamManager(){
  const [locale,setLocale]=useState<'en'|'ar'>('ar');
  const [selected,setSelected]=useState<User|null>(null);
  const [edit,setEdit]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role});
+ const [password,setPassword]=useState('');
+ const [passwordMsg,setPasswordMsg]=useState('');
  const [form,setForm]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role});
  const t=adminText[locale];
 
@@ -56,6 +58,8 @@ export default function TeamManager(){
  function openProfile(u:User){
   setSelected(u);
   setEdit({full_name:u.full_name,email:u.email,phone:u.phone||'',role:u.role});
+  setPassword('');
+  setPasswordMsg('');
   setMessage('');
  }
  function closeProfile(){if(!busy)setSelected(null);}
@@ -113,6 +117,29 @@ export default function TeamManager(){
      <label className="text-sm font-semibold text-forest">{locale==='ar'?'الدور والصلاحية':'Role & permission'}<select value={edit.role} onChange={e=>setEdit(Object.assign({},edit,{role:e.target.value as Role}))} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold">{['SUPER_ADMIN'].concat(roles).map(r=><option key={r} value={r}>{locale==='ar'?roleLabels[r as Role]:r}</option>)}</select></label>
     </div>
     <div className="mt-6 rounded-xl bg-[#f7f3ea] p-4"><div className="text-xs font-semibold text-forest/55">{locale==='ar'?'حالة الحساب':'Account status'}</div><div className="mt-2 font-semibold text-forest">{selected.banned?(locale==='ar'?'معطل':'Disabled'):(locale==='ar'?'نشط':'Active')}</div></div>
+    <div className="mt-6 rounded-xl border border-forest/10 bg-white p-5">
+     <div className="eyebrow">{locale==='ar'?'صلاحية الدخول':'Account access'}</div>
+     <h4 className="serif mt-2 text-2xl text-forest">{locale==='ar'?'تغيير كلمة مرور الموظف':'Reset employee password'}</h4>
+     <p className="mt-2 text-sm leading-6 text-forest/55">{locale==='ar'?'يمكن للمدير العام تعيين كلمة مرور جديدة دون معرفة كلمة المرور الحالية. لا يتم عرض كلمة المرور الحالية في أي وقت.':'The Super Admin can set a new password without viewing the existing password.'}</p>
+     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+      <input type="password" minLength={8} autoComplete="new-password" placeholder={locale==='ar'?'كلمة المرور الجديدة (8 أحرف فأكثر)':'New password (8+ characters)'} value={password} onChange={e=>{setPassword(e.target.value);setPasswordMsg('')}} className="min-w-0 flex-1"/>
+      <button type="button" disabled={busy} onClick={async()=>{
+       const value=password.trim();
+       if(value.length<8){setPasswordMsg(locale==='ar'?'كلمة المرور يجب أن تكون 8 أحرف على الأقل.':'Password must be at least 8 characters.');return}
+       if(!window.confirm(locale==='ar'?'هل أنت متأكد من تعيين كلمة المرور الجديدة لهذا الموظف؟':'Set this new password for this employee?'))return;
+       setBusy(true);setPasswordMsg('');
+       try{
+        const r=await fetch('/api/admin/team',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:selected.id,newPassword:value})});
+        const j=await r.json();
+        if(!r.ok)throw new Error(j.error||'Unable to reset password.');
+        setPassword('');
+        setPasswordMsg(locale==='ar'?'تم تغيير كلمة المرور بنجاح. أرسل كلمة المرور الجديدة للموظف عبر قناة آمنة.':'Password changed successfully. Share the new password with the employee through a secure channel.');
+       }catch(e){setPasswordMsg(e instanceof Error?e.message:(locale==='ar'?'تعذر تغيير كلمة المرور.':'Unable to reset password.'))}
+       finally{setBusy(false)}
+      }} className="btn btn-primary whitespace-nowrap">{locale==='ar'?'تغيير كلمة المرور':'Set new password'}</button>
+     </div>
+     {passwordMsg&&<p className="mt-3 text-sm text-forest/60">{passwordMsg}</p>}
+    </div>
     <div className="mt-6 flex flex-col gap-3 border-t border-forest/10 pt-5">
      <div className="flex flex-wrap gap-3">
       <button type="button" disabled={busy} onClick={()=>update(selected.id,{action:'active',active:selected.banned})} className="rounded-xl border border-forest/15 px-4 py-3 text-sm font-semibold text-forest hover:bg-[#f7f3ea]">{selected.banned?(locale==='ar'?'إعادة تفعيل الحساب':'Reactivate account'):(locale==='ar'?'تعطيل الحساب':'Disable account')}</button>
