@@ -16,6 +16,14 @@ export async function POST(req:Request){
   let slug=slugify(fullName),n=1; while((await s.from('influencer_partners').select('id').eq('slug',slug).maybeSingle()).data){n++;slug=slugify(fullName)+'-'+n;}
   const {error}=await s.from('influencer_partners').insert({user_id:created.data.user.id,full_name:fullName,email,whatsapp,country,slug,status:'PENDING'});
   if(error){await s.auth.admin.deleteUser(created.data.user.id);return NextResponse.json({error:'Unable to create partner profile.'},{status:500});}
+  // Auth creates a generic SALES profile via the global user trigger. Partners are not staff,
+  // so remove that accidental staff profile immediately after creating the partner record.
+  const {error:profileCleanupError}=await s.from('profiles').delete().eq('id',created.data.user.id);
+  if(profileCleanupError){
+    await s.from('influencer_partners').delete().eq('id',created.data.user.id);
+    await s.auth.admin.deleteUser(created.data.user.id);
+    return NextResponse.json({error:'Unable to finalize partner account.'},{status:500});
+  }
   return NextResponse.json({partner:{fullName,email,slug},temporaryPassword:password},{status:201});
  }catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Unable to add partner.'},{status:500});}
 }
