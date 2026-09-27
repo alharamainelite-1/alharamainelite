@@ -9,6 +9,7 @@ const nextConfig:NextConfig={
       {protocol:'https',hostname:'umrahtransit.com'},
       {protocol:'https',hostname:'image.idntimes.com'},
       {protocol:'https',hostname:'scenenow.com'},
+      {protocol:'https',hostname:'sayartii.com'},
     ],
   },
 };
