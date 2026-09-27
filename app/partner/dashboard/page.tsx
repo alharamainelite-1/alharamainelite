@@ -4,8 +4,6 @@ import{getSupabaseAdmin}from'@/lib/supabase/server';
 import{getCurrentPartner}from'@/lib/supabase/partner';
 import{PartnerDashboardClient}from'@/components/partner/PartnerDashboardClient';
 
-const COMMISSION_RATE=0.05;
-
 export default async function PartnerDashboardPage(){
  const current=await getCurrentPartner();
  if(!current)redirect('/partner-login');
@@ -32,7 +30,7 @@ export default async function PartnerDashboardPage(){
    return {amount:Number(c.amount),label:'Pending'};
   }
   if(b.status==='CANCELLED')return {amount:0,label:'Cancelled'};
-  return {amount:Number(b.total_amount||0)*COMMISSION_RATE,label:b.payment_status==='RECEIVED'?'Processing':'Pending payment'};
+  return {amount:0,label:b.payment_status==='RECEIVED'?'Processing':'Pending payment'};
  }
 
  const labels={
@@ -56,7 +54,7 @@ export default async function PartnerDashboardPage(){
    <PartnerDashboardClient available={available}/>
   </div>
   <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-   <div className="card p-6"><div className="eyebrow">Total Bookings</div><div className="serif mt-2 text-4xl text-forest">{bookings.length}</div></div>
+   <div className="card p-6"><div className="eyebrow">Referred Bookings</div><div className="serif mt-2 text-4xl text-forest">{bookings.length}</div></div>
    <div className="card p-6"><div className="eyebrow">Pending Commission</div><div className="serif mt-2 text-4xl text-forest">$ {Math.max(0,pending).toLocaleString()}</div><p className="mt-2 text-xs text-forest/45">After verified payment</p></div>
    <div className="card p-6"><div className="eyebrow">Commission Available</div><div className="serif mt-2 text-4xl text-forest">$ {Math.max(0,available).toLocaleString()}</div><p className="mt-2 text-xs text-forest/45">Ready for payout · $500 minimum</p></div>
    <div className="card p-6"><div className="eyebrow">Commission Paid</div><div className="serif mt-2 text-4xl text-forest">$ {paid.toLocaleString()}</div></div>
@@ -69,6 +67,6 @@ export default async function PartnerDashboardPage(){
    <div className="card p-7"><div className="eyebrow">Your referral link</div><div className="mt-4 break-all rounded-xl bg-[#f7f3ea] p-4 font-semibold text-forest">{process.env.NEXT_PUBLIC_SITE_URL||'https://alharamainelite.vercel.app'}/{current.partner.slug}</div><p className="mt-3 text-sm text-forest/50">Share this link with your audience.</p></div>
    <div className="card p-7"><div className="eyebrow">Partner status</div><div className="mt-3 inline-flex rounded-full bg-[#f7f3ea] px-4 py-2 text-sm font-semibold text-forest">{current.partner.status}</div></div>
   </div>
-  <div className="mt-8 card overflow-hidden"><div className="border-b border-forest/10 p-6"><div className="eyebrow">Recent payout requests</div></div><div className="divide-y divide-forest/10">{(payouts||[]).length===0?<div className="p-8 text-sm text-forest/45">No payout requests yet.</div>:(payouts||[]).map((p:any)=><div key={p.id} className="flex flex-wrap items-center justify-between gap-4 p-5"><div><div className="font-semibold text-forest">$ {Number(p.amount).toLocaleString()}</div><div className="mt-1 text-xs text-forest/45">{new Date(p.requested_at).toLocaleDateString('en-GB')}</div></div><div className="text-right text-sm text-forest/60">{p.status}{p.rejection_reason&&<div className="mt-1 text-xs text-red-700">{p.rejection_reason}</div>}</div></div>)}</div></div>
+  
  </div></section></main>
 }
