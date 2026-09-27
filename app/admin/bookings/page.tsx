@@ -10,7 +10,7 @@ const paymentAr:Record<string,string>={NOT_REQUESTED:'لم يُطلب',PENDING:'
 export default async function BookingsPage(){
  const locale=await getAdminLocale(); const t=adminText[locale];
  const staff=await getCurrentStaff(); if(!staff)return null;
- const canViewFinancial=staff.profile.role==='SUPER_ADMIN'||staff.profile.role==='FINANCE'||staff.profile.role==='ADMIN';
+ const canViewFinancial=staff.profile.role==='SUPER_ADMIN'||staff.profile.role==='FINANCE';
  let rows:any[]=[];let error='';
  try{
   const {data,error:e}=await getSupabaseAdmin().from('bookings')
@@ -35,7 +35,7 @@ export default async function BookingsPage(){
     <td className="px-4 py-4">{label(row.status,statusAr)}</td>
     {canViewFinancial&&<td className="px-4 py-4">{label(row.payment_status,paymentAr)}</td>}
     <td className="px-4 py-4 text-xs text-forest/45">{new Date(row.created_at).toLocaleDateString(locale==='ar'?'ar-SA':'en-GB')}</td>
-    <td className="px-4 py-4">{staff.profile.role==='FINANCE'?<span className="text-xs text-forest/55">{locale==='ar'?'المالية: التحقق من الدفع فقط':'Finance: payment verification only'}</span>:<BookingStatusForm bookingId={row.id} currentStatus={row.status} paymentStatus={row.payment_status} role={staff.profile.role}/>}</td>
+    <td className="px-4 py-4">{staff.profile.role==='FINANCE'?<span className="text-xs text-forest/55">{locale==='ar'?'المالية: التحقق من الدفع فقط':'Finance: payment verification only'}</span>:<BookingStatusForm bookingId={row.id} currentStatus={row.status} paymentStatus={row.payment_status}/>}</td>
    </tr>)}</tbody>
   </table></div>
  </section>;
