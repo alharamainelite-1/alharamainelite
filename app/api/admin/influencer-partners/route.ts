@@ -24,6 +24,14 @@ export async function PATCH(req:Request){
  const staff=await getCurrentStaff(); if(!staff||!['SUPER_ADMIN','ADMIN'].includes(staff.profile.role))return NextResponse.json({error:'Admin access required.'},{status:403});
  const b=await req.json().catch(()=>null) as any; if(!b?.id)return NextResponse.json({error:'Partner id is required.'},{status:400});
  const s=getSupabaseAdmin(); const {data:before}=await s.from('influencer_partners').select('*').eq('id',b.id).single(); if(!before)return NextResponse.json({error:'Partner not found.'},{status:404});
+ if(b.newPassword!==undefined){
+   if(staff.profile.role!=='SUPER_ADMIN')return NextResponse.json({error:'SUPER_ADMIN access required to reset a partner password.'},{status:403});
+   const newPassword=String(b.newPassword||'');
+   if(newPassword.length<8)return NextResponse.json({error:'Password must be at least 8 characters.'},{status:400});
+   if(!before.user_id)return NextResponse.json({error:'This partner has no login account.'},{status:400});
+   const {error:passwordError}=await s.auth.admin.updateUserById(before.user_id,{password:newPassword});
+   if(passwordError)return NextResponse.json({error:passwordError.message||'Unable to reset password.'},{status:500});
+ }
  const update:any={updated_at:new Date().toISOString()};
  if(typeof b.fullName==='string')update.full_name=b.fullName.trim();
  if(typeof b.email==='string'&&staff.profile.role==='SUPER_ADMIN')update.email=b.email.trim().toLowerCase();
@@ -31,6 +39,10 @@ export async function PATCH(req:Request){
  if(typeof b.country==='string')update.country=b.country.trim();
  if(typeof b.slug==='string'&&b.slug.trim()){const slug=b.slug.toLowerCase().trim().replace(/[^a-z0-9-]/g,'-').replace(/^-+|-+$/g,'').slice(0,48);const conflict=await s.from('influencer_partners').select('id').eq('slug',slug).neq('id',b.id).maybeSingle();if(conflict.data)return NextResponse.json({error:'That referral link is already in use.'},{status:409});update.slug=slug;}
  if(['ACTIVE','SUSPENDED','PENDING'].includes(b.status)){update.status=b.status;if(b.status==='SUSPENDED'){update.suspension_reason=String(b.suspensionReason||'Administrative decision').slice(0,500);update.suspended_at=new Date().toISOString();}else{update.suspension_reason=null;update.suspended_at=null;}}
+ if(update.email&&before.user_id&&update.email!==before.email){
+   const {error:authEmailError}=await s.auth.admin.updateUserById(before.user_id,{email:update.email,email_confirm:true});
+   if(authEmailError)return NextResponse.json({error:authEmailError.message||'Unable to update login email.'},{status:500});
+ }
  const {data:after,error}=await s.from('influencer_partners').update(update).eq('id',b.id).select('*').single(); if(error||!after)return NextResponse.json({error:error?.message||'Unable to update partner.'},{status:500});
  return NextResponse.json({partner:after});
 }
