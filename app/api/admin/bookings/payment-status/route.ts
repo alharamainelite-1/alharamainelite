@@ -4,6 +4,7 @@ import { getCurrentStaff } from '@/lib/supabase/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 const ALLOWED_ROLES=['SUPER_ADMIN','ADMIN','FINANCE'];
+const COMMISSION_RATE=0.05;
 
 export async function POST(req:Request){
  const staff=await getCurrentStaff();
@@ -62,5 +63,17 @@ export async function POST(req:Request){
  revalidatePath('/admin/finance');
  revalidatePath('/partner/dashboard');
 
- return NextResponse.json({payment,booking:after});
+ const {data:commission}=await s.from('influencer_commissions')
+  .select('id,amount,status,available_at')
+  .eq('booking_id',after.id)
+  .eq('type','COMMISSION')
+  .in('status',['PENDING','PAID'])
+  .maybeSingle();
+
+ return NextResponse.json({
+   payment,
+   booking:after,
+   commission:commission||null,
+   commissionExpected:after.influencer_partner_id?Number(after.total_amount||0)*COMMISSION_RATE:0
+ });
 }
