@@ -31,7 +31,13 @@ export async function POST(req: Request) {
       p_additional_notes: v.additionalNotes || null, p_lead_source: v.leadSource, p_partner_slug: partnerSlug,
     });
     if (error || !data) { console.error('journey_request_rpc_error', error); return NextResponse.json({ error: 'We could not receive your request right now. Please try again.' }, { status: 500 }); }
-    return NextResponse.json({ reference: data.reference, bookingId: data.booking_id, total: Number(data.estimated_total), currency: data.currency }, { status: 201 });
+    // Supabase returns RETURNS TABLE results as an array. Normalize it before building the public response.
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row?.reference || !row?.booking_id || row?.estimated_total == null || !row?.currency) {
+      console.error('journey_request_rpc_invalid_result', { hasData: Boolean(data), row });
+      return NextResponse.json({ error: 'We could not complete your request right now. Please try again.' }, { status: 500 });
+    }
+    return NextResponse.json({ reference: row.reference, bookingId: row.booking_id, total: Number(row.estimated_total), currency: row.currency }, { status: 201 });
   } catch (error) {
     console.error('journey_request_error', error);
     return NextResponse.json({ error: 'We could not receive your request right now. Please try again.' }, { status: 500 });
