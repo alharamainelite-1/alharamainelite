@@ -10,7 +10,7 @@ const paymentAr:Record<string,string>={NOT_REQUESTED:'لم يُطلب',PENDING:'
 export default async function BookingsPage(){
  const locale=await getAdminLocale(); const t=adminText[locale];
  const staff=await getCurrentStaff(); if(!staff)return null;
- const canViewFinancial=staff.profile.role==='SUPER_ADMIN'||staff.profile.role==='FINANCE';
+ const canViewFinancial=staff.profile.role==='SUPER_ADMIN'||staff.profile.role==='FINANCE'||staff.profile.role==='ADMIN';
  let rows:any[]=[];let error='';
  try{
   const {data,error:e}=await getSupabaseAdmin().from('bookings')
