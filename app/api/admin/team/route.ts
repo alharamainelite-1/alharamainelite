@@ -16,12 +16,45 @@ export async function GET(){
   const admin=getSupabaseAdmin();
   const {data,error}=await admin.auth.admin.listUsers({page:1,perPage:100});
   if(error)return NextResponse.json({error:error.message},{status:500});
+
   const ids=(data.users||[]).map(u=>u.id);
-  const {data:profiles,error:profileError}=await admin.from('profiles').select('id,full_name,role,phone,created_at,updated_at').in('id',ids);
-  if(profileError)return NextResponse.json({error:profileError.message},{status:500});
-  const byId=new Map((profiles||[]).map(p=>[p.id,p]));
-  // Only profiles are staff records. Partner/customer auth users must not appear in Team.
-  return NextResponse.json({users:(data.users||[]).filter(u=>byId.has(u.id)).map(u=>{const p=byId.get(u.id)!;return {id:u.id,email:u.email||'',full_name:p.full_name||'',phone:p.phone||'',role:p.role,created_at:p.created_at||u.created_at,email_confirmed:!!u.email_confirmed_at,banned:!!u.banned_until};})});
+  const {data:partnerRows,error:partnerError}=await admin.from('influencer_partners').select('user_id').in('user_id',ids);
+  if(partnerError)return NextResponse.json({error:partnerError.message},{status:500});
+  const partnerIds=new Set((partnerRows||[]).map(p=>p.user_id));
+  const staffIds=ids.filter(id=>!partnerIds.has(id));
+
+  if(!staffIds.length)return NextResponse.json({users:[]});
+
+  const [profilesResult,compResult,bonusesResult]=await Promise.all([
+    admin.from('profiles').select('id,full_name,role,phone,created_at,updated_at').in('id',staffIds),
+    admin.from('staff_compensation').select('staff_id,base_salary,currency,pay_frequency,effective_from,notes').in('staff_id',staffIds),
+    admin.from('staff_bonuses').select('id,staff_id,amount,currency,bonus_date,reason,status,approved_at,paid_at,notes').in('staff_id',staffIds).order('bonus_date',{ascending:false}).limit(500)
+  ]);
+  if(profilesResult.error)return NextResponse.json({error:profilesResult.error.message},{status:500});
+  if(compResult.error)return NextResponse.json({error:compResult.error.message},{status:500});
+  if(bonusesResult.error)return NextResponse.json({error:bonusesResult.error.message},{status:500});
+
+  const byId=new Map((profilesResult.data||[]).map(p=>[p.id,p]));
+  const compensation=new Map((compResult.data||[]).map(p=>[p.staff_id,p]));
+  const bonuses=new Map<string,any[]>();
+  for(const bonus of bonusesResult.data||[]){
+    const list=bonuses.get(bonus.staff_id)||[];
+    list.push(bonus);
+    bonuses.set(bonus.staff_id,list);
+  }
+
+  return NextResponse.json({
+    users:(data.users||[])
+      .filter(u=>!partnerIds.has(u.id)&&byId.has(u.id))
+      .map(u=>{
+        const p=byId.get(u.id)!;
+        return {
+          id:u.id,email:u.email||'',full_name:p.full_name||'',phone:p.phone||'',role:p.role,
+          created_at:p.created_at||u.created_at,email_confirmed:!!u.email_confirmed_at,banned:!!u.banned_until,
+          compensation:compensation.get(u.id)||null,bonuses:bonuses.get(u.id)||[]
+        };
+      })
+  });
 }
 
 export async function POST(req:Request){
@@ -62,16 +95,11 @@ export async function PATCH(req:Request){
     if(userId===staff.profile.id)return NextResponse.json({error:'Use your own account recovery flow to change your password.'},{status:409});
     const {data:target,error:targetError}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).single();
     if(targetError||!target)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
+    if(partner)return NextResponse.json({error:'Partner accounts cannot be managed as staff.'},{status:409});
     const {error:passwordError}=await admin.auth.admin.updateUserById(userId,{password:newPassword});
     if(passwordError)return NextResponse.json({error:passwordError.message||'Unable to reset password.'},{status:500});
-    await admin.from('audit_logs').insert({
-      actor_id:staff.profile.id,
-      action:'STAFF_PASSWORD_RESET',
-      entity_type:'profile',
-      entity_id:userId,
-      before_data:{id:target.id,full_name:target.full_name,role:target.role},
-      after_data:{id:target.id,full_name:target.full_name,role:target.role,password_reset:true}
-    });
+    await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_PASSWORD_RESET',entity_type:'profile',entity_id:userId,before_data:{id:target.id,full_name:target.full_name,role:target.role},after_data:{id:target.id,full_name:target.full_name,role:target.role,password_reset:true}});
     return NextResponse.json({ok:true});
   }
   if(action==='details'){
@@ -83,6 +111,8 @@ export async function PATCH(req:Request){
     if(isSelf && (email!==String(staff.user.email||'').toLowerCase() || nextRole!==staff.profile.role))return NextResponse.json({error:'You can change your name and phone, but not your own email or role.'},{status:409});
     const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role,phone').eq('id',userId).single();
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
+    if(partner)return NextResponse.json({error:'Partner accounts cannot be managed as staff.'},{status:409});
     if(isSelf){
       const {data:after,error}=await admin.from('profiles').update({full_name,phone:phone||null,updated_at:new Date().toISOString()}).eq('id',userId).select('id,full_name,role,phone').single();
       if(error||!after)return NextResponse.json({error:error?.message||'Unable to update your staff profile.'},{status:500});
@@ -101,6 +131,8 @@ export async function PATCH(req:Request){
   if(action==='delete'){
     const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role,phone').eq('id',userId).single();
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
+    if(partner)return NextResponse.json({error:'Partner accounts cannot be deleted from staff management.'},{status:409});
     if(before.role==='SUPER_ADMIN'){
       const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');
       if((count||0)<=1)return NextResponse.json({error:'The last Super Admin cannot be deleted.'},{status:409});
@@ -115,6 +147,8 @@ export async function PATCH(req:Request){
     if(!role||!roles.includes(role as typeof STAFF_ROLES[number]))return NextResponse.json({error:'Invalid role.'},{status:400});
     const {data:before,error:readError}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).single();
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
+    if(partner)return NextResponse.json({error:'Partner accounts cannot be given staff roles.'},{status:409});
     const {error}=await admin.from('profiles').update({role,updated_at:new Date().toISOString()}).eq('id',userId);
     if(error)return NextResponse.json({error:error.message},{status:500});
     await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_ROLE_CHANGED',entity_type:'profile',entity_id:userId,before_data:before,after_data:{...before,role}});
@@ -122,12 +156,13 @@ export async function PATCH(req:Request){
   }
   if(action==='active'){
     const active=body?.active===true;
+    const {data:target}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).maybeSingle();
+    if(!target)return NextResponse.json({error:'Staff profile not found.'},{status:404});
+    const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
+    if(partner)return NextResponse.json({error:'Partner accounts cannot be changed from staff management.'},{status:409});
     if(!active){
       const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');
-      if((count||0)<=1){
-        const profile=await admin.from('profiles').select('role').eq('id',userId).maybeSingle();
-        if(profile.data?.role==='SUPER_ADMIN')return NextResponse.json({error:'The last Super Admin cannot be deactivated.'},{status:409});
-      }
+      if((count||0)<=1&&target.role==='SUPER_ADMIN')return NextResponse.json({error:'The last Super Admin cannot be deactivated.'},{status:409});
     }
     const {data:before}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).single();
     const {error}=await admin.auth.admin.updateUserById(userId,{ban_duration:active?'none':'876000h'});
