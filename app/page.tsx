@@ -5,6 +5,7 @@ import {defaultLocale,isLocale,messages} from '@/lib/i18n';
 import {getSupabasePublicServer} from '@/lib/supabase/server';
 import {ArrowRight,ShieldCheck,Users,HeartHandshake,Hotel,TrainFront,Car,MapPinned,Star} from 'lucide-react';
 import {SectionHeading} from '@/components/ui/SectionHeading';
+import {SITE_URL} from '@/lib/seo';
 
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
 const madinahImage='https://images.pexels.com/photos/18360295/pexels-photo-18360295.jpeg?auto=compress&cs=tinysrgb&w=1800';
@@ -205,6 +206,7 @@ export default async function Home(){
         <div className="grid gap-3 sm:grid-cols-2">{c.steps.map(([n,title,text])=><div className="rounded-2xl border border-white/10 bg-white/5 p-5" key={n}><div className="eyebrow">{n}</div><h3 className="serif mt-2 text-2xl">{title}</h3><p className="mt-2 text-sm leading-6 text-white/60">{text}</p></div>)}</div>
       </div>
     </section>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@graph':[{'@type':'Organization','@id':SITE_URL+'/#organization','name':'ALHARAMAIN ELITE','url':SITE_URL},{'@type':'WebSite','@id':SITE_URL+'/#website','name':'ALHARAMAIN ELITE','url':SITE_URL,'publisher':{'@id':SITE_URL+'/#organization'},'inLanguage':['en','so','ar']},{'@type':'WebPage','@id':SITE_URL+'/#webpage','url':SITE_URL,'name':t.title,'isPartOf':{'@id':SITE_URL+'/#website'},'publisher':{'@id':SITE_URL+'/#organization'}}]})}} />
   </div>;
 }
 
