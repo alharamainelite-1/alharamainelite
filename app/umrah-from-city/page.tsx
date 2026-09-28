@@ -4,7 +4,7 @@ import {headers} from 'next/headers';
 import {CITY_SEO} from '@/lib/city-seo';
 import {SEO_PAGES,localizedMetadata} from '@/lib/seo';
 import {isLocale,defaultLocale,type Locale} from '@/lib/i18n';
-import {localizedPath} from '@/lib/seo';
+import {localizedPath,SITE_URL} from '@/lib/seo';
 
 export async function generateMetadata():Promise<Metadata>{
   const h=await headers(); const raw=h.get('x-he-locale'); const locale:Locale=isLocale(raw??undefined)?(raw as Locale):defaultLocale;
@@ -27,5 +27,6 @@ export default async function CityHub(){
         {countries.map(country=><div key={country}><h2 className="serif text-3xl text-forest md:text-4xl">{country}</h2><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{CITY_SEO.filter(x=>x.country===country).map(city=><Link key={city.slug} href={localizedPath(`/umrah-from-city/${city.slug}`,locale)} className="card p-5 hover:border-gold"><div className="eyebrow">{city.countryCode}</div><h3 className="mt-2 font-semibold text-forest">{city.city}</h3><p className="mt-2 text-sm leading-6 text-forest/55">{city.description}</p></Link>)}</div></div>)}
       </div>
     </div></section>
-  </div>;
+  </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@graph':[{'@type':'CollectionPage','@id':SITE_URL+'/umrah-from-city#webpage','url':SITE_URL+'/umrah-from-city','name':labels.title,'description':labels.intro},{'@type':'BreadcrumbList','itemListElement':[{'@type':'ListItem','position':1,'name':'Home','item':SITE_URL},{'@type':'ListItem','position':2,'name':'Umrah from Cities','item':SITE_URL+'/umrah-from-city'}]},{'@type':'ItemList','name':labels.groups,'numberOfItems':CITY_SEO.length,'itemListElement':CITY_SEO.map((city,index)=>({'@type':'ListItem','position':index+1,'name':city.city,'url':SITE_URL+'/umrah-from-city/'+city.slug}))}]})}} />;
 }
