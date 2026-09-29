@@ -22,14 +22,16 @@ export default async function StaffMonitoringPage({searchParams}:{searchParams:P
  const s=getSupabaseAdmin(); const now=Date.now(); const today=new Date().toISOString().slice(0,10); const since=new Date(Date.now()-30*MS_DAY).toISOString();
  let profiles:any[]=[],activity:any[]=[],audit:any[]=[],tasks:any[]=[];let error='';
  try{
-  const [p,a,l,t]=await Promise.all([
+  const [p,a,l,t,partners]=await Promise.all([
    s.from('profiles').select('id,full_name,role').order('full_name').limit(100),
    s.from('staff_activity').select('staff_id,event_type,created_at').gte('created_at',since).order('created_at',{ascending:false}).limit(3000),
    s.from('audit_logs').select('actor_id,action,entity_type,created_at').gte('created_at',since).order('created_at',{ascending:false}).limit(5000),
-   s.from('operations_tasks').select('id,task_id,assigned_staff_id,date,start_time,end_time,task_type,location,status,notes,sla_due_at,started_at,completed_at').not('assigned_staff_id','is',null).limit(2000)
+   s.from('operations_tasks').select('id,task_id,assigned_staff_id,date,start_time,end_time,task_type,location,status,notes,sla_due_at,started_at,completed_at').not('assigned_staff_id','is',null).limit(2000),
+   s.from('influencer_partners').select('user_id').not('user_id','is',null)
   ]);
-  if(p.error||a.error||l.error||t.error)throw(p.error||a.error||l.error||t.error);
-  profiles=p.data||[];activity=a.data||[];audit=l.data||[];tasks=t.data||[];
+  if(p.error||a.error||l.error||t.error||partners.error)throw(p.error||a.error||l.error||t.error||partners.error);
+  const partnerIds=new Set((partners.data||[]).map(x=>x.user_id).filter(Boolean));
+  profiles=(p.data||[]).filter(x=>!partnerIds.has(x.id));activity=a.data||[];audit=l.data||[];tasks=t.data||[];
  }catch(e){error=e instanceof Error?e.message:'Unable to load staff monitoring.'}
  const byId=new Map(profiles.map(p=>[p.id,{...p,logins:0,lastLogin:null as string|null,lastActivity:null as string|null,tasks:[] as any[],actions:0}]));
  for(const x of activity){const p=byId.get(x.staff_id);if(!p)continue;if(x.event_type==='LOGIN'){p.logins++;if(!p.lastLogin)p.lastLogin=x.created_at;}if(!p.lastActivity||new Date(x.created_at)>new Date(p.lastActivity))p.lastActivity=x.created_at;}
