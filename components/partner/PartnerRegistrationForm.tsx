@@ -15,13 +15,15 @@ export function PartnerRegistrationForm(){
       });
       if(signUpError)throw signUpError;
       const identities=data.user?.identities||[];
-      if(data.user&&identities.length>0){
-        const profile=await fetch('/api/partners/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
-          fullName:form.fullName,email:form.email,whatsapp:form.whatsapp,country:form.country,userId:data.user.id
-        })});
-        const profileData=await profile.json();
-        if(!profile.ok)throw new Error(profileData.error||'Unable to create your partner profile.');
+      if(!data.user)throw new Error('Unable to create your partner account. Please try again.');
+      if(identities.length===0){
+        throw new Error('An account with this email already exists. Please sign in or reset your password.');
       }
+      const profile=await fetch('/api/partners/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+        fullName:form.fullName,email:form.email,whatsapp:form.whatsapp,country:form.country,userId:data.user.id
+      })});
+      const profileData=await profile.json();
+      if(!profile.ok)throw new Error(profileData.error||'Unable to create your partner profile.');
       if(data.session){router.push('/partner/dashboard');return;}
       setMessage('Your partner account has been created. Please check your email and confirm your address before signing in.');
       setForm(f=>({...f,password:''}));
