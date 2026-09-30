@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { BookingStatusForm } from '@/components/admin/BookingStatusForm';
 import { getAdminLocale } from '@/lib/admin-locale';
 import JourneyFinancials from '@/components/admin/JourneyFinancials';
+import { JourneyCommunicationPanel } from '@/components/admin/JourneyCommunicationPanel';
 
 export default async function JourneyFile({params}:{params:Promise<{id:string}>}){
   const staff=await getCurrentStaff(); if(!staff)return null;
   const locale=await getAdminLocale();
   const {id}=await params;
   const s=getSupabaseAdmin();
-  const {data:row,error}=await s.from('bookings').select('id,booking_id,guest_count,group_matching_status,total_amount,currency,status,payment_status,lead_source,expected_travel_date,expected_period_start,expected_period_end,notes,created_at,customers(full_name,country,city,whatsapp,email,preferred_language),packages(name,slug,positioning)').eq('id',id).single();
+  const {data:row,error}=await s.from('bookings').select('id,booking_id,customer_id,guest_count,group_matching_status,total_amount,currency,status,payment_status,lead_source,expected_travel_date,expected_period_start,expected_period_end,notes,created_at,customers(full_name,country,city,whatsapp,email,preferred_language),packages(name,slug,positioning)').eq('id',id).single();
   if(error||!row)return <section className="pb-12"><div className="card p-10"><h1 className="serif text-3xl text-forest">لم يتم العثور على الرحلة</h1><Link className="btn btn-outline mt-6" href="/admin/journeys">العودة إلى الرحلات</Link></div></section>;
   const customer=(Array.isArray(row.customers)?row.customers[0]:row.customers) as {full_name?:string;country?:string;city?:string;whatsapp?:string;email?:string;preferred_language?:string}|null;
   const pkg=(Array.isArray(row.packages)?row.packages[0]:row.packages) as {name?:string;slug?:string;positioning?:string}|null;
@@ -52,7 +53,7 @@ export default async function JourneyFile({params}:{params:Promise<{id:string}>}
       </div>
       <div className="grid h-fit gap-6">
         {canViewFinancial&&<div className="card p-6"><div className="eyebrow">المالية</div><div className="mt-4"><div className="text-xs text-forest/40">قيمة الرحلة</div><div className="serif mt-1 text-4xl text-forest">$ {Number(row.total_amount).toLocaleString()}</div><div className="mt-4 flex items-center justify-between border-t border-forest/10 pt-4"><span className="text-sm text-forest/55">الدفع</span><span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-xs font-semibold text-forest">{row.payment_status.replaceAll('_',' ')}</span></div></div><Link href="/admin/payments" className="btn btn-outline mt-5 w-full">فتح المدفوعات</Link></div>}
-        <div className="card p-6"><div className="eyebrow">التواصل</div><p className="mt-4 text-sm leading-6 text-forest/60">احتفظ بتواصل العميل مرتبطًا بالرحلة حتى ترى المبيعات والعمليات السياق نفسه.</p>{customer?.whatsapp&&<a className="btn btn-primary mt-5 w-full" href={'https://wa.me/'+customer.whatsapp.replace(/[^0-9]/g,'')} target="_blank" rel="noreferrer">فتح واتساب</a>}</div>
+        <JourneyCommunicationPanel bookingId={row.id} customerId={row.customer_id} customerName={customer?.full_name||"Customer"} whatsapp={customer?.whatsapp||""} preferredLanguage={customer?.preferred_language||"en"} packageName={pkg?.name||""} guestCount={Number(row.guest_count||0)} totalAmount={Number(row.total_amount||0)} currency={row.currency||"USD"} travelPeriod={period}/>
       </div>
     </div>
   </section>
