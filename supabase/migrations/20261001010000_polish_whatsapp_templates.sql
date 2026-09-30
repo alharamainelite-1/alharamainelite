@@ -1,6 +1,6 @@
 -- Refresh WhatsApp communication copy and normalize line breaks for a polished multilingual experience.
 update public.communication_templates
-set body = replace(body, E'\\\\n', E'\\n');
+-- Existing rows are fully replaced below, so no legacy newline normalization is needed here.
 
 update public.communication_templates
 set
