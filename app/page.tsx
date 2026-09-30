@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {cookies} from 'next/headers';
 import {defaultLocale,isLocale,messages} from '@/lib/i18n';
-import {getSupabasePublicServer} from '@/lib/supabase/server';
+import {getSupabaseAdmin,getSupabasePublicServer} from '@/lib/supabase/server';
 import {ArrowRight,ShieldCheck,Users,HeartHandshake,Hotel,TrainFront,Car,MapPinned,Star} from 'lucide-react';
 import {SectionHeading} from '@/components/ui/SectionHeading';
 import {SITE_URL} from '@/lib/seo';
@@ -84,7 +84,32 @@ export default async function Home(){
   }catch{reviews=[]}
 
   let upcomingDepartures:any[]=[];
-  try{const {data}=await getSupabasePublicServer().from('departures').select('id,departure_date,duration_nights,group_size,status,public_label').eq('status','OPEN').gte('departure_date',new Date().toISOString().slice(0,10)).order('departure_date',{ascending:true}).limit(4);upcomingDepartures=(data||[]).map((d:any)=>({id:d.id,monthLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{month:'long',year:'numeric'}).format(new Date(d.departure_date+'T12:00:00Z')),dayLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{day:'numeric',month:'short'}).format(new Date(d.departure_date+'T12:00:00Z'))}));}catch{upcomingDepartures=[]}
+  try{
+    const {data:departures}=await getSupabaseAdmin().from('departures')
+      .select('id,departure_date,duration_nights,group_size,max_groups,status,public_label')
+      .eq('status','OPEN').gte('departure_date',new Date().toISOString().slice(0,10))
+      .order('departure_date',{ascending:true}).limit(4);
+    const ids=(departures||[]).map((d:any)=>d.id);
+    const {data:bookings}=ids.length
+      ? await getSupabaseAdmin().from('bookings').select('departure_id,guest_count,status').in('departure_id',ids).in('status',['CONFIRMED','PAYMENT_RECEIVED','PREPARING','ACTIVE'])
+      : {data:[]};
+    const reserved=new Map<string,number>();
+    for(const b of bookings||[]) reserved.set(b.departure_id,(reserved.get(b.departure_id)||0)+Number(b.guest_count||0));
+    upcomingDepartures=(departures||[]).map((d:any)=>{
+      const reservedGuests=reserved.get(d.id)||0;
+      const capacityPerGroup=Number(d.group_size||8);
+      const seatsInCurrentGroup=reservedGuests%capacityPerGroup;
+      const availableSeats=capacityPerGroup-seatsInCurrentGroup;
+      const maxGroups=d.max_groups==null?null:Number(d.max_groups);
+      const groupsFilled=Math.floor(reservedGuests/capacityPerGroup);
+      return {
+        id:d.id,
+        monthLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{month:'long',year:'numeric'}).format(new Date(d.departure_date+'T12:00:00Z')),
+        dayLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{day:'numeric',month:'short'}).format(new Date(d.departure_date+'T12:00:00Z')),
+        availableSeats:maxGroups!=null&&groupsFilled>=maxGroups?0:availableSeats
+      };
+    }).filter((d:any)=>d.availableSeats>0);
+  }catch{upcomingDepartures=[]}
 
   const highlights=[[c.highlights[0],ShieldCheck],[c.highlights[1],Users],[c.highlights[2],HeartHandshake],[c.highlights[3],MapPinned]] as const;
   const serviceCards=[
@@ -142,7 +167,7 @@ export default async function Home(){
         <SectionHeading eyebrow={locale==='ar'?'مواعيد الانطلاق القادمة':locale==='so'?'TAARIIKHAHA SAFARRADA SOO SOCDA':'UPCOMING UMRAH DEPARTURES'} title={locale==='ar'?'اختر موعد رحلتك القادمة':locale==='so'?'DOORO TAARIIKHDA SAFARKAAGA':'Choose your departure date'}>
           {locale==='ar'?'مواعيد محددة للرحلات القادمة، مع مجموعات صغيرة وخدمة شخصية.':locale==='so'?'Dooro taariikhda safarka ee kugu habboon, kooxo yaryar iyo adeeg gaar ah.':'Plan ahead with one of our upcoming departure dates. Small groups, thoughtful planning and personal support.'}
         </SectionHeading>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{upcomingDepartures.map((d:any)=><article key={d.id} className="rounded-[24px] border border-white/10 bg-white/7 p-6 backdrop-blur-sm"><div className="eyebrow text-gold">{d.monthLabel}</div><div className="serif mt-3 text-4xl">{d.dayLabel}</div><div className="mt-2 text-sm text-white/60">10 days / 9 nights</div><div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4"><span className="text-sm font-semibold">$2,000 <span className="font-normal text-white/50">/ guest</span></span><span className="rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold">Limited</span></div><Link href={'/request-journey?departure='+encodeURIComponent(d.id)} className="btn mt-5 w-full bg-white text-forest">{locale==='ar'?'اختر هذا الموعد':locale==='so'?'Dooro taariikhdan':'Choose this date'}<ArrowRight size={16} className="ml-2"/></Link></article>)}</div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{upcomingDepartures.map((d:any)=><article key={d.id} className="rounded-[24px] border border-white/10 bg-white/7 p-6 backdrop-blur-sm"><div className="eyebrow text-gold">{d.monthLabel}</div><div className="serif mt-3 text-4xl">{d.dayLabel}</div><div className="mt-2 text-sm text-white/60">10 days / 9 nights</div><div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4"><span className="text-sm font-semibold">$2,000 <span className="font-normal text-white/50">/ guest</span></span><span className="rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold">Limited availability</span></div><Link href={'/request-journey?departure='+encodeURIComponent(d.id)} className="btn mt-5 w-full bg-white text-forest">{locale==='ar'?'اختر هذا الموعد':locale==='so'?'Dooro taariikhdan':'Choose this date'}<ArrowRight size={16} className="ml-2"/></Link></article>)}</div>
         <div className="mt-6 text-center"><Link href="/request-journey" className="text-sm font-semibold text-gold hover:text-white">{locale==='ar'?'عرض جميع مواعيد الانطلاق':locale==='so'?'Eeg dhammaan taariikhaha':'View all departure dates'} <ArrowRight size={15} className="ml-1 inline"/></Link></div>
       </div>
     </section>
