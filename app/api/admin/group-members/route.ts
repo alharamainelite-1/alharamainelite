@@ -10,14 +10,15 @@ export async function POST(req:Request){
  if(!b?.group_id||!b?.booking_id)return NextResponse.json({error:"Group and booking are required."},{status:400});
  const s=getSupabaseAdmin();
  const[{data:g},{data:booking},{data:existing}]=await Promise.all([
-  s.from("groups").select("id,capacity").eq("id",b.group_id).single(),
-  s.from("bookings").select("id,guest_count,status").eq("id",b.booking_id).single(),
+  s.from("groups").select("id,capacity,departure_id").eq("id",b.group_id).single(),
+  s.from("bookings").select("id,guest_count,status,departure_id").eq("id",b.booking_id).single(),
   s.from("group_members").select("id,group_id,guest_count").eq("booking_id",b.booking_id)
  ]);
  if(!g)return NextResponse.json({error:"Group not found."},{status:404});
  if(!booking)return NextResponse.json({error:"Booking not found."},{status:404});
  if(["CANCELLED","COMPLETED"].includes(booking.status))return NextResponse.json({error:"This booking cannot be added to a group."},{status:409});
  if(existing?.length)return NextResponse.json({error:"This booking is already assigned to a group."},{status:409});
+ if(g.departure_id!==booking.departure_id)return NextResponse.json({error:"Booking and group must use the same departure date."},{status:409});
  const{data:members}=await s.from("group_members").select("guest_count").eq("group_id",b.group_id);
  const used=(members||[]).reduce((n:any,x:any)=>n+Number(x.guest_count||0),0);
  const guestCount=Number(booking.guest_count||0);
