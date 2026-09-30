@@ -15,10 +15,10 @@ export default async function JourneyFile({params}:{params:Promise<{id:string}>}
   const customer=(Array.isArray(row.customers)?row.customers[0]:row.customers) as {full_name?:string;country?:string;city?:string;whatsapp?:string;email?:string;preferred_language?:string}|null;
   const pkg=(Array.isArray(row.packages)?row.packages[0]:row.packages) as {name?:string;slug?:string;positioning?:string}|null;
   const role=staff.profile.role;
-  const canViewFinancial=role==='SUPER_ADMIN'||role==='FINANCE'||role==='ADMIN';
-  const canEditJourneyCosts=['SUPER_ADMIN','FINANCE','ADMIN','OPERATIONS_MANAGER','OPERATIONS'].includes(role);
+  const canViewFinancial=role==='SUPER_ADMIN'||role==='FINANCE';
+  const canEditJourneyCosts=['SUPER_ADMIN','FINANCE','OPERATIONS_MANAGER','OPERATIONS'].includes(role);
   const {data:journeyCosts}=canEditJourneyCosts||canViewFinancial?await s.from('journey_costs').select('id,category,description,quantity,amount,currency,amount_usd,cost_stage,date,supplier_id,notes').eq('booking_id',row.id).order('date',{ascending:false}):{data:[]};
-  const canUpdateStatus=['SUPER_ADMIN','ADMIN','SALES','FINANCE','OPERATIONS_MANAGER','OPERATIONS'].includes(role);
+  const canUpdateStatus=['SUPER_ADMIN','SALES','FINANCE','OPERATIONS_MANAGER','OPERATIONS'].includes(role);
   const period=row.expected_travel_date||row.expected_period_start||(row.expected_period_end?((locale==='ar'?'حتى ':'Until ')+row.expected_period_end):(locale==='ar'?'غير محدد':'Not set'));
   const stage=['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED'].indexOf(row.status);
   const stages=locale==='ar'?['طلب','المبيعات','التفاصيل','الدفع','تم التحقق','مؤكد','التجهيز','نشطة','مكتملة']:['Request','Sales','Details','Payment','Verified','Confirmed','Preparing','Active','Completed'];
