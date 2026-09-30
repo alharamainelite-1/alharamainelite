@@ -7,7 +7,7 @@ type Compensation={staff_id:string;base_salary:number;currency:'USD'|'SAR';pay_f
 type Bonus={id:string;staff_id:string;amount:number;currency:'USD'|'SAR';bonus_date:string;reason:string;status:string;approved_at?:string|null;paid_at?:string|null;notes?:string|null};
 type User={id:string;email:string;full_name:string;phone:string;role:Role;created_at:string;email_confirmed:boolean;banned:boolean;compensation:Compensation|null;bonuses:Bonus[]};
 const roles:Role[]=['OPERATIONS_MANAGER','OPERATIONS','SALES','FINANCE','HOST'];
-const roleLabels:Record<Role,string>={SUPER_ADMIN:'المدير العام',ADMIN:'مدير الإدارة',OPERATIONS_MANAGER:'مدير العمليات',OPERATIONS:'موظف العمليات',SALES:'المبيعات',FINANCE:'المالية',HOST:'المضيف'};
+const roleLabels:Record<Role,string>={SUPER_ADMIN:'المدير العام',OPERATIONS_MANAGER:'مدير العمليات',OPERATIONS:'موظف العمليات',SALES:'المبيعات',FINANCE:'المالية',HOST:'المضيف'};
 const descriptions:Record<Role,{en:string;ar:string}>={
  SUPER_ADMIN:{en:'Full control, staff accounts, permissions, settings, finance and all operations.',ar:'صلاحية كاملة تشمل الموظفين والصلاحيات والإعدادات والمالية والعمليات.'},
  OPERATIONS_MANAGER:{en:'Owns journey readiness, groups, hotels, transport, train, hosts and operational tasks.',ar:'مسؤول عن جاهزية الرحلات والمجموعات والفنادق والنقل والقطار والمضيفين والمهام التشغيلية.'},
