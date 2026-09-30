@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 type Template = { id: string; key: string; language: string; subject: string | null; body: string; active: boolean };
 type Props = {
-  bookingId: string; customerId: string; customerName: string; whatsapp: string;
+  bookingId: string; bookingReference: string; customerId: string; customerName: string; whatsapp: string;
   preferredLanguage: string; packageName: string; guestCount: number;
   totalAmount: number; currency: string; travelPeriod: string;
 };
@@ -39,7 +39,7 @@ export function JourneyCommunicationPanel(props: Props) {
     || null;
   const message = template ? fill(template.body, {
     customer_name: props.customerName,
-    booking_id: props.bookingId,
+    booking_id: props.bookingReference,
     package_name: props.packageName,
     guest_count: String(props.guestCount),
     total_amount: Number(props.totalAmount || 0).toLocaleString(),
