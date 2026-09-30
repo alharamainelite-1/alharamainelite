@@ -61,9 +61,9 @@ function fill(body: string, data: Record<string,string>) {
 }
 
 function suggestedKey(status: string, paymentStatus: string) {
-  if (paymentStatus === "RECEIVED" && status !== "COMPLETED") return status === "PAYMENT_RECEIVED" ? "BOOKING_CONFIRMED" : "PAYMENT_RECEIVED";
-  if (status === "CONFIRMED") return "TRAVEL_DETAILS";
-  if (status === "PREPARING") return "PRE_TRAVEL_REMINDER";
+  if (status === "PAYMENT_RECEIVED" && paymentStatus === "RECEIVED") return "PAYMENT_RECEIVED";
+  if (status === "CONFIRMED" && paymentStatus === "RECEIVED") return "BOOKING_CONFIRMED";
+  if (status === "PREPARING") return "TRAVEL_DETAILS";
   if (status === "ACTIVE") return "TRAVEL_DETAILS";
   if (status === "COMPLETED") return "POST_JOURNEY_REVIEW";
   if (status === "PAYMENT_PENDING") return "PAYMENT_INSTRUCTIONS";
