@@ -83,6 +83,9 @@ export default async function Home(){
     reviews=data||[];
   }catch{reviews=[]}
 
+  let upcomingDepartures:any[]=[];
+  try{const {data}=await getSupabasePublicServer().from('departures').select('id,departure_date,duration_nights,group_size,status,public_label').eq('status','OPEN').gte('departure_date',new Date().toISOString().slice(0,10)).order('departure_date',{ascending:true}).limit(4);upcomingDepartures=(data||[]).map((d:any)=>({id:d.id,monthLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{month:'long',year:'numeric'}).format(new Date(d.departure_date+'T12:00:00Z')),dayLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{day:'numeric',month:'short'}).format(new Date(d.departure_date+'T12:00:00Z'))}));}catch{upcomingDepartures=[]}
+
   const highlights=[[c.highlights[0],ShieldCheck],[c.highlights[1],Users],[c.highlights[2],HeartHandshake],[c.highlights[3],MapPinned]] as const;
   const serviceCards=[
     {label:c.essentials[0],description:c.essentialDescriptions[0],Icon:Hotel,image:serviceImages.hotel,href:'/hotels'},
@@ -131,6 +134,16 @@ export default async function Home(){
           <div className="serif text-4xl text-forest">{value}</div>
           <div className="mt-2 text-xs font-bold uppercase tracking-[.16em] text-forest/60">{locale==='ar'?ar:locale==='so'?so:en}</div>
         </div>)}
+      </div>
+    </section>
+
+    <section className="section bg-forest text-white">
+      <div className="container">
+        <SectionHeading eyebrow={locale==='ar'?'مواعيد الانطلاق القادمة':locale==='so'?'TAARIIKHAHA SAFARRADA SOO SOCDA':'UPCOMING UMRAH DEPARTURES'} title={locale==='ar'?'اختر موعد رحلتك القادمة':locale==='so'?'DOORO TAARIIKHDA SAFARKAAGA':'Choose your departure date'}>
+          {locale==='ar'?'مواعيد محددة للرحلات القادمة، مع مجموعات صغيرة وخدمة شخصية.':locale==='so'?'Dooro taariikhda safarka ee kugu habboon, kooxo yaryar iyo adeeg gaar ah.':'Plan ahead with one of our upcoming departure dates. Small groups, thoughtful planning and personal support.'}
+        </SectionHeading>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{upcomingDepartures.map((d:any)=><article key={d.id} className="rounded-[24px] border border-white/10 bg-white/7 p-6 backdrop-blur-sm"><div className="eyebrow text-gold">{d.monthLabel}</div><div className="serif mt-3 text-4xl">{d.dayLabel}</div><div className="mt-2 text-sm text-white/60">10 days / 9 nights</div><div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4"><span className="text-sm font-semibold">$2,000 <span className="font-normal text-white/50">/ guest</span></span><span className="rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold">Limited</span></div><Link href={'/request-journey?departure='+encodeURIComponent(d.id)} className="btn mt-5 w-full bg-white text-forest">{locale==='ar'?'اختر هذا الموعد':locale==='so'?'Dooro taariikhdan':'Choose this date'}<ArrowRight size={16} className="ml-2"/></Link></article>)}</div>
+        <div className="mt-6 text-center"><Link href="/request-journey" className="text-sm font-semibold text-gold hover:text-white">{locale==='ar'?'عرض جميع مواعيد الانطلاق':locale==='so'?'Eeg dhammaan taariikhaha':'View all departure dates'} <ArrowRight size={15} className="ml-1 inline"/></Link></div>
       </div>
     </section>
 
