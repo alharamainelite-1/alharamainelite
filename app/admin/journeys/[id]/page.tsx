@@ -53,7 +53,7 @@ export default async function JourneyFile({params}:{params:Promise<{id:string}>}
       </div>
       <div className="grid h-fit gap-6">
         {canViewFinancial&&<div className="card p-6"><div className="eyebrow">المالية</div><div className="mt-4"><div className="text-xs text-forest/40">قيمة الرحلة</div><div className="serif mt-1 text-4xl text-forest">$ {Number(row.total_amount).toLocaleString()}</div><div className="mt-4 flex items-center justify-between border-t border-forest/10 pt-4"><span className="text-sm text-forest/55">الدفع</span><span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-xs font-semibold text-forest">{row.payment_status.replaceAll('_',' ')}</span></div></div><Link href="/admin/payments" className="btn btn-outline mt-5 w-full">فتح المدفوعات</Link></div>}
-        <JourneyCommunicationPanel bookingId={row.id} bookingReference={row.booking_id} customerId={row.customer_id} customerName={customer?.full_name||"Customer"} whatsapp={customer?.whatsapp||""} preferredLanguage={customer?.preferred_language||"en"} packageName={pkg?.name||""} guestCount={Number(row.guest_count||0)} totalAmount={Number(row.total_amount||0)} currency={row.currency||"USD"} travelPeriod={period}/>
+        <JourneyCommunicationPanel bookingId={row.id} bookingReference={row.booking_id} customerId={row.customer_id} customerName={customer?.full_name||"Customer"} whatsapp={customer?.whatsapp||""} preferredLanguage={customer?.preferred_language||"en"} packageName={pkg?.name||""} guestCount={Number(row.guest_count||0)} totalAmount={Number(row.total_amount||0)} currency={row.currency||"USD"} travelPeriod={period} currentStatus={row.status} paymentStatus={row.payment_status}/>
       </div>
     </div>
   </section>
