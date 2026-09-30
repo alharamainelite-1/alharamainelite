@@ -164,11 +164,11 @@ export default async function Home(){
 
     <section className="section bg-forest text-white">
       <div className="container">
-        <SectionHeading eyebrow={locale==='ar'?'مواعيد الانطلاق القادمة':locale==='so'?'TAARIIKHAHA SAFARRADA SOO SOCDA':'UPCOMING UMRAH DEPARTURES'} title={locale==='ar'?'اختر موعد رحلتك القادمة':locale==='so'?'DOORO TAARIIKHDA SAFARKAAGA':'Choose your departure date'}>
-          {locale==='ar'?'مواعيد محددة للرحلات القادمة، مع مجموعات صغيرة وخدمة شخصية.':locale==='so'?'Dooro taariikhda safarka ee kugu habboon, kooxo yaryar iyo adeeg gaar ah.':'Plan ahead with one of our upcoming departure dates. Small groups, thoughtful planning and personal support.'}
+        <SectionHeading eyebrow={locale==='ar'?'مواعيد الانطلاق القادمة':locale==='so'?'TAARIIKHAHA SAFARRADA SOO SOCDA':'UPCOMING UMRAH DEPARTURES'} title={locale==='ar'?'رحلتك تبدأ من موعد':locale==='so'?'SAFARKAAGU WUXUU KA BILAABMAA TAARIIKH':'Your journey begins with a date.'}>
+          {locale==='ar'?'اختر موعد الانطلاق الذي يناسبك، ودع فريقنا يهتم بالتفاصيل.':locale==='so'?'Dooro taariikhda safarka kugu habboon, kooxdayaduna waxay daryeeli doontaa faahfaahinta.':'Choose the departure that works for you and let our team take care of the details.'}
         </SectionHeading>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{upcomingDepartures.map((d:any)=><article key={d.id} className="rounded-[24px] border border-white/10 bg-white/7 p-6 backdrop-blur-sm"><div className="eyebrow text-gold">{d.monthLabel}</div><div className="serif mt-3 text-4xl">{d.dayLabel}</div><div className="mt-2 text-sm text-white/60">10 days / 9 nights</div><div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4"><span className="text-sm font-semibold">$2,000 <span className="font-normal text-white/50">/ guest</span></span><span className="rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold">Limited availability</span></div><Link href={'/request-journey?departure='+encodeURIComponent(d.id)} className="btn mt-5 w-full bg-white text-forest">{locale==='ar'?'اختر هذا الموعد':locale==='so'?'Dooro taariikhdan':'Choose this date'}<ArrowRight size={16} className="ml-2"/></Link></article>)}</div>
-        <div className="mt-6 text-center"><Link href="/request-journey" className="text-sm font-semibold text-gold hover:text-white">{locale==='ar'?'عرض جميع مواعيد الانطلاق':locale==='so'?'Eeg dhammaan taariikhaha':'View all departure dates'} <ArrowRight size={15} className="ml-1 inline"/></Link></div>
+        <div className="mt-8 text-center"><Link href="/request-journey" className="text-sm font-semibold text-gold hover:text-white">{locale==='ar'?'عرض جميع مواعيد الانطلاق':locale==='so'?'Eeg dhammaan taariikhaha':'View all departure dates'} <ArrowRight size={15} className="ml-1 inline"/></Link></div>
       </div>
     </section>
 
