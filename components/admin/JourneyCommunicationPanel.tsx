@@ -10,22 +10,51 @@ type Props = {
 };
 
 const LABELS: Record<string, Record<string,string>> = {
-  en: { title:"WhatsApp follow-up", choose:"Message", send:"Open WhatsApp", copied:"Message copied", logged:"WhatsApp opened and communication logged.", noPhone:"No WhatsApp number on file.", lang:"Language" },
-  so: { title:"La socodka WhatsApp", choose:"Fariin", send:"Fur WhatsApp", copied:"Fariinta waa la koobiyey", logged:"WhatsApp waa la furay, xiriirkana waa la diiwaangeliyey.", noPhone:"Lambarka WhatsApp lama hayo.", lang:"Luqad" },
-  ar: { title:"المتابعة عبر واتساب", choose:"الرسالة", send:"فتح واتساب", copied:"تم نسخ الرسالة", logged:"تم فتح واتساب وتسجيل عملية التواصل.", noPhone:"لا يوجد رقم واتساب مسجل.", lang:"اللغة" }
+  en: {
+    title:"WhatsApp follow-up", choose:"Message type", send:"Open WhatsApp", copy:"Copy message",
+    copied:"Message copied", logged:"WhatsApp opened and communication logged.", noPhone:"No WhatsApp number on file.",
+    lang:"Language", preview:"Message preview", ready:"Ready to send", copyFailed:"Could not copy the message."
+  },
+  so: {
+    title:"La socodka WhatsApp", choose:"Nooca fariinta", send:"Fur WhatsApp", copy:"Koobi fariinta",
+    copied:"Fariinta waa la koobiyey", logged:"WhatsApp waa la furay, xiriirkana waa la diiwaangeliyey.", noPhone:"Lambarka WhatsApp lama hayo.",
+    lang:"Luqadda", preview:"Hordhaca fariinta", ready:"Diyaar in la diro", copyFailed:"Fariinta lama koobi karin."
+  },
+  ar: {
+    title:"المتابعة عبر واتساب", choose:"نوع الرسالة", send:"فتح واتساب", copy:"نسخ الرسالة",
+    copied:"تم نسخ الرسالة", logged:"تم فتح واتساب وتسجيل عملية التواصل.", noPhone:"لا يوجد رقم واتساب مسجل.",
+    lang:"اللغة", preview:"معاينة الرسالة", ready:"جاهزة للإرسال", copyFailed:"تعذر نسخ الرسالة."
+  }
+};
+
+const TEMPLATE_LABELS: Record<string, Record<string,string>> = {
+  REQUEST_RECEIVED: { en:"Journey request received", so:"Codsiga safarka waa la helay", ar:"تم استلام طلب الرحلة" },
+  PAYMENT_INSTRUCTIONS: { en:"Payment instructions", so:"Tilmaamaha lacag-bixinta", ar:"تعليمات الدفع" },
+  PAYMENT_RECEIVED: { en:"Payment received", so:"Lacag-bixinta waa la xaqiijiyay", ar:"تم استلام الدفع وتأكيده" },
+  BOOKING_CONFIRMED: { en:"Booking confirmed", so:"Booking-ga waa la xaqiijiyay", ar:"تم تأكيد الحجز" },
+  PAYMENT_REMINDER: { en:"Payment reminder", so:"Xusuusin lacag-bixin", ar:"تذكير بالدفع" },
+  TRAVEL_DETAILS: { en:"Journey details", so:"Faahfaahinta safarka", ar:"تفاصيل الرحلة" },
+  HOTEL_DETAILS: { en:"Hotel details", so:"Faahfaahinta hoteelka", ar:"تفاصيل الفندق" },
+  AIRPORT_TRANSFER: { en:"Airport transfer", so:"Gaadiidka garoonka", ar:"تنسيق الاستقبال من المطار" },
+  PRE_TRAVEL_REMINDER: { en:"Before your journey", so:"Xusuusin ka hor safarka", ar:"تذكير قبل السفر" },
+  POST_JOURNEY_REVIEW: { en:"Post-journey review", so:"Aragtida kadib safarka", ar:"تقييم الرحلة بعد الإتمام" }
 };
 
 function fill(body: string, data: Record<string,string>) {
-  return body.replace(/{{\s*([a-zA-Z0-9_]+)\s*}}/g, (_, key) => data[key] ?? "");
+  return body
+    .replace(/\\n/g, "\n")
+    .replace(/{{\s*([a-zA-Z0-9_]+)\s*}}/g, (_, key) => data[key] ?? "");
 }
 
 export function JourneyCommunicationPanel(props: Props) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [key, setKey] = useState("PAYMENT_RECEIVED");
-  const [lang, setLang] = useState(["en","so","ar"].includes(props.preferredLanguage) ? props.preferredLanguage : "en");
+  const normalizedPreferredLanguage = (props.preferredLanguage || "en").toLowerCase();
+  const [lang, setLang] = useState(["en","so","ar"].includes(normalizedPreferredLanguage) ? normalizedPreferredLanguage : "en");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const l = LABELS[lang] || LABELS.en;
+  const rtl = lang === "ar";
 
   useEffect(() => {
     fetch("/api/admin/communications")
@@ -37,6 +66,7 @@ export function JourneyCommunicationPanel(props: Props) {
   const template = templates.find(t => t.active && t.key === key && t.language === lang)
     || templates.find(t => t.active && t.key === key && t.language === "en")
     || null;
+
   const message = template ? fill(template.body, {
     customer_name: props.customerName,
     booking_id: props.bookingReference,
@@ -51,13 +81,30 @@ export function JourneyCommunicationPanel(props: Props) {
     if (availableKeys.length && !availableKeys.includes(key)) setKey(availableKeys[0]);
   }, [availableKeys, key]);
 
+  async function copyMessage() {
+    if (!message) return;
+    try {
+      await navigator.clipboard.writeText(message);
+      setNotice(l.copied);
+    } catch {
+      setNotice(l.copyFailed);
+    }
+  }
+
   async function openWhatsApp() {
     if (!props.whatsapp) { setNotice(l.noPhone); return; }
     setBusy(true); setNotice("");
     try {
       const r = await fetch("/api/admin/communications", {
-        method:"POST", headers:{"content-type":"application/json"},
-        body: JSON.stringify({ bookingId: props.customerId ? props.bookingId : null, customerId: props.customerId, templateId: template?.id ?? null, channel:"WHATSAPP", status:"OPENED" })
+        method:"POST",
+        headers:{"content-type":"application/json"},
+        body: JSON.stringify({
+          bookingId: props.customerId ? props.bookingId : null,
+          customerId: props.customerId,
+          templateId: template?.id ?? null,
+          channel:"WHATSAPP",
+          status:"OPENED"
+        })
       });
       if (!r.ok) throw new Error();
       await navigator.clipboard?.writeText(message).catch(()=>{});
@@ -70,21 +117,65 @@ export function JourneyCommunicationPanel(props: Props) {
 
   if (!templates.length) return <div className="card p-6"><div className="eyebrow">{l.title}</div><p className="mt-3 text-sm text-forest/55">No active templates.</p></div>;
 
-  return <div className="card p-6">
-    <div className="eyebrow">{l.title}</div>
-    <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+  return <div className="card p-6" dir={rtl ? "rtl" : "ltr"}>
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <div className="eyebrow">{l.title}</div>
+        <p className="mt-1 text-xs text-forest/50">{l.ready}</p>
+      </div>
+      <span className="rounded-full border border-forest/10 bg-forest/[0.03] px-3 py-1 text-[11px] font-medium text-forest/60">
+        {lang === "ar" ? "العربية" : lang === "so" ? "Somali" : "English"}
+      </span>
+    </div>
+
+    <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
       <div>
         <label className="text-xs text-forest/45">{l.choose}</label>
-        <select value={key} onChange={e=>setKey(e.target.value)} className="mt-1 w-full">{availableKeys.map(k=><option key={k} value={k}>{k.replaceAll("_"," ")}</option>)}</select>
+        <select
+          value={key}
+          onChange={e=>{ setKey(e.target.value); setNotice(""); }}
+          className="mt-1 w-full"
+          dir={rtl ? "rtl" : "ltr"}
+        >
+          {availableKeys.map(k=><option key={k} value={k}>{TEMPLATE_LABELS[k]?.[lang] || TEMPLATE_LABELS[k]?.en || k.replaceAll("_"," ")}</option>)}
+        </select>
       </div>
       <div>
         <label className="text-xs text-forest/45">{l.lang}</label>
-        <select value={lang} onChange={e=>setLang(e.target.value)} className="mt-1 w-full"><option value="en">English</option><option value="so">Somali</option><option value="ar">العربية</option></select>
+        <select
+          value={lang}
+          onChange={e=>{ setLang(e.target.value); setNotice(""); }}
+          className="mt-1 w-full"
+          dir={rtl ? "rtl" : "ltr"}
+        >
+          <option value="en">English</option>
+          <option value="so">Somali</option>
+          <option value="ar">العربية</option>
+        </select>
       </div>
     </div>
-    <textarea readOnly value={message} rows={8} className="mt-4 w-full resize-y" />
-    <div className="mt-3 flex flex-wrap items-center gap-2">
-      <button type="button" disabled={busy || !message} onClick={openWhatsApp} className="btn btn-primary">{busy ? "..." : l.send}</button>
+
+    <div className="mt-4 rounded-2xl border border-forest/10 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-xs font-medium text-forest/45">{l.preview}</span>
+        {template?.subject && <span className="text-xs font-medium text-forest/65">{template.subject}</span>}
+      </div>
+      <div
+        className="min-h-[180px] whitespace-pre-wrap rounded-xl bg-forest/[0.025] p-4 text-sm leading-7 text-forest"
+        dir={rtl ? "rtl" : "ltr"}
+        style={{ unicodeBidi: "plaintext" }}
+      >
+        {message}
+      </div>
+    </div>
+
+    <div className="mt-4 flex flex-wrap items-center gap-2">
+      <button type="button" onClick={copyMessage} disabled={!message || busy} className="btn">
+        {l.copy}
+      </button>
+      <button type="button" disabled={busy || !message} onClick={openWhatsApp} className="btn btn-primary">
+        {busy ? "..." : l.send}
+      </button>
       {notice && <span className="text-xs text-forest/55">{notice}</span>}
     </div>
   </div>;
