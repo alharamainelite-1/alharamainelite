@@ -11,3 +11,9 @@ DROP POLICY IF EXISTS operations_tasks ON public.operations_tasks;
 CREATE POLICY operations_tasks_role_scoped ON public.operations_tasks FOR ALL TO public
 USING (has_role('SUPER_ADMIN'::app_role) OR has_role('OPERATIONS_MANAGER'::app_role) OR (has_role('OPERATIONS'::app_role) AND assigned_staff_id=auth.uid()) OR (has_role('HOST'::app_role) AND EXISTS (SELECT 1 FROM public.hosts h WHERE h.id=operations_tasks.assigned_host AND h.user_id=auth.uid())))
 WITH CHECK (has_role('SUPER_ADMIN'::app_role) OR has_role('OPERATIONS_MANAGER'::app_role) OR (has_role('OPERATIONS'::app_role) AND assigned_staff_id=auth.uid()) OR (has_role('HOST'::app_role) AND EXISTS (SELECT 1 FROM public.hosts h WHERE h.id=operations_tasks.assigned_host AND h.user_id=auth.uid())));
+
+-- Mutations are performed through authenticated server routes using service_role,
+-- where role checks and state-transition validation are enforced.
+REVOKE INSERT, UPDATE, DELETE ON TABLE public.host_tasks FROM anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE ON TABLE public.hosts FROM anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE ON TABLE public.operations_tasks FROM anon, authenticated;
