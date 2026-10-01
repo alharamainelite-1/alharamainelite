@@ -3,9 +3,9 @@ import {revalidatePath} from 'next/cache';
 import {getCurrentStaff} from '@/lib/supabase/auth';
 import {getSupabaseAdmin} from '@/lib/supabase/server';
 
-const ROLES=['SUPER_ADMIN','ADMIN','SALES'];
+const ROLES=['SUPER_ADMIN','SALES'];
 const STATUS=['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED','CANCELLED'];
-const ALLOWED:Record<string,string[]>={SALES:['CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','CANCELLED'],ADMIN:[...STATUS],SUPER_ADMIN:[...STATUS]};
+const ALLOWED:Record<string,string[]>={SALES:['CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','CANCELLED'],SUPER_ADMIN:[...STATUS]};
 
 export async function PATCH(req:Request){
  const staff=await getCurrentStaff();
