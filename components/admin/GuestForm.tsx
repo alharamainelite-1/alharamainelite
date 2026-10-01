@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 type Booking = {
   id: string;
   booking_id: string;
-  customers?: { full_name?: string | null; whatsapp?: string | null } | null;
+  customers?: { full_name?: string | null; whatsapp?: string | null; email?: string | null; country?: string | null; city?: string | null; preferred_language?: string | null } | null;
 };
 
 export function GuestForm({ bookings }: { bookings: Booking[] }) {
@@ -12,6 +12,10 @@ export function GuestForm({ bookings }: { bookings: Booking[] }) {
   const [bookingId, setBookingId] = useState("");
   const [fullName, setFullName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [email, setEmail] = useState("");
+  const [country, setCountry] = useState("");
+  const [city, setCity] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("en");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const selected = useMemo(() => bookings.find((booking) => booking.id === bookingId), [bookings, bookingId]);
@@ -21,6 +25,10 @@ export function GuestForm({ bookings }: { bookings: Booking[] }) {
     const booking = bookings.find((item) => item.id === id);
     setFullName(booking?.customers?.full_name ?? "");
     setWhatsapp(booking?.customers?.whatsapp ?? "");
+    setEmail(booking?.customers?.email ?? "");
+    setCountry(booking?.customers?.country ?? "");
+    setCity(booking?.customers?.city ?? "");
+    setPreferredLanguage(booking?.customers?.preferred_language ?? "en");
     setMessage("");
   }
 
@@ -38,10 +46,10 @@ export function GuestForm({ bookings }: { bookings: Booking[] }) {
           booking_id: bookingId,
           full_name: fullName,
           whatsapp,
-          email: form.get("email"),
-          country: form.get("country"),
-          city: form.get("city"),
-          preferred_language: form.get("preferred_language"),
+          email,
+          country,
+          city,
+          preferred_language: preferredLanguage,
           notes: form.get("notes"),
         }),
       });
@@ -63,13 +71,13 @@ export function GuestForm({ bookings }: { bookings: Booking[] }) {
     </select>
     <input name="full_name" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={ar ? "اسم العميل الكامل" : "Guest full name"} className={field} />
     <input name="whatsapp" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="WhatsApp" className={field} />
-    <input name="email" type="email" placeholder="Email" className={field} />
+    <input name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className={field} />
     <input name="notes" placeholder={ar ? "ملاحظات" : "Notes"} className={field} />
-    <select name="preferred_language" defaultValue="en" className={field}>
+    <select name="preferred_language" value={preferredLanguage} onChange={(e) => setPreferredLanguage(e.target.value)} className={field}>
       <option value="en">English</option><option value="so">Somali</option><option value="ar">Arabic</option>
     </select>
-    <input name="city" placeholder={ar ? "المدينة" : "City"} className={field} />
-    <input name="country" placeholder={ar ? "الدولة" : "Country"} className={field} />
+    <input name="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder={ar ? "المدينة" : "City"} className={field} />
+    <input name="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder={ar ? "الدولة" : "Country"} className={field} />
     <div className="flex items-center gap-2"><button className="btn btn-primary" disabled={busy || !selected}>{busy ? (ar ? "جارٍ الحفظ…" : "Saving…") : (ar ? "إضافة عميل" : "Add guest")}</button></div>
     {message && <span role="status" className="text-sm text-forest/60">{message}</span>}
   </form>;
