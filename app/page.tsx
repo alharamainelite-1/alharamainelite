@@ -124,13 +124,22 @@ export default async function Home(){
   ];
 
   return <div>
-    <section className="border-b border-gold/25 bg-[#f7f3ea] py-4">
-      <div className="container flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-        <div>
-          <div className="text-sm font-bold text-forest">{locale==='ar'?'اكتملت ترتيبات رحلات 5 أكتوبر 2026':locale==='so'?'Diyaargarowga safarka 5 Oktoobar 2026 wuu dhammaaday':'October 5, 2026 journeys are now fully arranged'}</div>
-          <p className="mt-1 text-sm leading-6 text-forest/65">{locale==='ar'?'شكرًا لاهتمامكم بـ ALHARAMAIN ELITE. يسعدنا استقبال طلباتكم لمواعيد السفر القادمة.':locale==='so'?'Waad ku mahadsan tahay xiisaha aad u muujiseen ALHARAMAIN ELITE. Waxaan soo dhoweynaynaa codsiyada taariikhaha safarka ee soo socda.':'Thank you for your interest in ALHARAMAIN ELITE. We welcome journey requests for upcoming dates.'}</p>
+    <section className="bg-[#063F35] py-6 text-white sm:py-8">
+      <div className="container">
+        <div className="relative overflow-hidden rounded-2xl border border-[#C9A227]/45 bg-gradient-to-br from-[#063F35] via-[#08483D] to-[#063F35] px-5 py-6 shadow-[0_18px_50px_rgba(6,63,53,0.18)] sm:px-9 sm:py-8">
+          <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full border border-[#C9A227]/15"/>
+          <div className="pointer-events-none absolute -right-5 -top-12 h-44 w-44 rounded-full border border-[#C9A227]/10"/>
+          <div className="relative flex flex-col items-start justify-between gap-5 md:flex-row md:items-center">
+            <div className="max-w-3xl">
+              <div className="mb-3 flex items-center gap-2"><span className="h-px w-7 bg-[#C9A227]"/><span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#DCC27E]">ALHARAMAIN ELITE</span></div>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#DCC27E]">{locale==='ar'?'5 أكتوبر 2026':locale==='so'?'5 Oktoobar 2026':'OCTOBER 5, 2026'}</p>
+              <h2 className="font-serif text-2xl leading-tight text-white sm:text-3xl">{locale==='ar'?'اكتملت ترتيبات رحلة 5 أكتوبر':locale==='so'?'Diyaargarowga safarka 5 Oktoobar waa la dhammaystiray':'Our October 5 journey is now fully arranged'}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">{locale==='ar'?'شكرًا لاهتمامكم وثقتكم بـ ALHARAMAIN ELITE. يسعدنا مساعدتكم في التخطيط لرحلة العمرة في أحد المواعيد القادمة.':locale==='so'?'Waad ku mahadsan tihiin xiisaha iyo kalsoonida aad u muujiseen ALHARAMAIN ELITE. Waxaan ku farxi doonnaa inaan idiinka caawinno qorsheynta Cumrada taariikhaha soo socda.':'Thank you for your interest and trust in ALHARAMAIN ELITE. We would be delighted to help you plan your Umrah journey for an upcoming date.'}</p>
+            </div>
+            <Link href="/request-journey" className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#C9A227] px-5 py-3 text-xs font-bold tracking-wide text-[#063F35] transition hover:bg-[#D8B94B]">{locale==='ar'?'استكشفوا الرحلات القادمة':locale==='so'?'Eeg safarrada soo socda':'EXPLORE UPCOMING JOURNEYS'} <ArrowRight size={15}/></Link>
+          </div>
+          <p className="relative mt-5 border-t border-white/10 pt-3 text-[9px] tracking-[0.18em] text-white/45">A JOURNEY WORTH REMEMBERING.</p>
         </div>
-        <Link href="/request-journey" className="shrink-0 text-sm font-semibold text-forest underline decoration-gold underline-offset-4">{locale==='ar'?'استكشف المواعيد القادمة':locale==='so'?'Eeg taariikhaha soo socda':'Explore upcoming dates'} <ArrowRight size={15} className="ml-1 inline"/></Link>
       </div>
     </section>
 
