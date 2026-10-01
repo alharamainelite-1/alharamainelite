@@ -12,68 +12,36 @@ export async function POST(req:Request){
  if(!ALLOWED_ROLES.includes(staff.profile.role)) return NextResponse.json({error:'Payment verification access required.'},{status:403});
 
  const body=await req.json().catch(()=>null) as {bookingId?:string;notes?:string;reference?:string}|null;
- if(!body?.bookingId) return NextResponse.json({error:'Booking is required.'},{status:400});
+ if(!body?.bookingId||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.bookingId))
+   return NextResponse.json({error:'A valid booking is required.'},{status:400});
 
  const s=getSupabaseAdmin();
- const {data:booking,error:bookingError}=await s.from('bookings')
-   .select('id,booking_id,total_amount,currency,payment_status,status')
-   .eq('id',body.bookingId).single();
- if(bookingError||!booking) return NextResponse.json({error:'Booking not found.'},{status:404});
- if(booking.payment_status==='RECEIVED') return NextResponse.json({error:'Payment is already marked as received.'},{status:409});
-
- const {data:receivedRows,error:paymentsError}=await s.from('payments')
-   .select('amount')
-   .eq('booking_id',booking.id)
-   .eq('status','RECEIVED');
- if(paymentsError) return NextResponse.json({error:paymentsError.message},{status:500});
-
- const receivedTotal=(receivedRows||[]).reduce((n:number,p:any)=>n+Number(p.amount||0),0);
- const remaining=Math.max(0,Number(booking.total_amount||0)-receivedTotal);
- if(remaining<=0) return NextResponse.json({error:'The booking is already fully paid in the payment records.'},{status:409});
-
- const now=new Date().toISOString();
- const {data:payment,error:paymentError}=await s.from('payments').insert({
-   payment_id:'PAY-'+Date.now().toString(36).toUpperCase(),
-   booking_id:booking.id,
-   amount:remaining,
-   currency:booking.currency||'USD',
-   date:now.slice(0,10),
-   method:'BANK_TRANSFER',
-   reference:body.reference||null,
-   status:'RECEIVED',
-   notes:body.notes||'Payment verified and marked received by administration.',
-   verified_by:staff.profile.id,
-   verified_at:now
- }).select('*').single();
- if(paymentError) return NextResponse.json({error:paymentError.message},{status:500});
-
- const {data:after,error:updateError}=await s.from('bookings')
-   .update({payment_status:'RECEIVED',status:'PAYMENT_RECEIVED',updated_at:now})
-   .eq('id',booking.id).select('*').single();
- if(updateError||!after) return NextResponse.json({error:updateError?.message||'Could not update booking payment status.'},{status:500});
-
- await s.from('audit_logs').insert([
-   {actor_id:staff.profile.id,action:'PAYMENT_MARKED_RECEIVED',entity_type:'payment',entity_id:payment.id,before_data:null,after_data:payment},
-   {actor_id:staff.profile.id,action:'BOOKING_PAYMENT_STATUS_SYNCED',entity_type:'booking',entity_id:booking.id,before_data:booking,after_data:after}
- ]);
+ const {data,error}=await s.rpc('verify_booking_payment_atomic',{
+   p_booking_id:body.bookingId,
+   p_staff_id:staff.profile.id,
+   p_notes:typeof body.notes==='string'?body.notes.slice(0,2000):null,
+   p_reference:typeof body.reference==='string'?body.reference.slice(0,160):null
+ });
+ if(error){
+   const status=error.code==='P0002'?404:error.code==='23505'?409:error.code==='42501'?403:500;
+   const known=['Booking not found','Payment is already marked as received','Booking is already fully paid in payment records','Payment verification access required'];
+   const message=known.find(x=>error.message?.includes(x))||'Could not verify payment. Please try again.';
+   console.error('atomic_payment_verification_failed',{code:error.code,message:error.message});
+   return NextResponse.json({error:message},{status});
+ }
+ const result=data as {payment?:unknown;booking?:{id?:string;influencer_partner_id?:string|null;total_amount?:number|string};commission?:unknown}|null;
+ if(!result?.payment||!result.booking?.id)
+   return NextResponse.json({error:'Payment verification returned an incomplete result.'},{status:500});
 
  revalidatePath('/admin');
  revalidatePath('/admin/bookings');
  revalidatePath('/admin/payments');
  revalidatePath('/admin/finance');
  revalidatePath('/partner/dashboard');
-
- const {data:commission}=await s.from('influencer_commissions')
-  .select('id,amount,status,available_at')
-  .eq('booking_id',after.id)
-  .eq('type','COMMISSION')
-  .in('status',['PENDING','PAID'])
-  .maybeSingle();
-
  return NextResponse.json({
-   payment,
-   booking:after,
-   commission:commission||null,
-   commissionExpected:after.influencer_partner_id?Number(after.total_amount||0)*COMMISSION_RATE:0
+   payment:result.payment,
+   booking:result.booking,
+   commission:result.commission||null,
+   commissionExpected:result.booking.influencer_partner_id?Number(result.booking.total_amount||0)*COMMISSION_RATE:0
  });
 }
