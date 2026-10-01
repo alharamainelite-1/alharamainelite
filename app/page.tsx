@@ -124,6 +124,16 @@ export default async function Home(){
   ];
 
   return <div>
+    <section className="border-b border-gold/25 bg-[#f7f3ea] py-4">
+      <div className="container flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <div>
+          <div className="text-sm font-bold text-forest">{locale==='ar'?'اكتملت ترتيبات رحلات 5 أكتوبر 2026':locale==='so'?'Diyaargarowga safarka 5 Oktoobar 2026 wuu dhammaaday':'October 5, 2026 journeys are now fully arranged'}</div>
+          <p className="mt-1 text-sm leading-6 text-forest/65">{locale==='ar'?'شكرًا لاهتمامكم بـ ALHARAMAIN ELITE. يسعدنا استقبال طلباتكم لمواعيد السفر القادمة.':locale==='so'?'Waad ku mahadsan tahay xiisaha aad u muujiseen ALHARAMAIN ELITE. Waxaan soo dhoweynaynaa codsiyada taariikhaha safarka ee soo socda.':'Thank you for your interest in ALHARAMAIN ELITE. We welcome journey requests for upcoming dates.'}</p>
+        </div>
+        <Link href="/request-journey" className="shrink-0 text-sm font-semibold text-forest underline decoration-gold underline-offset-4">{locale==='ar'?'استكشف المواعيد القادمة':locale==='so'?'Eeg taariikhaha soo socda':'Explore upcoming dates'} <ArrowRight size={15} className="ml-1 inline"/></Link>
+      </div>
+    </section>
+
     <section className="relative min-h-[76vh] overflow-hidden bg-forest text-white">
       <Image src={hero} alt="Kaaba at Masjid al-Haram in Makkah" fill priority sizes="100vw" className="object-cover opacity-55"/>
       <div className="absolute inset-0 bg-gradient-to-r from-forest/95 via-forest/70 to-forest/15"/>
@@ -142,15 +152,7 @@ export default async function Home(){
       </div>
     </section>
 
-    <section className="border-b border-gold/25 bg-[#f7f3ea] py-4">
-      <div className="container flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-        <div>
-          <div className="text-sm font-bold text-forest">{locale==='ar'?'اكتملت ترتيبات رحلات 5 أكتوبر 2026':locale==='so'?'Diyaargarowga safarka 5 Oktoobar 2026 wuu dhammaaday':'October 5, 2026 journeys are now fully arranged'}</div>
-          <p className="mt-1 text-sm leading-6 text-forest/65">{locale==='ar'?'شكرًا لاهتمامكم بـ ALHARAMAIN ELITE. يسعدنا استقبال طلباتكم لمواعيد السفر القادمة.':locale==='so'?'Waad ku mahadsan tahay xiisaha aad u muujiseen ALHARAMAIN ELITE. Waxaan soo dhoweynaynaa codsiyada taariikhaha safarka ee soo socda.':'Thank you for your interest in ALHARAMAIN ELITE. We welcome journey requests for upcoming dates.'}</p>
-        </div>
-        <Link href="/request-journey" className="shrink-0 text-sm font-semibold text-forest underline decoration-gold underline-offset-4">{locale==='ar'?'استكشف المواعيد القادمة':locale==='so'?'Eeg taariikhaha soo socda':'Explore upcoming dates'} <ArrowRight size={15} className="ml-1 inline"/></Link>
-      </div>
-    </section>
+
 
     <section className="border-b border-forest/10 bg-white py-5">
       <div className="container grid gap-4 sm:grid-cols-2 md:grid-cols-4">
