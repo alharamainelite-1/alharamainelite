@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentStaff } from '@/lib/supabase/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 
-const ALLOWED_ROLES=['SUPER_ADMIN','ADMIN','FINANCE'];
+const ALLOWED_ROLES=['SUPER_ADMIN','FINANCE'];
 const COMMISSION_RATE=0.05;
 
 export async function POST(req:Request){
