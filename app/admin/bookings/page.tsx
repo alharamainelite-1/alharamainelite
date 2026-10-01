@@ -15,7 +15,7 @@ export default async function BookingsPage(){
  try{
   const {data,error:e}=await getSupabaseAdmin().from('bookings')
    .select('id,booking_id,guest_count,total_amount,currency,status,payment_status,lead_source,created_at,customers(full_name,whatsapp),packages(name)')
-   .order('created_at',{ascending:false}).limit(50);
+   .is('archived_at',null).order('created_at',{ascending:false}).limit(50);
   if(e)throw e;rows=data||[];
  }catch(e){error=e instanceof Error?e.message:'Unable to load bookings.'}
  const columns=canViewFinancial?10:8;
