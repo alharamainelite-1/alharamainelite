@@ -8,7 +8,7 @@ export default async function JourneysPage(){ const locale=await getAdminLocale(
   const canViewFinancial=staff.profile.role==='SUPER_ADMIN'||staff.profile.role==='FINANCE';
   let rows:any[]=[]; let error='';
   try{
-    const {data,error:e}=await getSupabaseAdmin().from('bookings').select('id,booking_id,guest_count,total_amount,currency,status,payment_status,lead_source,expected_travel_date,expected_period_start,expected_period_end,created_at,customers(full_name,country,whatsapp),packages(name,slug)').order('created_at',{ascending:false}).limit(100);
+    const {data,error:e}=await getSupabaseAdmin().from('bookings').select('id,booking_id,guest_count,total_amount,currency,status,payment_status,lead_source,expected_travel_date,expected_period_start,expected_period_end,created_at,customers(full_name,country,whatsapp),packages(name,slug)').is('archived_at',null).order('created_at',{ascending:false}).limit(100);
     if(e)throw e; rows=data||[];
   }catch(e){error=e instanceof Error?e.message:'Unable to load journeys.'}
   const open=rows.filter(r=>!['COMPLETED','CANCELLED'].includes(r.status));
