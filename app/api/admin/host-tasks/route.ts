@@ -20,7 +20,13 @@ export async function PATCH(req:Request){
   const allowed:any={ASSIGNED:['ACCEPTED'],ACCEPTED:['IN_PROGRESS'],IN_PROGRESS:['COMPLETED']};
   if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:'Invalid task transition.'},{status:403});
  }
- const {data,error}=await s.from(source).update({status:b.status}).eq('id',b.id).select('*').single();
+ const update:any={status:b.status};
+ if(source==='operations_tasks'){
+  const now=new Date().toISOString();
+  if(b.status==='IN_PROGRESS'&&!before.started_at)update.started_at=now;
+  if(b.status==='COMPLETED'){if(!before.started_at)update.started_at=now;if(!before.completed_at)update.completed_at=now;}
+ }
+ const {data,error}=await s.from(source).update(update).eq('id',b.id).select('*').single();
  if(error)return NextResponse.json({error:error.message},{status:500});
  await s.from('audit_logs').insert({actor_id:staff.profile.id,action:source==='operations_tasks'?'OPERATIONS_HOST_STATUS_UPDATED':'HOST_TASK_STATUS_UPDATED',entity_type:source==='operations_tasks'?'operations_task':'host_task',entity_id:b.id,before_data:before,after_data:data});
  revalidatePath('/admin/host-tasks');revalidatePath('/admin/operations');return NextResponse.json({task:data});
