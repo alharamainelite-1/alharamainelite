@@ -14,6 +14,7 @@ export async function PATCH(req:Request){
  const {data:before,error:readError}=await s.from(source).select('*').eq('id',b.id).maybeSingle();
  if(readError)return NextResponse.json({error:readError.message},{status:500});
  if(!before)return NextResponse.json({error:'Task not found.'},{status:404});
+ if(b.status==='CANCELLED'&&!String(b.cancellation_reason||'').trim())return NextResponse.json({error:'Cancellation reason is required.'},{status:400});
  if(staff.profile.role==='HOST'){
   const hostId=await hostIdForStaff(staff);const assigned=source==='operations_tasks'?before.assigned_host:before.host_id;
   if(!hostId||assigned!==hostId)return NextResponse.json({error:'You can only update tasks assigned to you.'},{status:403});
@@ -21,12 +22,13 @@ export async function PATCH(req:Request){
   if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:'Invalid task transition.'},{status:403});
  }
  const update:any={status:b.status};
+ if(b.status==='CANCELLED'&&b.cancellation_reason!==undefined){const reason=String(b.cancellation_reason).trim().slice(0,1000);if(reason)update.notes=[before.notes,`سبب الإلغاء: ${reason}`].filter(Boolean).join('\\n');}
  if(source==='operations_tasks'){
   const now=new Date().toISOString();
   if(b.status==='IN_PROGRESS'&&!before.started_at)update.started_at=now;
   if(b.status==='COMPLETED'){if(!before.started_at)update.started_at=now;if(!before.completed_at)update.completed_at=now;}
  }
- const {data,error}=await s.from(source).update(update).eq('id',b.id).select('*').single();
+ const {data,error}=await s.from(source).update(update).eq('id',b.id).select('id,task_id,date,start_time,end_time,location,task_type,status,notes,group_id,host_id,assigned_host,started_at,completed_at').single();
  if(error)return NextResponse.json({error:error.message},{status:500});
  await s.from('audit_logs').insert({actor_id:staff.profile.id,action:source==='operations_tasks'?'OPERATIONS_HOST_STATUS_UPDATED':'HOST_TASK_STATUS_UPDATED',entity_type:source==='operations_tasks'?'operations_task':'host_task',entity_id:b.id,before_data:before,after_data:data});
  revalidatePath('/admin/host-tasks');revalidatePath('/admin/operations');return NextResponse.json({task:data});

@@ -82,12 +82,14 @@ export async function PATCH(req:Request){
   const s=getSupabaseAdmin();
   const{data:before}=await s.from("operations_tasks").select("*").eq("id",b.id).single();
   if(!before)return NextResponse.json({error:"Task not found."},{status:404});
+  if(b.status==="CANCELLED"&&!String(b.cancellation_reason||"").trim())return NextResponse.json({error:"Cancellation reason is required."},{status:400});
   if(staff.profile.role==="OPERATIONS"&&before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});
   const update:any={};
   if(b.status!==undefined){
     if(!STATUS.includes(b.status))return NextResponse.json({error:"Invalid task status."},{status:400});
     if(staff.profile.role==="OPERATIONS"){const allowed:any={PENDING:["ACCEPTED"],ASSIGNED:["ACCEPTED"],ACCEPTED:["IN_PROGRESS"],IN_PROGRESS:["COMPLETED"]};if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:"Invalid task transition."},{status:403});}
     update.status=b.status;
+    if(b.status==="CANCELLED"&&b.cancellation_reason!==undefined){const reason=String(b.cancellation_reason).trim().slice(0,1000);if(reason)update.notes=[before.notes,`سبب الإلغاء: ${reason}`].filter(Boolean).join("\\n");}
     if(b.status==="IN_PROGRESS"&&!before.started_at)update.started_at=new Date().toISOString();
     if(b.status==="COMPLETED"){if(!before.started_at)update.started_at=new Date().toISOString();update.completed_at=new Date().toISOString();}
   }

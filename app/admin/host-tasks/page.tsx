@@ -2,6 +2,9 @@ import {getSupabaseAdmin} from '@/lib/supabase/server';
 import {getCurrentStaff} from '@/lib/supabase/auth';
 import {getAdminLocale} from '@/lib/admin-locale';
 import {OperationsHostTaskStatusButton} from '@/components/admin/OperationsHostTaskStatusButton';
+
+const cancelled = (status:string) => status === 'CANCELLED';
+const completed = (status:string) => status === 'COMPLETED';
 export default async function HostTasksPage(){
  const staff=await getCurrentStaff();if(!staff)return null;
  if(staff.profile.role!=='HOST')return <section className="pb-12"><div className="card p-8"><h1 className="serif text-3xl text-forest">الوصول مقيّد</h1></div></section>;
@@ -9,10 +12,23 @@ export default async function HostTasksPage(){
  if(!host)return <section className="pb-12"><div className="card p-8"><div className="eyebrow">مساحة المضيف</div><h1 className="serif mt-2 text-3xl text-forest">لا يوجد ملف مضيف مرتبط</h1><p className="mt-3 text-sm text-forest/55">اطلب من مدير العمليات ربط حساب الموظف بملف المضيف.</p></div></section>;
  const [{data:legacy,error:e1},{data:ops,error:e2}]=await Promise.all([s.from('host_tasks').select('id,task_id,date,start_time,end_time,location,task_type,status,notes,group_id').eq('host_id',host.id).order('date').limit(100),s.from('operations_tasks').select('id,task_id,date,start_time,end_time,location,task_type,status,notes,group_id').eq('assigned_host',host.id).order('date').limit(100)]);
  const tasks=[...(legacy||[]).map(x=>({...x,source:'host_tasks' as const})),...(ops||[]).map(x=>({...x,source:'operations_tasks' as const}))].sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.start_time||'').localeCompare(String(b.start_time||'')));
- return <section className="pb-12"><div className="flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow">مساحة المضيف</div><h1 className="serif mt-2 text-4xl text-forest">{host.name}</h1><p className="mt-2 text-sm text-forest/55">تظهر هنا المهام المسندة إليك فقط.</p></div><div className="rounded-xl bg-white px-4 py-3 text-sm text-forest shadow-sm">{tasks.filter(x=>!['COMPLETED','CANCELLED'].includes(x.status)).length} مهام نشطة</div></div>
+ const active=tasks.filter(x=>!completed(x.status)&&!cancelled(x.status)).length;
+ const done=tasks.filter(x=>completed(x.status)).length;
+ const cancelledCount=tasks.filter(x=>cancelled(x.status)).length;
+ const today=new Date().toLocaleDateString('en-CA');
+ const upcoming=tasks.filter(x=>!completed(x.status)&&!cancelled(x.status)&&String(x.date)>=today).length;
+ const statusLabel=(status:string)=>({PENDING:'بانتظار التكليف',ASSIGNED:'مُسندة',ACCEPTED:'مقبولة',IN_PROGRESS:'قيد التنفيذ',COMPLETED:'مكتملة',CANCELLED:'ملغاة'} as Record<string,string>)[status]||status.replaceAll('_',' ');
+ return <section className="pb-12"><div className="flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow">مساحة المضيف</div><h1 className="serif mt-2 text-4xl text-forest">{host.name}</h1><p className="mt-2 text-sm text-forest/55">تابع مهامك ومواعيدك وحالة التنفيذ. معلومات المستحقات والمدفوعات غير معروضة في هذه المساحة.</p></div></div>
+ <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+  <div className="card p-4"><div className="text-xs text-forest/50">المهام النشطة</div><div className="mt-1 text-3xl font-semibold text-forest">{active}</div></div>
+  <div className="card p-4"><div className="text-xs text-forest/50">المهام القادمة</div><div className="mt-1 text-3xl font-semibold text-forest">{upcoming}</div></div>
+  <div className="card p-4"><div className="text-xs text-forest/50">المهام المكتملة</div><div className="mt-1 text-3xl font-semibold text-forest">{done}</div></div>
+  <div className="card p-4"><div className="text-xs text-forest/50">المهام الملغاة</div><div className="mt-1 text-3xl font-semibold text-forest">{cancelledCount}</div></div>
+ </div>
  {(e1||e2)&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{e1?.message||e2?.message}</div>}
- <div className="mt-7 grid gap-4">{tasks.length===0?<div className="card p-10 text-center text-forest/45">لا توجد مهام مسندة حتى الآن.</div>:tasks.map(task=><div key={task.source+task.id} className="card p-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><div className="text-xs font-semibold tracking-wider text-gold">{task.task_id}</div><h2 className="mt-1 text-lg font-semibold text-forest">{String(task.task_type||'Task').replaceAll('_',' ')}</h2></div><span className="rounded-full bg-[#f7f3ea] px-3 py-1 text-xs font-semibold text-forest">{String(task.status||'PENDING').replaceAll('_',' ')}</span></div>
+ <div className="mt-7"><h2 className="serif text-2xl text-forest">جدول المهام</h2><p className="mt-1 text-sm text-forest/50">مرتبة حسب التاريخ ووقت البدء. تبقى المهام الملغاة ظاهرة في السجل.</p></div>
+ <div className="mt-4 grid gap-4">{tasks.length===0?<div className="card p-10 text-center text-forest/45">لا توجد مهام مسندة حتى الآن.</div>:tasks.map(task=><div key={task.source+task.id} className={`card p-6 ${cancelled(task.status)?'opacity-75':''}`}><div className="flex flex-wrap items-start justify-between gap-4"><div><div className="text-xs font-semibold tracking-wider text-gold">{task.task_id}</div><h2 className="mt-1 text-lg font-semibold text-forest">{String(task.task_type||'Task').replaceAll('_',' ')}</h2></div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${cancelled(task.status)?'bg-red-50 text-red-700':completed(task.status)?'bg-green-50 text-green-700':'bg-[#f7f3ea] text-forest'}`}>{statusLabel(String(task.status||'PENDING'))}</span></div>
  <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div><div className="text-xs text-forest/40">التاريخ</div><div className="mt-1 font-semibold text-forest">{task.date||'—'}</div></div><div><div className="text-xs text-forest/40">الوقت</div><div className="mt-1 font-semibold text-forest">{task.start_time||'—'}{task.end_time?' – '+task.end_time:''}</div></div><div><div className="text-xs text-forest/40">الموقع</div><div className="mt-1 font-semibold text-forest">{task.location||'—'}</div></div><div><div className="text-xs text-forest/40">المجموعة</div><div className="mt-1 font-semibold text-forest">{task.group_id||'—'}</div></div></div>
  {task.notes&&<div className="mt-4 rounded-xl bg-[#f7f3ea] p-4 text-sm leading-6 text-forest/70">{task.notes}</div>}
- {task.status!=='COMPLETED'&&task.status!=='CANCELLED'&&<div className="mt-5"><OperationsHostTaskStatusButton id={task.id} source={task.source} nextStatus={task.status==='ASSIGNED'?'ACCEPTED':task.status==='ACCEPTED'?'IN_PROGRESS':'COMPLETED'} label={task.status==='ASSIGNED'?'قبول المهمة':task.status==='ACCEPTED'?'بدء المهمة':'وضع علامة مكتملة'}/></div>}</div>)}</div></section>;
+ {!completed(task.status)&&!cancelled(task.status)&&<div className="mt-5"><OperationsHostTaskStatusButton id={task.id} source={task.source} nextStatus={task.status==='ASSIGNED'?'ACCEPTED':task.status==='ACCEPTED'?'IN_PROGRESS':'COMPLETED'} label={task.status==='ASSIGNED'?'قبول المهمة':task.status==='ACCEPTED'?'بدء المهمة':'وضع علامة مكتملة'}/></div>}</div>)}</div></section>;
 }
