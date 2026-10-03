@@ -3,6 +3,7 @@ import {getSupabaseAdmin} from "@/lib/supabase/server";
 import {getCurrentStaff} from "@/lib/supabase/auth";
 import {getAdminLocale} from "@/lib/admin-locale";
 import {adminText} from "@/lib/admin-text";
+import ExecutiveOverview from "@/components/admin/ExecutiveOverview";
 
 const roleConfig:any={
  SALES:{en:{eyebrow:"SALES WORKSPACE",title:"Sales",intro:"Your workspace is focused on new leads, customer conversations and moving qualified requests forward.",primary:"Open Requests",href:"/admin/requests"},ar:{eyebrow:"مساحة المبيعات",title:"المبيعات",intro:"مساحتك مخصصة للطلبات الجديدة والتواصل مع العملاء ونقل الطلبات المؤهلة إلى المرحلة التالية.",primary:"فتح الطلبات",href:"/admin/requests"}},
@@ -64,6 +65,8 @@ async function OperationsDashboard({locale}:{locale:'en'|'ar'}){
 }
 
 async function ManagementDashboard({locale,superAdmin=false}:{locale:'en'|'ar';superAdmin?:boolean}){
+ const cfg=superAdmin?roleConfig.SUPER_ADMIN[locale]:roleConfig.ADMIN[locale];
+ if(superAdmin)return <RoleShell cfg={cfg}><ExecutiveOverview locale={locale}/></RoleShell>;
  const s=getSupabaseAdmin();
  const [requests,journeys,tasks,completed]=await Promise.all([
   s.from("journey_requests").select("*",{count:"exact",head:true}).in("status",["NEW_REQUEST","CONTACTED","DETAILS_PENDING"]),
@@ -71,7 +74,6 @@ async function ManagementDashboard({locale,superAdmin=false}:{locale:'en'|'ar';s
   s.from("operations_tasks").select("*",{count:"exact",head:true}).not("status","in","(COMPLETED,CANCELLED)"),
   s.from("bookings").select("*",{count:"exact",head:true}).eq("status","COMPLETED")
  ]);
- const cfg=superAdmin?roleConfig.SUPER_ADMIN[locale]:roleConfig.ADMIN[locale];
  return <RoleShell cfg={cfg}><div className="mb-5 flex justify-end">{superAdmin&&<Link href="/admin/journey-archive" className="btn btn-secondary">{locale==='ar'?'إدارة الرحلات التجريبية':'Manage test journeys'}</Link>}</div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'طلبات تحتاج متابعة':'REQUESTS TO REVIEW'} value={requests.count||0} href="/admin/requests"/><Stat label={locale==='ar'?'رحلات نشطة':'ACTIVE JOURNEYS'} value={journeys.count||0} href="/admin/journeys"/><Stat label={locale==='ar'?'مهام تشغيلية':'OPEN OPERATIONS'} value={tasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'رحلات مكتملة':'COMPLETED'} value={completed.count||0} href="/admin/journeys"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الطلبات","متابعة الرحلات","متابعة التشغيل","مراجعة الأداء"]:["Review requests","Monitor journeys","Monitor operations","Review performance"]} links={["/admin/requests","/admin/journeys","/admin/operations","/admin/reports"]}/></RoleShell>
 }
 
