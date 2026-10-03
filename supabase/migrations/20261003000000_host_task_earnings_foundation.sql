@@ -190,7 +190,7 @@ for all to authenticated using (
 
 create or replace function public.queue_host_task_notice()
 returns trigger language plpgsql security definer set search_path = ''
-as $
+as $$
 declare event_name text; target_host uuid;
 begin
   if tg_op = 'INSERT' then
@@ -209,7 +209,7 @@ begin
   end if;
   return new;
 end;
-$;
+$$;
 revoke all on function public.queue_host_task_notice() from public, anon, authenticated;
 drop trigger if exists host_task_notice_queue on public.host_tasks;
 create trigger host_task_notice_queue after insert or update on public.host_tasks
