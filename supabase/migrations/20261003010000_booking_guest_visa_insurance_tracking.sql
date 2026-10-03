@@ -2,7 +2,8 @@
 -- Sensitive passport scans are intentionally not stored in this table.
 CREATE TABLE IF NOT EXISTS public.booking_guest_travel_admin (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  booking_guest_id uuid NOT NULL UNIQUE REFERENCES public.booking_guests(id) ON DELETE CASCADE,
+  booking_id uuid NOT NULL REFERENCES public.bookings(id) ON DELETE CASCADE,
+  guest_number integer NOT NULL CHECK (guest_number BETWEEN 1 AND 8),
   visa_status text NOT NULL DEFAULT 'NOT_STARTED'
     CHECK (visa_status IN ('NOT_STARTED','DOCUMENTS_PENDING','SUBMITTED','UNDER_REVIEW','ISSUED','REJECTED','NOT_REQUIRED')),
   visa_reference text,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.booking_guest_travel_admin (
     AND length(coalesce(internal_notes,'')) <= 3000
   )
 );
+ALTER TABLE public.booking_guest_travel_admin ADD CONSTRAINT booking_guest_travel_admin_booking_guest_unique UNIQUE (booking_id, guest_number);
 CREATE INDEX IF NOT EXISTS booking_guest_travel_admin_visa_status_idx
   ON public.booking_guest_travel_admin(visa_status);
 CREATE INDEX IF NOT EXISTS booking_guest_travel_admin_insurance_status_idx
