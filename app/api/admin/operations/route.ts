@@ -82,6 +82,7 @@ export async function PATCH(req:Request){
   const s=getSupabaseAdmin();
   const{data:before}=await s.from("operations_tasks").select("*").eq("id",b.id).single();
   if(!before)return NextResponse.json({error:"Task not found."},{status:404});
+  if(b.status==="CANCELLED"&&!String(b.cancellation_reason||"").trim())return NextResponse.json({error:"Cancellation reason is required."},{status:400});
   if(staff.profile.role==="OPERATIONS"&&before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});
   const update:any={};
   if(b.status!==undefined){
