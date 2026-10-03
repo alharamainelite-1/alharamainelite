@@ -88,6 +88,7 @@ export async function PATCH(req:Request){
     if(!STATUS.includes(b.status))return NextResponse.json({error:"Invalid task status."},{status:400});
     if(staff.profile.role==="OPERATIONS"){const allowed:any={PENDING:["ACCEPTED"],ASSIGNED:["ACCEPTED"],ACCEPTED:["IN_PROGRESS"],IN_PROGRESS:["COMPLETED"]};if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:"Invalid task transition."},{status:403});}
     update.status=b.status;
+    if(b.status==="CANCELLED"&&b.cancellation_reason!==undefined){const reason=String(b.cancellation_reason).trim().slice(0,1000);if(reason)update.notes=[before.notes,`سبب الإلغاء: ${reason}`].filter(Boolean).join("\\n");}
     if(b.status==="IN_PROGRESS"&&!before.started_at)update.started_at=new Date().toISOString();
     if(b.status==="COMPLETED"){if(!before.started_at)update.started_at=new Date().toISOString();update.completed_at=new Date().toISOString();}
   }
