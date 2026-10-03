@@ -57,7 +57,11 @@ export async function middleware(req: NextRequest){
     res = NextResponse.rewrite(new URL(publicPath, req.url), { request: { headers: requestHeaders } });
     res.cookies.set('he_locale', locale, { path: '/', maxAge: 31536000 });
   } else {
+    // Unprefixed routes use English; persist that choice so a previous /so or /ar
+    // visit cannot leave a stale locale cookie that overrides the EN selector.
+    req.cookies.set('he_locale', 'en');
     res = NextResponse.next({ request: { headers: requestHeaders } });
+    res.cookies.set('he_locale', 'en', { path: '/', maxAge: 31536000 });
   }
   applySecurityHeaders(res,nonce);
 
