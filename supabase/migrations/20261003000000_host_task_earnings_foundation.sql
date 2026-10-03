@@ -13,6 +13,20 @@ create table if not exists public.host_task_catalog (
   updated_at timestamptz not null default now()
 );
 
+-- Initial host task rates approved by the business owner; editable by SUPER_ADMIN/FINANCE.
+insert into public.host_task_catalog (task_type,title,description,amount,currency,active)
+values
+  ('AIRPORT_ASSISTANCE','Airport assistance','Meet and assist guests at the airport.',150,'SAR',true),
+  ('TRAIN_ASSISTANCE','Train assistance','Assist guests at train stations and boarding.',100,'SAR',true),
+  ('MAKKAH_ZIYARAT','Makkah ziyarat','Accompany guests during Makkah ziyarat.',250,'SAR',true),
+  ('MADINAH_ZIYARAT','Madinah ziyarat','Accompany guests during Madinah ziyarat.',250,'SAR',true),
+  ('JEDDAH_EXPERIENCE','Jeddah experience','Accompany guests during the Jeddah experience.',250,'SAR',true),
+  ('SPECIAL_ASSISTANCE','Special assistance','Provide approved additional guest assistance.',200,'SAR',true),
+  ('OTHER','Other task','An additional task defined by operations.',200,'SAR',true)
+on conflict (task_type) do update set
+  title=excluded.title, description=excluded.description, amount=excluded.amount,
+  currency=excluded.currency, active=excluded.active, updated_at=now();
+
 alter table public.host_tasks
   add column if not exists rate_snapshot numeric(12,2),
   add column if not exists rate_currency char(3),
