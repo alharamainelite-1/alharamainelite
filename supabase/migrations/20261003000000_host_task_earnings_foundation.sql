@@ -72,10 +72,8 @@ drop policy if exists host_task_catalog_write_management on public.host_task_cat
 create policy host_task_catalog_write_management on public.host_task_catalog
 for all to authenticated using (
   public.has_role('SUPER_ADMIN'::public.app_role)
-  or public.has_role('FINANCE'::public.app_role)
 ) with check (
   public.has_role('SUPER_ADMIN'::public.app_role)
-  or public.has_role('FINANCE'::public.app_role)
 );
 
 drop policy if exists host_earnings_finance_read on public.host_earnings;
