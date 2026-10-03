@@ -80,59 +80,6 @@ for all to authenticated using (
   or public.has_role('FINANCE'::public.app_role)
 );
 
-create or replace function public.snapshot_host_task_rate()
-returns trigger language plpgsql security definer set search_path = ''
-as $$
-declare catalog_row public.host_task_catalog%rowtype;
-begin
-  if tg_op = 'INSERT' then
-    if new.host_id is not null then
-      select * into catalog_row from public.host_task_catalog
-        where task_type = new.task_type and active = true;
-      if not found then
-        raise exception 'No active host task price is configured for task type %', new.task_type;
-      end if;
-      new.rate_snapshot := catalog_row.amount;
-      new.rate_currency := catalog_row.currency;
-      new.rate_catalog_id := catalog_row.id;
-      new.assigned_at := coalesce(new.assigned_at, now());
-    end if;
-  elsif new.host_id is distinct from old.host_id
-     or new.task_type is distinct from old.task_type then
-    if old.host_id is not null and old.rate_snapshot is not null then
-      raise exception 'Assigned task pricing is immutable; create a new task to change host or task type';
-    end if;
-    if new.host_id is not null then
-      select * into catalog_row from public.host_task_catalog
-        where task_type = new.task_type and active = true;
-      if not found then
-        raise exception 'No active host task price is configured for task type %', new.task_type;
-      end if;
-      new.rate_snapshot := catalog_row.amount;
-      new.rate_currency := catalog_row.currency;
-      new.rate_catalog_id := catalog_row.id;
-      new.assigned_at := now();
-    else
-      new.rate_snapshot := null;
-      new.rate_currency := null;
-      new.rate_catalog_id := null;
-      new.assigned_at := null;
-    end if;
-  end if;
-  if new.status = 'IN_PROGRESS' and old.status is distinct from new.status then
-    new.started_at := coalesce(new.started_at,now());
-  end if;
-  if new.status = 'COMPLETED' and old.status is distinct from new.status then
-    new.completed_at := coalesce(new.completed_at,now());
-  end if;
-  return new;
-end;
-$$;
-revoke all on function public.snapshot_host_task_rate() from public, anon, authenticated;
-drop trigger if exists host_task_rate_snapshot on public.host_tasks;
-create trigger host_task_rate_snapshot before insert or update on public.host_tasks
-for each row execute function public.snapshot_host_task_rate();
-
 create or replace function public.sync_host_earning()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
@@ -265,6 +212,11 @@ begin
 end;
 $$;
 
+
+revoke all on function public.snapshot_host_task_rate() from public, anon, authenticated;
+drop trigger if exists host_task_rate_snapshot on public.host_tasks;
+create trigger host_task_rate_snapshot before insert or update on public.host_tasks
+for each row execute function public.snapshot_host_task_rate();
 
 -- Enforce financial record integrity even if a privileged API is called incorrectly.
 create or replace function public.guard_host_earning_update()
