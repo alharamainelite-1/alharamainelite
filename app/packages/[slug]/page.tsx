@@ -8,7 +8,7 @@ import {defaultLocale,isLocale} from '@/lib/i18n';
 import type {Metadata} from 'next';
 import { SEO_PAGES, SITE_URL, localizedMetadata } from '@/lib/seo';
 import { headers } from 'next/headers';
-import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane} from 'lucide-react';
+import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane, Globe2, ShieldCheck} from 'lucide-react';
 
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
 
@@ -43,7 +43,9 @@ const labels={
       ['Makkah & Madinah ziyarat','Guided ziyarat to selected sites in the two Holy Cities as planned in your journey.'],
       ['Jeddah experience','A curated Jeddah experience, including cultural and shopping time where included in your itinerary.'],
       ['SIM card with internet','A SIM card with internet to help you stay connected during your journey.'],
-      ['Journey support','Personal coordination and support throughout the planning and confirmed journey.']
+      ['Journey support','Personal coordination and support throughout the planning and confirmed journey.'],
+      ['Saudi tourist visa','Our team arranges the Saudi tourist visa application and follows it through, subject to eligibility and government approval.'],
+      ['Travel health insurance','Travel health insurance arranged for your journey, subject to the policy terms, limits and exclusions.']
     ],
     eliteExtra:[['Haramain Train','Haramain Train travel is included in ELITE where applicable to the confirmed journey plan.']],
     notList:['International flights']
@@ -67,7 +69,9 @@ const labels={
       ['Ziyaraat Makkah iyo Madiinah','Ziyaraat hagitaan leh oo lagu booqdo goobaha la qorsheeyay ee labada magaalo ee barakeysan.'],
       ['Khibradda Jeddah','Khibrad Jeddah oo la qorsheeyay, oo ay ku jiraan dhaqan iyo dukaamaysi marka ay ku jiraan barnaamijka.'],
       ['SIM internet leh','SIM internet leh si aad ula xiriirto dadkaaga inta safarka lagu jiro.'],
-      ['Taageerada safarka','Xiriir iyo taageero qofeed inta lagu jiro qorsheynta iyo safarka la xaqiijiyay.']
+      ['Taageerada safarka','Xiriir iyo taageero qofeed inta lagu jiro qorsheynta iyo safarka la xaqiijiyay.'],
+      ['Fiisaha dalxiiska Sacuudiga','Kooxdayadu waxay kuu diyaarinaysaa codsiga fiisaha dalxiiska waxayna la soconaysaa habraaciisa, iyadoo ku xiran u-qalmitaanka iyo oggolaanshaha dowladda.'],
+      ['Caymiska caafimaadka safarka','Caymis caafimaad oo safarkaaga loo diyaariyo, iyadoo la raacayo shuruudaha, xaddidaadaha iyo waxyaabaha ka reeban ee caymiska.']
     ],
     eliteExtra:[['Haramain Train','Safarka Haramain Train wuxuu ku jiraa ELITE marka uu ku habboon yahay qorshaha safarka la xaqiijiyay.']],
     notList:['Duulimaadyada caalamiga ah']
@@ -91,7 +95,9 @@ const labels={
       ['زيارات مكة والمدينة','زيارات بإرشاد إلى مواقع مختارة في المدينتين المقدستين وفق البرنامج.'],
       ['تجربة جدة','تجربة مختارة في جدة تشمل الثقافة والتسوق حيث يتم تضمينها في البرنامج.'],
       ['شريحة إنترنت','شريحة اتصال مع إنترنت لتبقى على تواصل خلال الرحلة.'],
-      ['دعم ومساندة الرحلة','تنسيق ودعم شخصي خلال مرحلة التخطيط والرحلة المؤكدة.']
+      ['دعم ومساندة الرحلة','تنسيق ودعم شخصي خلال مرحلة التخطيط والرحلة المؤكدة.'],
+      ['التأشيرة السياحية السعودية','يتولى فريقنا ترتيب طلب التأشيرة السياحية السعودية ومتابعته، وفق أهلية الضيف وموافقة الجهات المختصة.'],
+      ['التأمين الصحي للسفر','نرتب التأمين الصحي للرحلة وفق شروط الوثيقة وحدود التغطية والاستثناءات.']
     ],
     eliteExtra:[['قطار الحرمين','تشمل ELITE رحلة قطار الحرمين حيث يناسب برنامج الرحلة المؤكد.']],
     notList:['الرحلات الدولية']
@@ -110,7 +116,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
     : l==='so'
       ? (slug==='elite'?'Heer sare oo hoy iyo khibrad ah, oo ay ku jirto Haramain Train marka uu ku habboon yahay.':'Raaxo heer sare ah iyo safar Cumro oo dhammaystiran, si taxaddar leh loogu diyaariyay kooxo yaryar.')
       : p.positioning;
-  const icons=[Hotel,Utensils,Car,MapPinned,MapPinned,Smartphone,Headphones] as const;
+  const icons=[Hotel,Utensils,Car,MapPinned,MapPinned,Smartphone,Headphones,Globe2,ShieldCheck] as const;
 
   const packageSchema = {
     '@context': 'https://schema.org',
