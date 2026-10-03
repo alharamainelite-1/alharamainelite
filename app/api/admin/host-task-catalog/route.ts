@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentStaff } from '@/lib/supabase/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 
-const EDITORS = ['SUPER_ADMIN', 'FINANCE'];
+const EDITORS = ['SUPER_ADMIN'];
 const TASK_TYPES = ['AIRPORT_ASSISTANCE','TRAIN_ASSISTANCE','MAKKAH_ZIYARAT','MADINAH_ZIYARAT','JEDDAH_EXPERIENCE','SPECIAL_ASSISTANCE','OTHER'];
 
 export async function GET() {
@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const staff = await getCurrentStaff();
   if (!staff) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-  if (!EDITORS.includes(staff.profile.role)) return NextResponse.json({ error: 'Finance access required.' }, { status: 403 });
+  if (!EDITORS.includes(staff.profile.role)) return NextResponse.json({ error: 'Super Admin access required.' }, { status: 403 });
   const b = await req.json().catch(() => null) as any;
   const amount = Number(b?.amount);
   const currency = String(b?.currency || 'USD').toUpperCase();
