@@ -38,13 +38,16 @@ export default async function ExecutiveOverview({ locale }: { locale: Locale }) 
     { label: ar ? 'رحلات قادمة' : 'Upcoming journeys', value: count(upcoming), href: '/admin/journeys', hint: ar ? 'حسب تاريخ السفر المتوقع' : 'By expected travel date' },
     { label: ar ? 'رحلات مكتملة' : 'Completed journeys', value: count(completed), href: '/admin/journeys', hint: ar ? 'الرحلات المسجلة كمكتملة' : 'Marked as completed' }
   ];
+  const queryResults = [newRequests, followups, paymentActions, activeBookings, upcoming, completed, openTasks, hostCount, staffCount, partnerCount];
+  const hasQueryError = queryResults.some(result => result.error);
   const departments = [
     { name: ar ? 'المبيعات' : 'Sales', detail: ar ? 'الطلبات الجديدة ومتابعة العملاء' : 'New leads and customer follow-ups', value: count(newRequests) + count(followups), href: '/admin/requests' },
     { name: ar ? 'الحجوزات' : 'Bookings', detail: ar ? 'الحجوزات وتفاصيل الضيوف' : 'Bookings and guest details', value: count(activeBookings), href: '/admin/bookings' },
     { name: ar ? 'المالية' : 'Finance', detail: ar ? 'المدفوعات التي تحتاج مراجعة' : 'Payments requiring review', value: count(paymentActions), href: '/admin/payments' },
     { name: ar ? 'العمليات' : 'Operations', detail: ar ? 'المهام التشغيلية المفتوحة' : 'Open operational tasks', value: count(openTasks), href: '/admin/operations' },
     { name: ar ? 'المضيفون' : 'Hosts', detail: ar ? 'المضيفون المتاحون أو المكلفون' : 'Available or assigned hosts', value: count(hostCount), href: '/admin/hosts' },
-    { name: ar ? 'الشراكات' : 'Partnerships', detail: ar ? 'ملفات الشركاء المسجلة' : 'Registered partner profiles', value: count(partnerCount), href: '/admin/influencer-partners' }
+    { name: ar ? 'الشراكات' : 'Partnerships', detail: ar ? 'ملفات الشركاء المسجلة' : 'Registered partner profiles', value: count(partnerCount), href: '/admin/influencer-partners' },
+    { name: ar ? 'الفريق' : 'Team', detail: ar ? 'حسابات الموظفين' : 'Staff accounts', value: count(staffCount), href: '/admin/team' }
   ];
   const alerts = [
     { title: ar ? 'طلبات جديدة تحتاج إلى تواصل' : 'New requests need contact', value: count(newRequests), href: '/admin/requests' },
@@ -61,6 +64,7 @@ export default async function ExecutiveOverview({ locale }: { locale: Locale }) 
       </div>
       <Link href="/admin/team" className="btn btn-secondary">{ar ? 'إدارة الموظفين والصلاحيات' : 'Manage team & permissions'}</Link>
     </div>
+    {hasQueryError && <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{ar ? 'تعذر تحميل بعض المؤشرات. يرجى فتح القسم المعني والتحقق من البيانات.' : 'Some metrics could not be loaded. Open the relevant workspace to verify its data.'}</div>}
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{metrics.map(item => <MetricCard key={item.label} item={item} />)}</div>
     <section>
       <div className="mb-4 flex items-center justify-between gap-3">
