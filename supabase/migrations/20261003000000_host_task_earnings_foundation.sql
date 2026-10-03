@@ -264,3 +264,52 @@ begin
   return new;
 end;
 $$;
+
+
+-- Enforce financial record integrity even if a privileged API is called incorrectly.
+create or replace function public.guard_host_earning_update()
+returns trigger language plpgsql set search_path = ''
+as $$
+begin
+  if new.host_task_id is distinct from old.host_task_id
+     or new.host_id is distinct from old.host_id
+     or new.amount is distinct from old.amount
+     or new.currency is distinct from old.currency then
+    raise exception 'Host earning identity and amount are immutable';
+  end if;
+  if new.status is distinct from old.status then
+    if not (
+      (old.status = 'PENDING_REVIEW' and new.status in ('APPROVED','REJECTED','VOID'))
+      or (old.status = 'APPROVED' and new.status in ('PAID','VOID'))
+    ) then
+      raise exception 'Invalid host earning status transition: % to %', old.status, new.status;
+    end if;
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$$;
+revoke all on function public.guard_host_earning_update() from public, anon, authenticated;
+drop trigger if exists host_earning_update_guard on public.host_earnings;
+create trigger host_earning_update_guard before update on public.host_earnings
+for each row execute function public.guard_host_earning_update();
+
+-- Keep task rate snapshots immutable after initial assignment, including direct column updates.
+create or replace function public.guard_host_task_rate_snapshot()
+returns trigger language plpgsql set search_path = ''
+as $$
+begin
+  if old.host_id is not null and old.rate_snapshot is not null then
+    if new.rate_snapshot is distinct from old.rate_snapshot
+       or new.rate_currency is distinct from old.rate_currency
+       or new.rate_catalog_id is distinct from old.rate_catalog_id then
+      raise exception 'Assigned task rate snapshot is immutable';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.guard_host_task_rate_snapshot() from public, anon, authenticated;
+drop trigger if exists host_task_rate_immutable on public.host_tasks;
+create trigger host_task_rate_immutable before update on public.host_tasks
+for each row execute function public.guard_host_task_rate_snapshot();
