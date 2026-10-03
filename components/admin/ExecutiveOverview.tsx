@@ -16,7 +16,7 @@ export default async function ExecutiveOverview({ locale }: { locale: Locale }) 
   const ar = locale === 'ar';
   const s = getSupabaseAdmin();
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Riyadh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
-  const pendingPaymentStatuses = ['PENDING', 'PENDING_VERIFICATION', 'PAYMENT_INSTRUCTIONS_SENT'];
+  const pendingPaymentStatuses = ['PENDING_VERIFICATION', 'PAYMENT_INSTRUCTIONS_SENT'];
   const [newRequests, followups, paymentActions, activeBookings, upcoming, completed, openTasks, hostCount, staffCount, partnerCount] = await Promise.all([
     s.from('journey_requests').select('id', { count: 'exact', head: true }).eq('status', 'NEW_REQUEST'),
     s.from('journey_requests').select('id', { count: 'exact', head: true }).in('status', ['CONTACTED', 'DETAILS_PENDING']),
