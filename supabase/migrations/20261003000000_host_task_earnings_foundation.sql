@@ -214,3 +214,53 @@ revoke all on function public.queue_host_task_notice() from public, anon, authen
 drop trigger if exists host_task_notice_queue on public.host_tasks;
 create trigger host_task_notice_queue after insert or update on public.host_tasks
 for each row execute function public.queue_host_task_notice();
+
+
+-- Guard status timestamp comparisons on UPDATE only; OLD is undefined for INSERT.
+create or replace function public.snapshot_host_task_rate()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+declare catalog_row public.host_task_catalog%rowtype;
+begin
+  if tg_op = 'INSERT' then
+    if new.host_id is not null then
+      select * into catalog_row from public.host_task_catalog
+        where task_type = new.task_type and active = true;
+      if not found then
+        raise exception 'No active host task price is configured for task type %', new.task_type;
+      end if;
+      new.rate_snapshot := catalog_row.amount;
+      new.rate_currency := catalog_row.currency;
+      new.rate_catalog_id := catalog_row.id;
+      new.assigned_at := coalesce(new.assigned_at, now());
+    end if;
+  else
+    if new.host_id is distinct from old.host_id or new.task_type is distinct from old.task_type then
+      if old.host_id is not null and old.rate_snapshot is not null then
+        raise exception 'Assigned task pricing is immutable; create a new task to change host or task type';
+      end if;
+      if new.host_id is not null then
+        select * into catalog_row from public.host_task_catalog
+          where task_type = new.task_type and active = true;
+        if not found then
+          raise exception 'No active host task price is configured for task type %', new.task_type;
+        end if;
+        new.rate_snapshot := catalog_row.amount;
+        new.rate_currency := catalog_row.currency;
+        new.rate_catalog_id := catalog_row.id;
+        new.assigned_at := now();
+      else
+        new.rate_snapshot := null;
+        new.rate_currency := null;
+        new.rate_catalog_id := null;
+        new.assigned_at := null;
+      end if;
+    end if;
+    if new.status is distinct from old.status then
+      if new.status = 'IN_PROGRESS' then new.started_at := coalesce(new.started_at,now()); end if;
+      if new.status = 'COMPLETED' then new.completed_at := coalesce(new.completed_at,now()); end if;
+    end if;
+  end if;
+  return new;
+end;
+$$;
