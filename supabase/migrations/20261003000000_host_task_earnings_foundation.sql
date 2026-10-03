@@ -1,0 +1,279 @@
+-- Host task pricing snapshots and controlled host earnings.
+create table if not exists public.host_task_catalog (
+  id uuid primary key default gen_random_uuid(),
+  task_type text not null unique,
+  title text not null,
+  description text,
+  amount numeric(12,2) not null check (amount >= 0),
+  currency char(3) not null default 'USD' check (currency in ('USD','SAR')),
+  active boolean not null default true,
+  created_by uuid references public.profiles(id),
+  updated_by uuid references public.profiles(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Initial host task rates approved by the business owner; editable by SUPER_ADMIN/FINANCE.
+insert into public.host_task_catalog (task_type,title,description,amount,currency,active)
+values
+  ('AIRPORT_ASSISTANCE','Airport assistance','Meet and assist guests at the airport.',150,'SAR',true),
+  ('TRAIN_ASSISTANCE','Train assistance','Assist guests at train stations and boarding.',100,'SAR',true),
+  ('MAKKAH_ZIYARAT','Makkah ziyarat','Accompany guests during Makkah ziyarat.',250,'SAR',true),
+  ('MADINAH_ZIYARAT','Madinah ziyarat','Accompany guests during Madinah ziyarat.',250,'SAR',true),
+  ('JEDDAH_EXPERIENCE','Jeddah experience','Accompany guests during the Jeddah experience.',250,'SAR',true),
+  ('SPECIAL_ASSISTANCE','Special assistance','Provide approved additional guest assistance.',200,'SAR',true),
+  ('OTHER','Other task','An additional task defined by operations.',200,'SAR',true)
+on conflict (task_type) do update set
+  title=excluded.title, description=excluded.description, amount=excluded.amount,
+  currency=excluded.currency, active=excluded.active, updated_at=now();
+
+alter table public.host_tasks
+  add column if not exists rate_snapshot numeric(12,2),
+  add column if not exists rate_currency char(3),
+  add column if not exists rate_catalog_id uuid references public.host_task_catalog(id),
+  add column if not exists assigned_at timestamptz,
+  add column if not exists started_at timestamptz,
+  add column if not exists completed_at timestamptz;
+
+create table if not exists public.host_earnings (
+  id uuid primary key default gen_random_uuid(),
+  host_task_id uuid not null unique references public.host_tasks(id),
+  host_id uuid not null references public.hosts(id),
+  amount numeric(12,2) not null check (amount >= 0),
+  currency char(3) not null check (currency in ('USD','SAR')),
+  status text not null default 'PENDING_REVIEW'
+    check (status in ('PENDING_REVIEW','APPROVED','REJECTED','PAID','VOID')),
+  approved_by uuid references public.profiles(id),
+  approved_at timestamptz,
+  paid_by uuid references public.profiles(id),
+  paid_at timestamptz,
+  payment_reference text,
+  finance_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  check ((status <> 'PAID') or (paid_by is not null and paid_at is not null))
+);
+
+create index if not exists host_earnings_host_status_idx on public.host_earnings(host_id,status);
+create index if not exists host_tasks_host_date_idx on public.host_tasks(host_id,date);
+
+alter table public.host_task_catalog enable row level security;
+alter table public.host_earnings enable row level security;
+
+drop policy if exists host_task_catalog_read_management on public.host_task_catalog;
+create policy host_task_catalog_read_management on public.host_task_catalog
+for select to authenticated using (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+  or public.has_role('FINANCE'::public.app_role)
+  or public.has_role('OPERATIONS_MANAGER'::public.app_role)
+  or public.has_role('OPERATIONS'::public.app_role)
+);
+drop policy if exists host_task_catalog_write_management on public.host_task_catalog;
+create policy host_task_catalog_write_management on public.host_task_catalog
+for all to authenticated using (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+) with check (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+);
+
+drop policy if exists host_earnings_finance_read on public.host_earnings;
+create policy host_earnings_finance_read on public.host_earnings
+for select to authenticated using (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+  or public.has_role('FINANCE'::public.app_role)
+);
+drop policy if exists host_earnings_finance_write on public.host_earnings;
+create policy host_earnings_finance_write on public.host_earnings
+for all to authenticated using (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+  or public.has_role('FINANCE'::public.app_role)
+) with check (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+  or public.has_role('FINANCE'::public.app_role)
+);
+
+create or replace function public.sync_host_earning()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+begin
+  if new.status = 'COMPLETED' and new.host_id is not null
+     and new.rate_snapshot is not null and new.rate_currency is not null then
+    insert into public.host_earnings(host_task_id,host_id,amount,currency)
+    values(new.id,new.host_id,new.rate_snapshot,new.rate_currency)
+    on conflict(host_task_id) do nothing;
+  elsif new.status = 'CANCELLED' then
+    update public.host_earnings set status='VOID',updated_at=now()
+      where host_task_id=new.id and status='PENDING_REVIEW';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.sync_host_earning() from public, anon, authenticated;
+drop trigger if exists host_task_earning_sync on public.host_tasks;
+create trigger host_task_earning_sync after insert or update of status on public.host_tasks
+for each row execute function public.sync_host_earning();
+
+-- Notification queue stores operational events only; delivery is handled by a trusted server worker.
+create table if not exists public.host_task_notification_queue (
+  id uuid primary key default gen_random_uuid(),
+  host_task_id uuid not null references public.host_tasks(id) on delete cascade,
+  host_id uuid not null references public.hosts(id),
+  event_type text not null check (event_type in ('ASSIGNED','RESCHEDULED','CANCELLED')),
+  payload jsonb not null default '{}'::jsonb,
+  status text not null default 'PENDING' check (status in ('PENDING','SENT','FAILED')),
+  attempts integer not null default 0 check (attempts >= 0),
+  last_error text,
+  created_at timestamptz not null default now(),
+  sent_at timestamptz
+);
+alter table public.host_task_notification_queue enable row level security;
+drop policy if exists host_task_notification_management_read on public.host_task_notification_queue;
+create policy host_task_notification_management_read on public.host_task_notification_queue
+for select to authenticated using (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+  or public.has_role('FINANCE'::public.app_role)
+  or public.has_role('OPERATIONS_MANAGER'::public.app_role)
+  or public.has_role('OPERATIONS'::public.app_role)
+);
+drop policy if exists host_task_notification_management_write on public.host_task_notification_queue;
+create policy host_task_notification_management_write on public.host_task_notification_queue
+for all to authenticated using (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+  or public.has_role('OPERATIONS_MANAGER'::public.app_role)
+  or public.has_role('OPERATIONS'::public.app_role)
+) with check (
+  public.has_role('SUPER_ADMIN'::public.app_role)
+  or public.has_role('OPERATIONS_MANAGER'::public.app_role)
+  or public.has_role('OPERATIONS'::public.app_role)
+);
+
+create or replace function public.queue_host_task_notice()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+declare event_name text; target_host uuid;
+begin
+  if tg_op = 'INSERT' then
+    if new.host_id is not null then event_name := 'ASSIGNED'; target_host := new.host_id; end if;
+  elsif new.status = 'CANCELLED' and old.status is distinct from new.status then
+    event_name := 'CANCELLED'; target_host := coalesce(new.host_id, old.host_id);
+  elsif new.host_id is distinct from old.host_id then
+    if new.host_id is not null then event_name := 'ASSIGNED'; target_host := new.host_id; end if;
+  elsif new.date is distinct from old.date or new.start_time is distinct from old.start_time
+     or new.end_time is distinct from old.end_time then
+    if new.host_id is not null then event_name := 'RESCHEDULED'; target_host := new.host_id; end if;
+  end if;
+  if event_name is not null and target_host is not null then
+    insert into public.host_task_notification_queue(host_task_id,host_id,event_type,payload)
+    values(new.id,target_host,event_name,jsonb_build_object('task_id',new.task_id,'date',new.date,'start_time',new.start_time,'end_time',new.end_time,'task_type',new.task_type));
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.queue_host_task_notice() from public, anon, authenticated;
+drop trigger if exists host_task_notice_queue on public.host_tasks;
+create trigger host_task_notice_queue after insert or update on public.host_tasks
+for each row execute function public.queue_host_task_notice();
+
+
+-- Guard status timestamp comparisons on UPDATE only; OLD is undefined for INSERT.
+create or replace function public.snapshot_host_task_rate()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+declare catalog_row public.host_task_catalog%rowtype;
+begin
+  if tg_op = 'INSERT' then
+    if new.host_id is not null then
+      select * into catalog_row from public.host_task_catalog
+        where task_type = new.task_type and active = true;
+      if not found then
+        raise exception 'No active host task price is configured for task type %', new.task_type;
+      end if;
+      new.rate_snapshot := catalog_row.amount;
+      new.rate_currency := catalog_row.currency;
+      new.rate_catalog_id := catalog_row.id;
+      new.assigned_at := coalesce(new.assigned_at, now());
+    end if;
+  else
+    if new.host_id is distinct from old.host_id or new.task_type is distinct from old.task_type then
+      if old.host_id is not null and old.rate_snapshot is not null then
+        raise exception 'Assigned task pricing is immutable; create a new task to change host or task type';
+      end if;
+      if new.host_id is not null then
+        select * into catalog_row from public.host_task_catalog
+          where task_type = new.task_type and active = true;
+        if not found then
+          raise exception 'No active host task price is configured for task type %', new.task_type;
+        end if;
+        new.rate_snapshot := catalog_row.amount;
+        new.rate_currency := catalog_row.currency;
+        new.rate_catalog_id := catalog_row.id;
+        new.assigned_at := now();
+      else
+        new.rate_snapshot := null;
+        new.rate_currency := null;
+        new.rate_catalog_id := null;
+        new.assigned_at := null;
+      end if;
+    end if;
+    if new.status is distinct from old.status then
+      if new.status = 'IN_PROGRESS' then new.started_at := coalesce(new.started_at,now()); end if;
+      if new.status = 'COMPLETED' then new.completed_at := coalesce(new.completed_at,now()); end if;
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+
+revoke all on function public.snapshot_host_task_rate() from public, anon, authenticated;
+drop trigger if exists host_task_rate_snapshot on public.host_tasks;
+create trigger host_task_rate_snapshot before insert or update on public.host_tasks
+for each row execute function public.snapshot_host_task_rate();
+
+-- Enforce financial record integrity even if a privileged API is called incorrectly.
+create or replace function public.guard_host_earning_update()
+returns trigger language plpgsql set search_path = ''
+as $$
+begin
+  if new.host_task_id is distinct from old.host_task_id
+     or new.host_id is distinct from old.host_id
+     or new.amount is distinct from old.amount
+     or new.currency is distinct from old.currency then
+    raise exception 'Host earning identity and amount are immutable';
+  end if;
+  if new.status is distinct from old.status then
+    if not (
+      (old.status = 'PENDING_REVIEW' and new.status in ('APPROVED','REJECTED','VOID'))
+      or (old.status = 'APPROVED' and new.status in ('PAID','VOID'))
+    ) then
+      raise exception 'Invalid host earning status transition: % to %', old.status, new.status;
+    end if;
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$$;
+revoke all on function public.guard_host_earning_update() from public, anon, authenticated;
+drop trigger if exists host_earning_update_guard on public.host_earnings;
+create trigger host_earning_update_guard before update on public.host_earnings
+for each row execute function public.guard_host_earning_update();
+
+-- Keep task rate snapshots immutable after initial assignment, including direct column updates.
+create or replace function public.guard_host_task_rate_snapshot()
+returns trigger language plpgsql set search_path = ''
+as $$
+begin
+  if old.host_id is not null and old.rate_snapshot is not null then
+    if new.rate_snapshot is distinct from old.rate_snapshot
+       or new.rate_currency is distinct from old.rate_currency
+       or new.rate_catalog_id is distinct from old.rate_catalog_id then
+      raise exception 'Assigned task rate snapshot is immutable';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.guard_host_task_rate_snapshot() from public, anon, authenticated;
+drop trigger if exists host_task_rate_immutable on public.host_tasks;
+create trigger host_task_rate_immutable before update on public.host_tasks
+for each row execute function public.guard_host_task_rate_snapshot();
