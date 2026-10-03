@@ -15,6 +15,7 @@ const nav:NavItem[]=[
  {en:'Customers',ar:'العملاء',href:'/admin/guests',roles:[...ADMIN_ACCESS.guests]},
  {en:'Journeys',ar:'الرحلات',href:'/admin/journeys',roles:[...ADMIN_ACCESS.journeys]},
  {en:'Bookings',ar:'الحجوزات',href:'/admin/bookings',roles:[...ADMIN_ACCESS.bookings]},
+ {en:'Visa & Insurance',ar:'التأشيرات والتأمين',href:'/admin/visa-insurance',roles:['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS','SALES']},
  {en:'Departure Schedule',ar:'مواعيد الانطلاق',href:'/admin/departures',roles:['SUPER_ADMIN','OPERATIONS_MANAGER']},
  {en:'Operations',ar:'العمليات والمهام',href:'/admin/operations',roles:[...ADMIN_ACCESS.operations]},
  {en:'Groups',ar:'المجموعات',href:'/admin/groups',roles:[...ADMIN_ACCESS.groups]},
