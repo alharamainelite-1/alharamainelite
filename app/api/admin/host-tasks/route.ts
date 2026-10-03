@@ -26,7 +26,7 @@ export async function PATCH(req:Request){
   if(b.status==='IN_PROGRESS'&&!before.started_at)update.started_at=now;
   if(b.status==='COMPLETED'){if(!before.started_at)update.started_at=now;if(!before.completed_at)update.completed_at=now;}
  }
- const {data,error}=await s.from(source).update(update).eq('id',b.id).select('*').single();
+ const {data,error}=await s.from(source).update(update).eq('id',b.id).select('id,task_id,date,start_time,end_time,location,task_type,status,notes,group_id,host_id,assigned_host,started_at,completed_at').single();
  if(error)return NextResponse.json({error:error.message},{status:500});
  await s.from('audit_logs').insert({actor_id:staff.profile.id,action:source==='operations_tasks'?'OPERATIONS_HOST_STATUS_UPDATED':'HOST_TASK_STATUS_UPDATED',entity_type:source==='operations_tasks'?'operations_task':'host_task',entity_id:b.id,before_data:before,after_data:data});
  revalidatePath('/admin/host-tasks');revalidatePath('/admin/operations');return NextResponse.json({task:data});
