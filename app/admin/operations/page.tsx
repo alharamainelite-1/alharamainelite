@@ -22,7 +22,7 @@ export default async function OperationsPage(){
   const e=tasks.error||hs.error||vs.error||ts.error;if(e)throw e;
   rows=tasks.data||[];hosts=hs.data||[];vehicles=vs.data||[];team=(ts.data||[]).map((x:any)=>({id:x.id,name:x.full_name||x.role}));
  }catch(e){error=e instanceof Error?e.message:'Unable to load operations.'}
- const canManage=['SUPER_ADMIN','ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);
+ const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);
  return <section className="pb-12">
   {canManage&&<OperationsTaskForm/>}
   <h1 className="serif text-4xl text-forest">{t.page.operations}</h1>
