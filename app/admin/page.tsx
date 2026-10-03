@@ -11,7 +11,7 @@ const roleConfig:any={
  OPERATIONS_MANAGER:{en:{eyebrow:"OPERATIONS MANAGEMENT",title:"Operations Manager",intro:"Your workspace is focused on groups, resources, hosts and keeping every journey operationally ready.",primary:"Open Operations",href:"/admin/operations"},ar:{eyebrow:"إدارة العمليات",title:"مدير العمليات",intro:"مساحتك مخصصة للمجموعات والموارد والمضيفين وجاهزية الرحلات التشغيلية.",primary:"فتح العمليات",href:"/admin/operations"}},
  OPERATIONS:{en:{eyebrow:"OPERATIONS WORKSPACE",title:"Operations",intro:"Your workspace is focused on assigned operational work, schedules, resources and task completion.",primary:"Open My Operations",href:"/admin/operations"},ar:{eyebrow:"مساحة العمليات",title:"العمليات",intro:"مساحتك مخصصة للمهام التشغيلية والجدولة والموارد وإنجاز المهام المسندة.",primary:"فتح العمليات",href:"/admin/operations"}},
  ADMIN:{en:{eyebrow:"MANAGEMENT WORKSPACE",title:"Administration",intro:"Manage customers, journeys and operational coordination. Financial workspaces are intentionally separated.",primary:"Open Journeys",href:"/admin/journeys"},ar:{eyebrow:"مساحة الإدارة",title:"الإدارة",intro:"إدارة العملاء والرحلات والتنسيق التشغيلي. تم فصل المساحات المالية عن الإدارة.",primary:"فتح الرحلات",href:"/admin/journeys"}},
- SUPER_ADMIN:{en:{eyebrow:"EXECUTIVE CONTROL",title:"Super Admin",intro:"Full control of the platform, team permissions, security and business operations.",primary:"Open Team",href:"/admin/team"},ar:{eyebrow:"الإدارة العليا",title:"المدير الأعلى",intro:"تحكم كامل في المنصة والفريق والصلاحيات والأمان والعمليات.",primary:"فتح الفريق",href:"/admin/team"}}
+ SUPER_ADMIN:{en:{eyebrow:"EXECUTIVE CONTROL",title:"General Manager",intro:"Full control of the platform, team permissions, security and business operations.",primary:"Open Team",href:"/admin/team"},ar:{eyebrow:"الإدارة العامة",title:"المدير العام",intro:"تحكم كامل في المنصة والفريق والصلاحيات والأمان والعمليات.",primary:"فتح الفريق",href:"/admin/team"}}
 };
 
 function Stat({label,value,href}:{label:string;value:number|string;href?:string}) {
@@ -35,7 +35,7 @@ async function SalesDashboard({locale}:{locale:'en'|'ar'}){
 async function FinanceDashboard({locale}:{locale:'en'|'ar'}){
  const s=getSupabaseAdmin();
  const [pending,received,expenses]=await Promise.all([
-  s.from("payments").select("*",{count:"exact",head:true}).in("status",["PENDING","PENDING_VERIFICATION","PAYMENT_INSTRUCTIONS_SENT"]),
+  s.from("payments").select("*",{count:"exact",head:true}).in("status",["PENDING_VERIFICATION","PAYMENT_INSTRUCTIONS_SENT"]),
   s.from("payments").select("amount,status").eq("status","RECEIVED"),
   s.from("expenses").select("*",{count:"exact",head:true})
  ]);
