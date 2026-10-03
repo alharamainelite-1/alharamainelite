@@ -21,6 +21,7 @@ export async function PATCH(req:Request){
   if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:'Invalid task transition.'},{status:403});
  }
  const update:any={status:b.status};
+ if(b.status==='CANCELLED'&&b.cancellation_reason!==undefined){const reason=String(b.cancellation_reason).trim().slice(0,1000);if(reason)update.notes=[before.notes,`سبب الإلغاء: ${reason}`].filter(Boolean).join('\\n');}
  if(source==='operations_tasks'){
   const now=new Date().toISOString();
   if(b.status==='IN_PROGRESS'&&!before.started_at)update.started_at=now;
