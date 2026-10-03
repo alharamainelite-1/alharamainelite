@@ -190,26 +190,26 @@ for all to authenticated using (
 
 create or replace function public.queue_host_task_notice()
 returns trigger language plpgsql security definer set search_path = ''
-as $$
-declare event_name text;
+as $
+declare event_name text; target_host uuid;
 begin
   if tg_op = 'INSERT' then
-    if new.host_id is not null then event_name := 'ASSIGNED'; end if;
+    if new.host_id is not null then event_name := 'ASSIGNED'; target_host := new.host_id; end if;
+  elsif new.status = 'CANCELLED' and old.status is distinct from new.status then
+    event_name := 'CANCELLED'; target_host := coalesce(new.host_id, old.host_id);
   elsif new.host_id is distinct from old.host_id then
-    if new.host_id is not null then event_name := 'ASSIGNED'; end if;
-  elsif new.status = 'CANCELLED' and old.status is distinct from new.status and new.host_id is not null then
-    event_name := 'CANCELLED';
+    if new.host_id is not null then event_name := 'ASSIGNED'; target_host := new.host_id; end if;
   elsif new.date is distinct from old.date or new.start_time is distinct from old.start_time
      or new.end_time is distinct from old.end_time then
-    if new.host_id is not null then event_name := 'RESCHEDULED'; end if;
+    if new.host_id is not null then event_name := 'RESCHEDULED'; target_host := new.host_id; end if;
   end if;
-  if event_name is not null then
+  if event_name is not null and target_host is not null then
     insert into public.host_task_notification_queue(host_task_id,host_id,event_type,payload)
-    values(new.id,new.host_id,event_name,jsonb_build_object('task_id',new.task_id,'date',new.date,'start_time',new.start_time,'end_time',new.end_time,'task_type',new.task_type));
+    values(new.id,target_host,event_name,jsonb_build_object('task_id',new.task_id,'date',new.date,'start_time',new.start_time,'end_time',new.end_time,'task_type',new.task_type));
   end if;
   return new;
 end;
-$$;
+$;
 revoke all on function public.queue_host_task_notice() from public, anon, authenticated;
 drop trigger if exists host_task_notice_queue on public.host_tasks;
 create trigger host_task_notice_queue after insert or update on public.host_tasks
