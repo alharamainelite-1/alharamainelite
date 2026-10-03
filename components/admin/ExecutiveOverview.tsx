@@ -25,7 +25,7 @@ export default async function ExecutiveOverview({ locale }: { locale: Locale }) 
     s.from('bookings').select('id', { count: 'exact', head: true }).in('status', ['CONFIRMED', 'PREPARING']).gte('expected_travel_date', today),
     s.from('bookings').select('id', { count: 'exact', head: true }).eq('status', 'COMPLETED'),
     s.from('operations_tasks').select('id', { count: 'exact', head: true }).not('status', 'in', '(COMPLETED,CANCELLED)'),
-    s.from('hosts').select('id', { count: 'exact, head: true }).in('status', ['AVAILABLE', 'ASSIGNED']),
+    s.from('hosts').select('id', { count: 'exact', head: true }).in('status', ['AVAILABLE', 'ASSIGNED']),
     s.from('profiles').select('id', { count: 'exact', head: true }),
     s.from('influencer_partners').select('id', { count: 'exact', head: true })
   ]);
