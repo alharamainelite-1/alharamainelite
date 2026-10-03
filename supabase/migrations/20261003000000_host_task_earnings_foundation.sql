@@ -89,11 +89,12 @@ begin
     if new.host_id is not null then
       select * into catalog_row from public.host_task_catalog
         where task_type = new.task_type and active = true;
-      if found then
-        new.rate_snapshot := catalog_row.amount;
-        new.rate_currency := catalog_row.currency;
-        new.rate_catalog_id := catalog_row.id;
+      if not found then
+        raise exception 'No active host task price is configured for task type %', new.task_type;
       end if;
+      new.rate_snapshot := catalog_row.amount;
+      new.rate_currency := catalog_row.currency;
+      new.rate_catalog_id := catalog_row.id;
       new.assigned_at := coalesce(new.assigned_at, now());
     end if;
   elsif new.host_id is distinct from old.host_id
@@ -196,7 +197,7 @@ begin
     if new.host_id is not null then event_name := 'ASSIGNED'; end if;
   elsif new.host_id is distinct from old.host_id then
     if new.host_id is not null then event_name := 'ASSIGNED'; end if;
-  elsif new.status = 'CANCELLED' and old.status is distinct from new.status then
+  elsif new.status = 'CANCELLED' and old.status is distinct from new.status and new.host_id is not null then
     event_name := 'CANCELLED';
   elsif new.date is distinct from old.date or new.start_time is distinct from old.start_time
      or new.end_time is distinct from old.end_time then
