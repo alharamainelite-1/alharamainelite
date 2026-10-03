@@ -14,6 +14,7 @@ export async function PATCH(req:Request){
  const {data:before,error:readError}=await s.from(source).select('*').eq('id',b.id).maybeSingle();
  if(readError)return NextResponse.json({error:readError.message},{status:500});
  if(!before)return NextResponse.json({error:'Task not found.'},{status:404});
+ if(b.status==='CANCELLED'&&!String(b.cancellation_reason||'').trim())return NextResponse.json({error:'Cancellation reason is required.'},{status:400});
  if(staff.profile.role==='HOST'){
   const hostId=await hostIdForStaff(staff);const assigned=source==='operations_tasks'?before.assigned_host:before.host_id;
   if(!hostId||assigned!==hostId)return NextResponse.json({error:'You can only update tasks assigned to you.'},{status:403});
