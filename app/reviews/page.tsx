@@ -1,6 +1,7 @@
 import {cookies} from 'next/headers';
 import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
 import {Star} from 'lucide-react';
+import {PublishedGuestReviews} from '@/components/public/PublishedGuestReviews';
 
 const experienceHighlights = {
   en: [
@@ -54,6 +55,7 @@ export default async function Reviews(){
       </article>)}
     </div>
 
+    <PublishedGuestReviews locale={l}/>
     <div className="mt-10 max-w-3xl card p-8">
       <div className="eyebrow">{l==='en'?'Guest reviews':l==='so'?'Faallooyinka martida':'آراء الضيوف'}</div>
       <h2 className="serif mt-3 text-3xl text-forest">
