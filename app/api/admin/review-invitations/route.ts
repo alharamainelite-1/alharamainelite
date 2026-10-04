@@ -39,7 +39,6 @@ export async function POST(req: Request) {
     : language==='ar'
       ? 'شكرًا لثقتكم بـ ALHARAMAIN ELITE. يسعدنا مشاركة تقييمكم لرحلتكم عبر الرابط: '+url
       : 'Thank you for choosing ALHARAMAIN ELITE. We would appreciate your feedback about your journey: '+url;
-  await supabase.from('review_invitations').update({sent_at:new Date().toISOString()}).eq('booking_id',booking.id);
   await supabase.from('communication_logs').insert({booking_id:booking.id,customer_id:booking.customer_id,channel:'WHATSAPP',status:'LINK_GENERATED',sent_by:staff.profile.id});
   return NextResponse.json({ url, message, whatsapp: customer?.whatsapp || null, expiresAt:expires_at });
 }
