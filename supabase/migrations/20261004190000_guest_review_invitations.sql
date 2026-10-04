@@ -59,7 +59,7 @@ begin
     or (value #>> '{}') !~ '^[1-5]$'
   ),false)
   into v_count,v_bad from jsonb_each(p_service_ratings);
-  if v_count < 1 or v_count > 6 or v_bad then
+  if v_count <> 6 or v_bad then
     return jsonb_build_object('ok',false,'error','invalid_ratings');
   end if;
   select * into v_inv from public.review_invitations
