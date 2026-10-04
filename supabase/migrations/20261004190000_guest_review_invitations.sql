@@ -69,7 +69,7 @@ begin
   if not found then return jsonb_build_object('ok',false,'error','invalid_or_used_link'); end if;
   select * into v_booking from public.bookings where id=v_inv.booking_id and status='COMPLETED';
   if not found then return jsonb_build_object('ok',false,'error','booking_not_completed'); end if;
-  if p_image_path is not null and (not p_image_consent or left(p_image_path,length(v_inv.booking_id::text)+1) <> v_inv.booking_id::text || '/') then
+  if p_image_path is not null and (not p_image_consent or left(p_image_path,length(v_inv.booking_id::text)+1) <> (v_inv.booking_id::text || '/')) then
     return jsonb_build_object('ok',false,'error','invalid_image');
   end if;
   select * into v_customer from public.customers where id=v_booking.customer_id;
