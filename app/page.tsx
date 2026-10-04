@@ -88,7 +88,7 @@ export default async function Home(){
     const {data:departures}=await getSupabaseAdmin().from('departures')
       .select('id,departure_date,duration_nights,group_size,max_groups,status,public_label')
       .eq('status','OPEN').gte('departure_date',new Date().toISOString().slice(0,10))
-      .order('departure_date',{ascending:true}).limit(4);
+      .order('departure_date',{ascending:true});
     const ids=(departures||[]).map((d:any)=>d.id);
     const {data:bookings}=ids.length
       ? await getSupabaseAdmin().from('bookings').select('departure_id,guest_count,status').in('departure_id',ids).in('status',['CONFIRMED','PAYMENT_RECEIVED','PREPARING','ACTIVE'])
@@ -105,7 +105,8 @@ export default async function Home(){
       return {
         id:d.id,
         monthLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{month:'long',year:'numeric'}).format(new Date(d.departure_date+'T12:00:00Z')),
-        dayLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':'en-US',{day:'numeric',month:'short'}).format(new Date(d.departure_date+'T12:00:00Z')),
+        dayLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{day:'numeric',month:'short'}).format(new Date(d.departure_date+'T12:00:00Z')),
+        fullLabel:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{day:'numeric',month:'long',year:'numeric'}).format(new Date(d.departure_date+'T12:00:00Z')),
         availableSeats:maxGroups!=null&&groupsFilled>=maxGroups?0:availableSeats
       };
     }).filter((d:any)=>d.availableSeats>0);
@@ -124,7 +125,7 @@ export default async function Home(){
   ];
 
   return <div>
-    <section className="bg-[#063F35] py-6 text-white sm:py-8">
+    {upcomingDepartures.length>0&&<section className="bg-[#063F35] py-6 text-white sm:py-8">
       <div className="container">
         <div className="relative overflow-hidden rounded-2xl border border-[#C9A227]/45 bg-gradient-to-br from-[#063F35] via-[#08483D] to-[#063F35] px-5 py-6 shadow-[0_18px_50px_rgba(6,63,53,0.18)] sm:px-9 sm:py-8">
           <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full border border-[#C9A227]/15"/>
@@ -132,16 +133,16 @@ export default async function Home(){
           <div className="relative flex flex-col items-start justify-between gap-5 md:flex-row md:items-center">
             <div className="max-w-3xl">
               <div className="mb-3 flex items-center gap-2"><span className="h-px w-7 bg-[#C9A227]"/><span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#DCC27E]">ALHARAMAIN ELITE</span></div>
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#DCC27E]">{locale==='ar'?'5 أكتوبر 2026':locale==='so'?'5 Oktoobar 2026':'OCTOBER 5, 2026'}</p>
-              <h2 className="font-serif text-2xl leading-tight text-white sm:text-3xl">{locale==='ar'?'اكتملت ترتيبات رحلة 5 أكتوبر':locale==='so'?'Diyaargarowga safarka 5 Oktoobar waa la dhammaystiray':'Our October 5 journey is now fully arranged'}</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">{locale==='ar'?'شكرًا لاهتمامكم وثقتكم بـ ALHARAMAIN ELITE. يسعدنا مساعدتكم في التخطيط لرحلة العمرة في أحد المواعيد القادمة.':locale==='so'?'Waad ku mahadsan tihiin xiisaha iyo kalsoonida aad u muujiseen ALHARAMAIN ELITE. Waxaan ku farxi doonnaa inaan idiinka caawinno qorsheynta Cumrada taariikhaha soo socda.':'Thank you for your interest and trust in ALHARAMAIN ELITE. We would be delighted to help you plan your Umrah journey for an upcoming date.'}</p>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#DCC27E]">{locale==='ar'?'أقرب موعد انطلاق':locale==='so'?'Taariikhda safarka ee ugu dhow':'NEXT DEPARTURE'} · {upcomingDepartures[0].fullLabel}</p>
+              <h2 className="font-serif text-2xl leading-tight text-white sm:text-3xl">{locale==='ar'?'ابدأ التخطيط لرحلة عمرتك القادمة':locale==='so'?'Qorshee safarkaaga Cumrada ee xiga':'Plan your next Umrah journey'}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">{locale==='ar'?'يسعدنا مساعدتكم في التخطيط لرحلة العمرة. أرسلوا طلبكم وسيتواصل معكم فريقنا لمتابعة التفاصيل.':locale==='so'?'Waxaan ku farxi doonnaa inaan kaa caawinno qorsheynta Cumradaada. Dir codsigaaga, kooxdayaduna way kula soo xiriiri doontaa.':'We would be delighted to help you plan your Umrah journey. Send a request and our team will follow up with you.'}</p>
             </div>
-            <Link href="/request-journey" className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#C9A227] px-5 py-3 text-xs font-bold tracking-wide text-[#063F35] transition hover:bg-[#D8B94B]">{locale==='ar'?'استكشفوا الرحلات القادمة':locale==='so'?'Eeg safarrada soo socda':'EXPLORE UPCOMING JOURNEYS'} <ArrowRight size={15}/></Link>
+            <Link href={`/request-journey?departure=${encodeURIComponent(upcomingDepartures[0].id)}`} className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#C9A227] px-5 py-3 text-xs font-bold tracking-wide text-[#063F35] transition hover:bg-[#D8B94B]">{locale==='ar'?'اطلب رحلتك القادمة':locale==='so'?'Codso safarkaaga xiga':'BEGIN YOUR JOURNEY'} <ArrowRight size={15}/></Link>
           </div>
           <p className="relative mt-5 border-t border-white/10 pt-3 text-[9px] tracking-[0.18em] text-white/45">A JOURNEY WORTH REMEMBERING.</p>
         </div>
       </div>
-    </section>
+    </section>}
 
     <section className="relative min-h-[76vh] overflow-hidden bg-forest text-white">
       <Image src={hero} alt="Kaaba at Masjid al-Haram in Makkah" fill priority sizes="100vw" className="object-cover opacity-55"/>
