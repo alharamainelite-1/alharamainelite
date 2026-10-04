@@ -56,14 +56,6 @@ export default async function Reviews(){
     </div>
 
     <PublishedGuestReviews locale={l}/>
-    <div className="mt-10 max-w-3xl card p-8">
-      <div className="eyebrow">{l==='en'?'Guest reviews':l==='so'?'Faallooyinka martida':'آراء الضيوف'}</div>
-      <h2 className="serif mt-3 text-3xl text-forest">
-        {l==='en'?'Real guest reviews are coming as journeys are completed.':l==='so'?'Faallooyinka dhabta ah waxay imaanayaan marka safarradu dhammaadaan.':'ستتم إضافة آراء الضيوف الحقيقية عند إتمام الرحلات.'}
-      </h2>
-      <p className="mt-3 text-sm leading-7 text-forest/60">
-        {l==='en'?'This section is intentionally reserved for feedback from guests who complete an ALHARAMAIN ELITE journey.':l==='so'?'Qaybtan waxaa loogu talagalay faallooyinka martida dhammaystirta safarka ALHARAMAIN ELITE.':'هذا القسم مخصص لآراء الضيوف الذين يكملون رحلة ALHARAMAIN ELITE.'}
-      </p>
-    </div>
+
   </div></section>;
 }
