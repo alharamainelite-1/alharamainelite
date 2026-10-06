@@ -11,9 +11,9 @@ export const siteConfig = {
 } as const;
 
 export const packages = {
-  signature: { slug: 'signature', name: 'SIGNATURE', price: 2000, duration: '10 days / 9 nights', positioning: 'Premium comfort and a complete Umrah journey, thoughtfully arranged for small groups.' },
-  elite: { slug: 'elite', name: 'ELITE', price: 2500, duration: '10 days / 9 nights', positioning: 'A higher level of accommodation and experience, including Haramain Train where applicable.' },
+  signature: { slug: 'signature', name: 'SIGNATURE', price: 2000, duration: '10 days / 9 nights', positioning: 'Premium comfort and a complete Umrah journey, with private VIP transportation throughout the included journey movements.' },
+  elite: { slug: 'elite', name: 'ELITE', price: 2500, duration: '10 days / 9 nights', positioning: 'A higher level of accommodation and experience, with private VIP transportation plus two planned Two Haramain Train journeys: Makkah → Madinah and Madinah → Jeddah Airport journeys: Makkah → Madinah and Madinah → Jeddah Airport.' },
 } as const;
 
-export const features = ['Premium hotels in Makkah & Madinah','Daily breakfast','Private transportation as per itinerary','Guided Makkah & Madinah ziyarat','Jeddah experience','Cultural experiences as applicable','SIM card with internet','Journey support','Small group structure'] as const;
+export const features = ['Premium hotels in Makkah & Madinah','Daily breakfast','Private VIP transportation throughout included journey movements','Guided Makkah & Madinah ziyarat','Jeddah experience','Cultural experiences as applicable','SIM card with internet','Journey support','Small group structure'] as const;
 export const eliteExtra = ['Luxury hotels', 'Haramain Train'] as const;
