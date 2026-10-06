@@ -261,7 +261,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
           {slug==='elite'&&<div className='rounded-[24px] bg-forest p-6 text-white'><div className='eyebrow text-gold'>{itinerary.trainTitle}</div><p className='mt-3 text-sm leading-7 text-white/70'>{itinerary.trainText}</p></div>}
         </div>
         <div className='mt-10 overflow-hidden rounded-[28px] border border-forest/10 bg-white'>
-          {(itinerary.days as readonly [string,string,string,string,string][]).map((item,index)=>{
+          {(itinerary.days as readonly (readonly [string,string,string,string,string])[]).map((item,index)=>{
             const [title,a,b,c,place]=item;
             const train=slug==='elite'&&(index===6||index===9);
             const Icon=train?TrainFront:index===5?ShoppingBag:index===9?Plane:index===0?Plane:MapPinned;
