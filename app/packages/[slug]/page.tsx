@@ -106,7 +106,10 @@ const labels={
 } as const;
 
 
-const itineraryCopy={
+type ItineraryDay=[string,string,string,string,string];
+type ItineraryCopy={available:string;eyebrow:string;title:string;intro:string;summary:string[];vipTitle:string;vipText:string;trainTitle:string;trainText:string;days:ItineraryDay[];clarity:string};
+
+const itineraryCopy:Record<'en'|'so'|'ar',ItineraryCopy>={
   en:{
     available:'Available departures',
     eyebrow:'YOUR 10-DAY JOURNEY',title:'From Makkah to Madinah',intro:'Five days in Makkah, one full Jeddah experience with an evening return to Makkah, then four days in Madinah.',
@@ -173,7 +176,7 @@ const itineraryCopy={
     ],
     clarity:'قد يتم تعديل الأوقات وترتيب الأنشطة عند الحاجة بسبب الظروف المحلية أو التشغيلية. ويكون البرنامج النهائي المؤكد هو المرجع.'
   }
-} as const;
+} };
 
 function departureLabel(date:string,locale:string){
   return new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{day:'numeric',month:'short',year:'numeric'}).format(new Date(date+'T12:00:00Z'));
