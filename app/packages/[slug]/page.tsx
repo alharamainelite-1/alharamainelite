@@ -171,6 +171,10 @@ const itineraryCopy={
   }
 } as const;
 
+function departureLabel(date:string,locale:string){
+  return new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{day:'numeric',month:'short',year:'numeric'}).format(new Date(date+'T12:00:00Z'));
+}
+
 export default async function PackagePage({params}:{params:Promise<{slug:string}>}){
   const {slug}=await params;
   const p=packages[slug as 'signature'|'elite'];
@@ -229,6 +233,12 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
         </div>
         <p className='mt-6 max-w-2xl text-lg leading-8 text-white/75'>{positioning}</p>
         <p className='mt-3 text-sm text-white/55'>{t.duration} · {t.flights}</p>
+        <div className='mt-7 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm'>
+          <div className='flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-gold'>{itinerary.available}</div>
+          {departures.length>0
+            ? <div className='mt-4 flex flex-wrap gap-2'>{departures.map((d:any)=><Link key={d.id} href={'/request-journey?package='+slug+'&departure='+encodeURIComponent(d.id)} className='rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:border-gold hover:bg-gold hover:text-forest'>{departureLabel(d.departure_date,l)}</Link>)}</div>
+            : <p className='mt-3 text-sm text-white/60'>{l==='ar'?'لا توجد مواعيد مفتوحة حاليًا.':l==='so'?'Hadda ma jiraan taariikho furan.':'No open departures are currently listed.'}</p>}
+        </div>
       </div>
     </section>
 
