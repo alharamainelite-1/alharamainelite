@@ -7,6 +7,7 @@ import {packages} from '@/lib/site';
 import {defaultLocale,isLocale} from '@/lib/i18n';
 import type {Metadata} from 'next';
 import { SEO_PAGES, SITE_URL, localizedMetadata } from '@/lib/seo';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 import { headers } from 'next/headers';
 import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane, Globe2, ShieldCheck} from 'lucide-react';
 
