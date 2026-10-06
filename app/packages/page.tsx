@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {cookies} from 'next/headers';
 import {defaultLocale,isLocale} from '@/lib/i18n';
 import {packages} from '@/lib/site';
+import PackageItineraryPreview from '@/components/PackageItineraryPreview';
 
 const images={
   signature:'https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200',
@@ -60,6 +61,7 @@ export default async function Packages(){
           </div>
           <div className="p-7 md:p-9"><div className="flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow">{t.best}</div><p className="mt-2 max-w-xl text-base leading-7 text-forest/65">{best}</p></div><div className="text-right"><div className="serif text-5xl text-forest">{'$'+p.price.toLocaleString()}</div><div className="text-sm text-forest/45">{t.perGuest}</div></div></div>
             <div className="mt-7 grid gap-3 border-t border-forest/10 pt-7 sm:grid-cols-2">{extra.map(f=><div key={f} className="flex gap-3 text-sm leading-6 text-forest/75"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"/>{f}</div>)}</div>
+            <PackageItineraryPreview locale={l} slug={p.slug as 'signature'|'elite'}/>
             <Link href={'/packages/'+p.slug} className="btn btn-primary mt-8 w-full">{t.request}</Link>
           </div>
         </article>)}
