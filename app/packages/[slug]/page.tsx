@@ -264,7 +264,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
           {(itinerary.days as readonly (readonly [string,string,string,string,string])[]).map((item,index)=>{
             const [title,a,b,c,place]=item;
             const train=slug==='elite'&&(index===6||index===9);
-            const Icon=train?TrainFront:index===5?ShoppingBag:index===9?Plane:index===0?Plane:MapPinned;
+            const Icon=train?Train:index===5?ShoppingBag:index===9?Plane:index===0?Plane:MapPinned;
             return <article key={title+index} className='grid gap-5 border-b border-forest/10 p-6 last:border-0 md:grid-cols-[82px_1fr_190px] md:items-center md:p-7'>
               <div className='flex items-center gap-4 md:block'><div className='flex h-12 w-12 items-center justify-center rounded-full bg-forest text-gold'><span className='text-sm font-bold'>{index+1}</span></div><div className='mt-2 text-[10px] font-bold uppercase tracking-[.16em] text-forest/45'>{l==='ar'?'اليوم':l==='so'?'MAALINTA':'DAY'} {index+1}</div></div>
               <div><div className='flex flex-wrap items-center gap-2'><h3 className='serif text-2xl text-forest'>{title}</h3>{train&&<span className='rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-forest'>{itinerary.trainTitle}</span>}</div><ul className='mt-3 space-y-2 text-sm leading-6 text-forest/65'><li className='flex gap-2'><CheckCircle2 size={16} className='mt-1 shrink-0 text-gold'/>{a}</li><li className='flex gap-2'><CheckCircle2 size={16} className='mt-1 shrink-0 text-gold'/>{b}</li><li className='flex gap-2'><CheckCircle2 size={16} className='mt-1 shrink-0 text-gold'/>{c}</li></ul></div>
