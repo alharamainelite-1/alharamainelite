@@ -176,7 +176,7 @@ const itineraryCopy:Record<'en'|'so'|'ar',ItineraryCopy>={
     ],
     clarity:'قد يتم تعديل الأوقات وترتيب الأنشطة عند الحاجة بسبب الظروف المحلية أو التشغيلية. ويكون البرنامج النهائي المؤكد هو المرجع.'
   }
-} };
+};
 
 function departureLabel(date:string,locale:string){
   return new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{day:'numeric',month:'short',year:'numeric'}).format(new Date(date+'T12:00:00Z'));
