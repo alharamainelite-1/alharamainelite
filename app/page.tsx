@@ -122,10 +122,7 @@ export default async function Home(){
     {label:c.essentials[2],description:c.essentialDescriptions[2],Icon:TrainFront,image:serviceImages.train,href:'/transportation'},
     {label:c.essentials[3],description:c.essentialDescriptions[3],Icon:MapPinned,image:serviceImages.jeddah,href:'/jeddah'},
   ] as const;
-  const packageDepartures=upcomingDepartures.slice(0,4).map((d:any)=>({
-    ...d,
-    monthShort:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{month:'short'}).format(new Date(d.id?d.fullLabel+'T12:00:00Z':new Date()))
-  }));
+  const packageDepartures=upcomingDepartures.slice(0,4);
   const packages=[
     {name:'SIGNATURE',price:'$2,000',tag:c.premium,title:c.signature,desc:c.signatureDesc,image:hero,href:'/packages/signature'},
     {name:'ELITE',price:'$2,500',tag:c.higher,title:c.elite,desc:c.eliteDesc,image:madinahImage,href:'/packages/elite'}
