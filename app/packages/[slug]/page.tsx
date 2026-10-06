@@ -8,6 +8,7 @@ import {defaultLocale,isLocale} from '@/lib/i18n';
 import type {Metadata} from 'next';
 import { SEO_PAGES, SITE_URL, localizedMetadata } from '@/lib/seo';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
+import ItineraryAccordion from '@/components/ItineraryAccordion';
 import { headers } from 'next/headers';
 import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane, Globe2, ShieldCheck} from 'lucide-react';
 
@@ -251,31 +252,20 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
 
     <section className='section bg-ivory'>
       <div className='container'>
-        <div className='max-w-4xl'>
-          <div className='eyebrow'>{itinerary.eyebrow}</div>
-          <h2 className='serif mt-3 text-5xl text-forest md:text-6xl'>{itinerary.title}</h2>
-          <p className='mt-4 text-lg leading-8 text-forest/60'>{itinerary.intro}</p>
-        </div>
-        <div className='mt-9 grid gap-4 md:grid-cols-3'>
-          {itinerary.summary.map((item)=><div key={item} className='rounded-2xl border border-forest/10 bg-white p-5'><div className='text-sm font-bold tracking-wide text-forest'>{item}</div></div>)}
-        </div>
-        <div className='mt-7 grid gap-5 lg:grid-cols-2'>
-          <div className='rounded-[24px] border border-gold/35 bg-white p-6'><div className='eyebrow'>{itinerary.vipTitle}</div><p className='mt-3 text-sm leading-7 text-forest/65'>{itinerary.vipText}</p></div>
-          {slug==='elite'&&<div className='rounded-[24px] bg-forest p-6 text-white'><div className='eyebrow text-gold'>{itinerary.trainTitle}</div><p className='mt-3 text-sm leading-7 text-white/70'>{itinerary.trainText}</p></div>}
-        </div>
-        <div className='mt-10 overflow-hidden rounded-[28px] border border-forest/10 bg-white'>
-          {(itinerary.days as readonly (readonly [string,string,string,string,string])[]).map((item,index)=>{
-            const [title,a,b,c,place]=item;
-            const train=slug==='elite'&&(index===6||index===9);
-            const Icon=train?Train:index===5?MapPinned:index===9?Plane:index===0?Plane:MapPinned;
-            return <article key={title+index} className='grid gap-5 border-b border-forest/10 p-6 last:border-0 md:grid-cols-[82px_1fr_190px] md:items-center md:p-7'>
-              <div className='flex items-center gap-4 md:block'><div className='flex h-12 w-12 items-center justify-center rounded-full bg-forest text-gold'><span className='text-sm font-bold'>{index+1}</span></div><div className='mt-2 text-[10px] font-bold uppercase tracking-[.16em] text-forest/45'>{l==='ar'?'اليوم':l==='so'?'MAALINTA':'DAY'} {index+1}</div></div>
-              <div><div className='flex flex-wrap items-center gap-2'><h3 className='serif text-2xl text-forest'>{title}</h3>{train&&<span className='rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-forest'>{itinerary.trainTitle}</span>}</div><ul className='mt-3 space-y-2 text-sm leading-6 text-forest/65'><li className='flex gap-2'><Check size={16} className='mt-1 shrink-0 text-gold'/>{a}</li><li className='flex gap-2'><Check size={16} className='mt-1 shrink-0 text-gold'/>{b}</li><li className='flex gap-2'><Check size={16} className='mt-1 shrink-0 text-gold'/>{c}</li></ul></div>
-              <div className='rounded-2xl bg-[#f7f3ea] p-4'><div className='flex items-center gap-2 text-xs font-semibold text-forest'><Icon size={17} className='text-gold'/>{place}</div><div className='mt-3 text-xs leading-5 text-forest/55'>{train?itinerary.trainTitle:itinerary.vipTitle}</div></div>
-            </article>;
-          })}
-        </div>
-        <div className='mt-5 flex gap-3 rounded-2xl border border-forest/10 bg-white p-5 text-sm leading-6 text-forest/55'><Check className='mt-1 shrink-0 text-gold' size={18}/><p>{itinerary.clarity}</p></div>
+        <ItineraryAccordion
+          locale={l}
+          slug={slug as 'signature'|'elite'}
+          eyebrow={itinerary.eyebrow}
+          title={itinerary.title}
+          intro={itinerary.intro}
+          summary={itinerary.summary}
+          vipTitle={itinerary.vipTitle}
+          vipText={itinerary.vipText}
+          trainTitle={itinerary.trainTitle}
+          trainText={itinerary.trainText}
+          days={itinerary.days}
+          clarity={itinerary.clarity}
+        />
       </div>
     </section>
 
