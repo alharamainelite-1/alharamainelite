@@ -275,7 +275,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
             </article>;
           })}
         </div>
-        <div className='mt-5 flex gap-3 rounded-2xl border border-forest/10 bg-white p-5 text-sm leading-6 text-forest/55'><Clock3 className='mt-1 shrink-0 text-gold' size={18}/><p>{itinerary.clarity}</p></div>
+        <div className='mt-5 flex gap-3 rounded-2xl border border-forest/10 bg-white p-5 text-sm leading-6 text-forest/55'><Check className='mt-1 shrink-0 text-gold' size={18}/><p>{itinerary.clarity}</p></div>
       </div>
     </section>
 
