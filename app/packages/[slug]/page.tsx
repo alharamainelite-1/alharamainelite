@@ -108,6 +108,7 @@ const labels={
 
 const itineraryCopy={
   en:{
+    available:'Available departures',
     eyebrow:'YOUR 10-DAY JOURNEY',title:'From Makkah to Madinah',intro:'Five days in Makkah, one full Jeddah experience with an evening return to Makkah, then four days in Madinah.',
     summary:['5 DAYS · MAKKAH','1 DAY · JEDDAH EXPERIENCE','4 DAYS · MADINAH'],
     vipTitle:'Private VIP transportation throughout the journey',
@@ -129,6 +130,7 @@ const itineraryCopy={
     clarity:'Daily timings and activity order may be adjusted when needed for local or operational circumstances. The final confirmed itinerary takes priority.'
   },
   so:{
+    available:'Taariikhaha la heli karo',
     eyebrow:'SAFARKA 10 MAALMOOD',title:'Makkah ilaa Madiinah',intro:'Shan maalmood Makkah, hal maalin Jeddah oo leh soo laabasho fiidkii, kadib afar maalmood Madiinah.',
     summary:['5 MAALMOOD · MAKKAH','1 MAALIN · KHIBRADDA JEDDAH','4 MAALMOOD · MADIINAH'],
     vipTitle:'Gaadiid VIP oo gaar ah inta safarku socdo',
@@ -150,6 +152,7 @@ const itineraryCopy={
     clarity:'Waqtiyada iyo kala horreynta hawlaha waa la beddeli karaa marka loo baahdo sababo maxalli ama hawlgal. Jadwalka ugu dambeeya ee la xaqiijiyay ayaa mudnaanta leh.'
   },
   ar:{
+    available:'مواعيد الانطلاق المتاحة',
     eyebrow:'رحلتك لمدة 10 أيام',title:'من مكة إلى المدينة',intro:'خمسة أيام في مكة، ويوم كامل لتجربة جدة مع العودة إلى مكة مساءً، ثم أربعة أيام في المدينة المنورة.',
     summary:['5 أيام · مكة','يوم واحد · تجربة جدة','4 أيام · المدينة'],
     vipTitle:'سيارة VIP خاصة طوال الرحلة المدرجة',
