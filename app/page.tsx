@@ -24,6 +24,7 @@ const copy={
     signature:'Comfortable & meaningful',elite:'A higher level of comfort',
     signatureDesc:'Premium hotels, breakfast, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
     eliteDesc:'Luxury accommodation, breakfast, Haramain Train where applicable, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
+    limitedJourneys:'LIMITED JOURNEYS',limitedJourneysText:'Only a limited number of journeys available.',upcoming:'Upcoming dates',viewAllDates:'View all dates',
     details:'A COMPLETE JOURNEY',detailsText:'Everything you need for a smooth, comfortable and meaningful journey.',
     essentials:['Premium Hotels','Private Transportation','Haramain Train in ELITE','Jeddah Experience'],
     essentialDescriptions:['Carefully selected hotels in Makkah and Madinah near the Haram, ensuring comfort and convenience.','Travel in comfort with our premium, air-conditioned luxury vans for all transfers and Ziyarat.','Haramain Train is included with ELITE where applicable to the confirmed journey plan; it is not included with SIGNATURE.','Explore local markets, culture and shopping in Jeddah as part of your journey.'],
@@ -41,6 +42,7 @@ const copy={
     signature:'Raaxo & macne',elite:'Heer raaxo oo sarreeya',
     signatureDesc:'Hoteello heer sare ah, quraac, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
     eliteDesc:'Hoy luxury ah, quraac, Haramain Train marka uu ku habboon yahay, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
+    limitedJourneys:'SAFARRADA XADDIDAN',limitedJourneysText:'Kaliya tiro kooban oo safarro ah ayaa la heli karaa.',upcoming:'Taariikhaha soo socda',viewAllDates:'Eeg dhammaan taariikhaha',
     details:'SAFAR DHAMMEYSTIRAN',detailsText:'Wax kasta oo aad u baahan tahay safar fudud, raaxo leh oo macno leh.',
     essentials:['Hoteello Heer Sare','Gaadiid Gaar ah','Haramain Train','Khibradda Jeddah'],
     essentialDescriptions:['Hoteello si taxaddar leh loo doortay oo ku yaal Makkah iyo Madiinah, kuna dhow Xaramka.','Ku safar raaxo leh gaadiid luxury ah oo qaboojiye leh oo loogu talagalay wareejinta iyo ziyaraatka.','Safar degdeg ah oo raaxo leh oo u dhexeeya Makkah iyo Madiinah adigoo raacaya Haramain Train.','Sahami suuqyada, dhaqanka iyo wax iibsiga Jeddah oo qayb ka ah safarkaaga.'],
@@ -58,6 +60,7 @@ const copy={
     signature:'راحة ومعنى',elite:'مستوى أعلى من الراحة',
     signatureDesc:'فنادق راقية، إفطار، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
     eliteDesc:'إقامة فاخرة، إفطار، تنقل بالقطار، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
+    limitedJourneys:'رحلات محدودة',limitedJourneysText:'يتوفر عدد محدود فقط من الرحلات.',upcoming:'المواعيد القادمة',viewAllDates:'عرض جميع المواعيد',
     details:'رحلة متكاملة',detailsText:'كل ما تحتاجه لرحلة سلسة ومريحة وذات معنى.',
     essentials:['فنادق راقية','تنقلات خاصة','قطار الحرمين','تجربة جدة'],
     essentialDescriptions:['فنادق يتم اختيارها بعناية في مكة والمدينة بالقرب من الحرم، لضمان الراحة والسهولة.','تنقلات مريحة ومكيفة عبر فانات فاخرة لجميع الانتقالات والزيارات.','تنقل سريع ومريح بين مكة والمدينة عبر قطار الحرمين.','استكشف الأسواق والثقافة والتسوق في جدة كجزء من رحلتك.'],
@@ -119,6 +122,10 @@ export default async function Home(){
     {label:c.essentials[2],description:c.essentialDescriptions[2],Icon:TrainFront,image:serviceImages.train,href:'/transportation'},
     {label:c.essentials[3],description:c.essentialDescriptions[3],Icon:MapPinned,image:serviceImages.jeddah,href:'/jeddah'},
   ] as const;
+  const packageDepartures=upcomingDepartures.slice(0,4).map((d:any)=>({
+    ...d,
+    monthShort:new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{month:'short'}).format(new Date(d.id?d.fullLabel+'T12:00:00Z':new Date()))
+  }));
   const packages=[
     {name:'SIGNATURE',price:'$2,000',tag:c.premium,title:c.signature,desc:c.signatureDesc,image:hero,href:'/packages/signature'},
     {name:'ELITE',price:'$2,500',tag:c.higher,title:c.elite,desc:c.eliteDesc,image:madinahImage,href:'/packages/elite'}
@@ -184,16 +191,6 @@ export default async function Home(){
       </div>
     </section>
 
-    <section className="section bg-forest text-white">
-      <div className="container">
-        <SectionHeading eyebrow={locale==='ar'?'مواعيد الانطلاق القادمة':locale==='so'?'TAARIIKHAHA SAFARRADA SOO SOCDA':'UPCOMING UMRAH DEPARTURES'} title={locale==='ar'?'رحلتك تبدأ من موعد':locale==='so'?'SAFARKAAGU WUXUU KA BILAABMAA TAARIIKH':'Your journey begins with a date.'}>
-          {locale==='ar'?'اختر موعد الانطلاق الذي يناسبك، ودع فريقنا يهتم بالتفاصيل.':locale==='so'?'Dooro taariikhda safarka kugu habboon, kooxdayaduna waxay daryeeli doontaa faahfaahinta.':'Choose the departure that works for you and let our team take care of the details.'}
-        </SectionHeading>
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{upcomingDepartures.map((d:any)=><article key={d.id} className="group rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 backdrop-blur-sm transition duration-300 hover:border-gold/40 hover:bg-white/[0.09]"><div className="flex items-start gap-4"><div className="min-w-[62px] border-r border-white/10 pr-4"><div className="text-[10px] font-bold uppercase tracking-[.18em] text-gold">{d.monthLabel.split(' ')[0]}</div><div className="serif mt-1 text-3xl leading-none">{d.dayLabel.split(' ')[0]}</div></div><div className="min-w-0 flex-1"><div className="text-xs font-semibold uppercase tracking-[.14em] text-white/45">{locale==='ar'?'موعد الانطلاق':locale==='so'?'Taariikhda bixitaanka':'Departure date'}</div><div className="mt-1 text-sm font-semibold text-white">{locale==='ar'?'10 أيام · 9 ليالٍ':locale==='so'?'10 maalmood · 9 habeen':'10 days · 9 nights'}</div><div className="mt-2 text-xs leading-5 text-white/55">{locale==='ar'?'رحلة عمرة راقية، مرتبة بعناية لمجموعة صغيرة.':locale==='so'?'Safar Cumro oo heer sare ah, si taxaddar leh loogu habeeyay koox yar.':'A refined Umrah journey, thoughtfully arranged for a small group.'}</div></div></div><div className="mt-4 flex items-center justify-end border-t border-white/10 pt-3"><span className="text-[9px] font-bold uppercase tracking-[.16em] text-gold">{locale==='ar'?'توافر محدود':locale==='so'?'Helitaan xaddidan':'Limited availability'}</span></div><Link href={'/request-journey?departure='+encodeURIComponent(d.id)} className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/[0.07] px-3 py-2 text-xs font-semibold text-white transition hover:border-gold hover:bg-gold hover:text-forest">{locale==='ar'?'اختيار الموعد':locale==='so'?'Dooro taariikhda':'Choose this date'}<ArrowRight size={14} className="ml-2 transition group-hover:translate-x-0.5"/></Link></article>)}</div>
-        <div className="mt-8 flex flex-col items-center justify-center gap-2 text-center sm:flex-row"><Link href="/request-journey" className="text-sm font-semibold text-gold hover:text-white">{locale==='ar'?'عرض جميع مواعيد الانطلاق':locale==='so'?'Eeg dhammaan taariikhaha':'View all departure dates'} <ArrowRight size={15} className="ml-1 inline"/></Link><span className="hidden text-white/25 sm:inline">·</span><span className="text-sm text-white/55">{locale==='ar'?'لست متأكدًا من الموعد المناسب لك؟':locale==='so'?'Ma hubtid taariikhda kugu habboon?':'Not sure which date works for you?'}</span><a href="https://wa.me/966579120989" className="text-sm font-semibold text-gold hover:text-white">{locale==='ar'?'تحدث مع فريقنا عبر واتساب':locale==='so'?'Nala hadal WhatsApp':'Talk to our team on WhatsApp'} <ArrowRight size={15} className="ml-1 inline"/></a></div>
-      </div>
-    </section>
-
     <section className="section">
       <div className="container">
         <SectionHeading eyebrow={c.journeys} title={c.choose}>{c.packageIntro}</SectionHeading>
@@ -206,7 +203,18 @@ export default async function Home(){
               <div className="eyebrow">{p.name}</div><h2 className="serif mt-2 text-3xl text-forest">{p.title}</h2>
               <div className="serif mt-3 text-5xl text-forest">{p.price}</div><div className="mt-1 text-sm text-forest/45">{c.perGuest} · 10 days / 9 nights</div>
               <p className="mt-5 text-sm leading-6 text-forest/65">{p.desc}</p>
-              <Link href={p.href} className="btn btn-primary mt-7 w-full">{c.view}<ArrowRight size={16} className="ml-2"/></Link>
+              <div className="mt-6 rounded-2xl border border-forest/10 bg-[#f7f3ea] p-4">
+                <div className="text-[11px] font-bold uppercase tracking-[.18em] text-forest">{c.limitedJourneys}</div>
+                <p className="mt-1 text-xs leading-5 text-forest/55">{c.limitedJourneysText}</p>
+                {packageDepartures.length>0&&<div className="mt-4">
+                  <div className="mb-2 text-[9px] font-bold uppercase tracking-[.16em] text-forest/45">{c.upcoming}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {packageDepartures.map((d:any)=><Link key={d.id} href={'/request-journey?departure='+encodeURIComponent(d.id)} className="rounded-full border border-forest/15 bg-white px-3 py-2 text-[11px] font-bold tracking-wide text-forest transition hover:border-gold hover:bg-gold">{d.dayLabel}</Link>)}
+                  </div>
+                  <Link href="/request-journey" className="mt-3 inline-flex items-center text-[10px] font-bold uppercase tracking-[.14em] text-forest/65 hover:text-forest">{c.viewAllDates}<ArrowRight size={13} className="ml-1"/></Link>
+                </div>}
+              </div>
+              <Link href={p.href} className="btn btn-primary mt-5 w-full">{c.view}<ArrowRight size={16} className="ml-2"/></Link>
             </div>
           </article>)}
         </div>
