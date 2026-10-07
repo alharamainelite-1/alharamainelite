@@ -4,7 +4,7 @@ import {useState} from 'react';
 import type {ComponentType} from 'react';
 import {ChevronDown,Check,Plane,Train} from 'lucide-react';
 
-type Feature=[string,string];
+type Feature=readonly [string,string];
 
 type Props={
   locale:'en'|'so'|'ar';
@@ -17,14 +17,14 @@ type Props={
   notTitle:string;
   notIntro:string;
   notItem:string;
-  features:Feature[];
-  eliteExtra:Feature[];
+  features:readonly Feature[];
+  eliteExtra:readonly Feature[];
   signatureNote:string;
   ready:string;
   readyText:string;
   request:string;
   compare:string;
-  icons:ComponentType<{size?:number;className?:string}>[];
+  icons:readonly ComponentType<{size?:number;className?:string}>[];
 };
 
 export default function IncludedAccordion({locale,slug,eyebrow,title,intro,coreTitle,eliteTitle,notTitle,notIntro,notItem,features,eliteExtra,signatureNote,ready,readyText,request,compare,icons}:Props){
