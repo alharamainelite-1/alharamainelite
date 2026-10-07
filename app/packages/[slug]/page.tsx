@@ -9,7 +9,6 @@ import type {Metadata} from 'next';
 import { SEO_PAGES, SITE_URL, localizedMetadata } from '@/lib/seo';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import ItineraryAccordion from '@/components/ItineraryAccordion';
-import IncludedAccordion from '@/components/IncludedAccordion';
 import { headers } from 'next/headers';
 import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane, Globe2, ShieldCheck} from 'lucide-react';
 
@@ -253,25 +252,64 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
 
     <section className='section bg-ivory'>
       <div className='container'>
-        <IncludedAccordion
-          locale={l}
-          slug={slug as 'signature'|'elite'}
-          eyebrow={p.name}
-          title={t.included}
-          intro={t.includedIntro}
-          coreTitle={t.coreTitle}
-          eliteTitle={t.eliteTitle}
-          notTitle={t.not}
-          notIntro={t.notIntro}
-          notItem={t.notList[0]}
-          features={t.features}
-          eliteExtra={t.eliteExtra}
-          signatureNote={l==='ar'?'تتضمن SIGNATURE جميع المزايا الأساسية الموضحة أعلاه.':l==='so'?'SIGNATURE wuxuu leeyahay dhammaan adeegyada muhiimka ah ee kor ku xusan.':'SIGNATURE includes all of the core inclusions listed above.'}
-          ready={t.ready}
-          readyText={l==='ar'?'لا تحتاج إلى تاريخ رحلة مؤكد للبدء. شاركنا الفترة المتوقعة وسيتواصل معك فريقنا.':l==='so'?'Uma baahnid taariikh duulimaad la xaqiijiyay. Sheeg muddada aad filayso, kooxdayaduna way kula soo xiriiri doontaa.':'You do not need a confirmed flight date to start. Share your expected travel date or period and our team will contact you personally. There is no need to have your international flight booked yet.'}
-          request={t.request}
-          compare={t.compare}
-        />
+        <details className='group mt-10'>
+          <summary className='flex cursor-pointer list-none items-center justify-between gap-5 rounded-[24px] border border-forest/10 bg-white p-5 shadow-sm transition hover:border-gold/50 hover:shadow-md md:p-7 [&::-webkit-details-marker]:hidden'>
+            <div className='min-w-0'>
+              <div className='eyebrow'>{p.name}</div>
+              <div className='mt-2 flex flex-wrap items-center gap-3'>
+                <h2 className='serif text-3xl text-forest md:text-4xl'>{t.included}</h2>
+                <span className='rounded-full bg-forest/5 px-3 py-1 text-xs font-semibold text-forest/60'>{t.features.length + (slug==='elite'?t.eliteExtra.length:0)} {l==='ar'?'مزايا رئيسية':l==='so'?'adeeg':'key inclusions'}</span>
+              </div>
+              <p className='mt-2 max-w-3xl text-sm leading-6 text-forest/55'>{t.includedIntro}</p>
+            </div>
+            <span className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-forest text-gold transition-transform group-open:rotate-180'><span className='text-2xl'>⌄</span></span>
+          </summary>
+
+          <div className='mt-4 grid gap-10 lg:grid-cols-[1fr_360px]'>
+            <div>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold'><Check size={20}/></div>
+                <h3 className='serif text-3xl text-forest'>{t.coreTitle}</h3>
+              </div>
+              <div className='mt-6 grid gap-4 sm:grid-cols-2'>
+                {t.features.map(([title,desc],i)=>{
+                  const Icon=icons[i];
+                  return <div key={title} className='group rounded-2xl border border-forest/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg'>
+                    <div className='flex items-start gap-4'>
+                      <div className='flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-forest text-gold'><Icon size={20}/></div>
+                      <div><h4 className='font-semibold text-forest'>{title}</h4><p className='mt-2 text-sm leading-6 text-forest/60'>{desc}</p></div>
+                    </div>
+                  </div>;
+                })}
+              </div>
+
+              <div className='mt-10 rounded-2xl border border-gold/35 bg-white p-6'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold'><Train size={20}/></div>
+                  <h3 className='serif text-2xl text-forest'>{t.eliteTitle}</h3>
+                </div>
+                {slug==='elite'
+                  ? <div className='mt-5 grid gap-4'>{t.eliteExtra.map(([title,desc])=><div key={title} className='flex gap-4 rounded-xl bg-ivory p-5'><div className='mt-1 text-gold'><Check size={18}/></div><div><h4 className='font-semibold text-forest'>{title}</h4><p className='mt-1 text-sm leading-6 text-forest/60'>{desc}</p></div></div>)}</div>
+                  : <p className='mt-4 text-sm leading-6 text-forest/55'>{l==='ar'?'تتضمن SIGNATURE جميع المزايا الأساسية الموضحة أعلاه.':l==='so'?'SIGNATURE wuxuu leeyahay dhammaan adeegyada muhiimka ah ee kor ku xusan.':'SIGNATURE includes all of the core inclusions listed above.'}</p>}
+              </div>
+
+              <div className='mt-10 rounded-2xl border border-forest/10 bg-white p-6'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex h-10 w-10 items-center justify-center rounded-full bg-forest text-gold'><Plane size={19}/></div>
+                  <div><h3 className='font-semibold text-forest'>{t.not}</h3><p className='mt-1 text-sm text-forest/55'>{t.notIntro}</p></div>
+                </div>
+                <div className='mt-5 flex items-center gap-3 border-t border-forest/10 pt-4 text-forest/75'><Plane size={17} className='text-gold'/><span>{t.notList[0]}</span></div>
+              </div>
+            </div>
+
+            <aside className='card h-fit p-7 lg:sticky lg:top-28'>
+              <div className='eyebrow'>{t.ready}</div>
+              <p className='mt-4 leading-7 text-forest/65'>{l==='ar'?'لا تحتاج إلى تاريخ رحلة مؤكد للبدء. شاركنا الفترة المتوقعة وسيتواصل معك فريقنا.':l==='so'?'Uma baahnid taariikh duulimaad la xaqiijiyay. Sheeg muddada aad filayso, kooxdayaduna way kula soo xiriiri doontaa.':'You do not need a confirmed flight date to start. Share your expected travel date or period and our team will contact you personally. There is no need to have your international flight booked yet.'}</p>
+              <Link href={'/request-journey?package='+slug} className='btn btn-primary mt-6 w-full'>{t.request}</Link>
+              <Link href='/packages' className='btn btn-outline mt-3 w-full'>{t.compare}</Link>
+            </aside>
+          </div>
+        </details>
       </div>
     </section>
 
