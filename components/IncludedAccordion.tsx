@@ -1,8 +1,7 @@
 'use client';
 
 import {useState} from 'react';
-import type {ComponentType} from 'react';
-import {ChevronDown,Check,Plane,Train} from 'lucide-react';
+import {ChevronDown,Check,Plane,Train,Hotel,Utensils,Car,MapPinned,Smartphone,Headphones,Globe2,ShieldCheck} from 'lucide-react';
 
 type Feature=readonly [string,string];
 
@@ -24,11 +23,11 @@ type Props={
   readyText:string;
   request:string;
   compare:string;
-  icons:readonly ComponentType<{size?:number;className?:string}>[];
 };
 
-export default function IncludedAccordion({locale,slug,eyebrow,title,intro,coreTitle,eliteTitle,notTitle,notIntro,notItem,features,eliteExtra,signatureNote,ready,readyText,request,compare,icons}:Props){
+export default function IncludedAccordion({locale,slug,eyebrow,title,intro,coreTitle,eliteTitle,notTitle,notIntro,notItem,features,eliteExtra,signatureNote,ready,readyText,request,compare}:Props){
   const [open,setOpen]=useState(false);
+  const icons=[Hotel,Utensils,Car,MapPinned,MapPinned,Smartphone,Headphones,Globe2,ShieldCheck] as const;
   const labels={
     en:{open:'View what is included',close:'Hide inclusions'},
     so:{open:'Eeg waxa ku jira safarka',close:'Qari waxa ku jira'},
