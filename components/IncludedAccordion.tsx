@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from 'react';
+import type {ComponentType} from 'react';
 import {ChevronDown,Check,Plane,Train} from 'lucide-react';
 
 type Feature=[string,string];
@@ -23,7 +24,7 @@ type Props={
   readyText:string;
   request:string;
   compare:string;
-  icons:React.ComponentType<{size?:number;className?:string}>[];
+  icons:ComponentType<{size?:number;className?:string}>[];
 };
 
 export default function IncludedAccordion({locale,slug,eyebrow,title,intro,coreTitle,eliteTitle,notTitle,notIntro,notItem,features,eliteExtra,signatureNote,ready,readyText,request,compare,icons}:Props){
