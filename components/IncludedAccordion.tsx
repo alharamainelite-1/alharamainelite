@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import {ChevronDown,Check,Plane,Train,Hotel,Utensils,Car,MapPinned,Smartphone,Headphones,Globe2,ShieldCheck} from 'lucide-react';
 
-type Feature=readonly [string,string];
+type Feature=readonly string[];
 
 type Props={
   locale:'en'|'so'|'ar';
