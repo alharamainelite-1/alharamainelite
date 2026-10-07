@@ -252,6 +252,25 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
 
     <section className='section bg-ivory'>
       <div className='container'>
+        <ItineraryAccordion
+          locale={l}
+          slug={slug as 'signature'|'elite'}
+          eyebrow={itinerary.eyebrow}
+          title={itinerary.title}
+          intro={itinerary.intro}
+          summary={itinerary.summary}
+          vipTitle={itinerary.vipTitle}
+          vipText={itinerary.vipText}
+          trainTitle={itinerary.trainTitle}
+          trainText={itinerary.trainText}
+          days={itinerary.days}
+          clarity={itinerary.clarity}
+        />
+      </div>
+    </section>
+
+    <section className='section bg-ivory'>
+      <div className='container'>
         <details className='group mt-10'>
           <summary className='flex cursor-pointer list-none items-center justify-between gap-5 rounded-[24px] border border-forest/10 bg-white p-5 shadow-sm transition hover:border-gold/50 hover:shadow-md md:p-7 [&::-webkit-details-marker]:hidden'>
             <div className='min-w-0'>
