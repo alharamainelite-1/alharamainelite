@@ -6,6 +6,7 @@ import {cookies} from 'next/headers';
 import {packages} from '@/lib/site';
 import {defaultLocale,isLocale} from '@/lib/i18n';
 import type {Metadata} from 'next';
+import type {ComponentType} from 'react';
 import { SEO_PAGES, SITE_URL, localizedMetadata } from '@/lib/seo';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import ItineraryAccordion from '@/components/ItineraryAccordion';
@@ -271,7 +272,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
           readyText={l==='ar'?'لا تحتاج إلى تاريخ رحلة مؤكد للبدء. شاركنا الفترة المتوقعة وسيتواصل معك فريقنا.':l==='so'?'Uma baahnid taariikh duulimaad la xaqiijiyay. Sheeg muddada aad filayso, kooxdayaduna way kula soo xiriiri doontaa.':'You do not need a confirmed flight date to start. Share your expected travel date or period and our team will contact you personally. There is no need to have your international flight booked yet.'}
           request={t.request}
           compare={t.compare}
-          icons={icons as unknown as React.ComponentType<{size?:number;className?:string}>[]}
+          icons={icons as unknown as ComponentType<{size?:number;className?:string}>[]}
         />
       </div>
     </section>
