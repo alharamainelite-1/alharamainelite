@@ -16,7 +16,7 @@ export async function POST(req:Request){
   const staff=await getCurrentStaff();
   if(!staff)return NextResponse.json({error:"Unauthorized."},{status:401});
   if(!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Operations access required."},{status:403});
-  if(staff.profile.role==="OPERATIONS"||staff.profile.role==="JOURNEY_COORDINATOR")return NextResponse.json({error:"This role can only update or assign existing authorized tasks."},{status:403});
+  if(staff.profile.role==="OPERATIONS")return NextResponse.json({error:"Operations staff can only update assigned tasks."},{status:403});
   const b=await req.json().catch(()=>null)as any;
   if(!b?.date||!b?.task_type)return NextResponse.json({error:"Date and task type are required."},{status:400});
   if(!TASK_TYPES.includes(String(b.task_type)))return NextResponse.json({error:"Invalid task type."},{status:400});
