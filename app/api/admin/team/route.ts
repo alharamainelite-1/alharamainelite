@@ -72,6 +72,27 @@ async function resolveManager(admin:any, role:string, requestedId:any, currentUs
   return {managerId,error:null};
 }
 
+async function ensureHostResource(admin:any,userId:string,fullName:string,phone:string){
+  const {data:linked,error:linkedError}=await admin.from('hosts').select('id').eq('user_id',userId).maybeSingle();
+  if(linkedError)return {error:linkedError};
+  if(linked){
+    const {error}=await admin.from('hosts').update({name:fullName,phone:phone||null,updated_at:new Date().toISOString()}).eq('id',linked.id);
+    return {error:error||null};
+  }
+  let host:any=null;
+  if(phone){
+    const {data,error}=await admin.from('hosts').select('id').eq('phone',phone).is('user_id',null).limit(1).maybeSingle();
+    if(error)return {error};
+    host=data;
+  }
+  if(host){
+    const {error}=await admin.from('hosts').update({user_id:userId,name:fullName,phone:phone||null,updated_at:new Date().toISOString()}).eq('id',host.id);
+    return {error:error||null};
+  }
+  const {error}=await admin.from('hosts').insert({user_id:userId,name:fullName,phone:phone||null,languages:[],status:'AVAILABLE'});
+  return {error:error||null};
+}
+
 export async function GET(){
   const staff=await requireSuperAdmin();
   if(!staff)return NextResponse.json({error:'Forbidden'},{status:403});
@@ -142,6 +163,7 @@ export async function POST(req:Request){
   if(!data.user)return NextResponse.json({error:'User invitation did not return a user.'},{status:500});
   const {error:profileError}=await admin.from('profiles').upsert({id:data.user.id,full_name,phone:phone||null,role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],permissions}, {onConflict:'id'});
   if(profileError){await admin.auth.admin.deleteUser(data.user.id);return NextResponse.json({error:profileError.message},{status:500});}
+  if(role==='HOST'){const hostResult=await ensureHostResource(admin,data.user.id,full_name,phone);if(hostResult.error){await admin.from('profiles').delete().eq('id',data.user.id);await admin.auth.admin.deleteUser(data.user.id);return NextResponse.json({error:'Could not link the host account to its operational host record.'},{status:500});}}
   await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_ACCOUNT_CREATED',entity_type:'profile',entity_id:data.user.id,after_data:{id:data.user.id,email,full_name,role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],permissions}});
   return NextResponse.json({ok:true,user:{id:data.user.id,email,full_name,role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],permissions}});
 }
@@ -201,6 +223,7 @@ export async function PATCH(req:Request){
     if(authUpdate.error)return NextResponse.json({error:authUpdate.error.message},{status:400});
     const {data:after,error}=await admin.from('profiles').update({full_name,phone:phone||null,role:nextRole,manager_id:manager.managerId,department:ROLE_DEPARTMENT[nextRole],permissions,updated_at:new Date().toISOString()}).eq('id',userId).select('id,full_name,role,phone,manager_id,department,permissions').single();
     if(error||!after)return NextResponse.json({error:error?.message||'Unable to update staff profile.'},{status:500});
+    if(nextRole==='HOST'){const hostResult=await ensureHostResource(admin,userId,full_name,phone);if(hostResult.error)return NextResponse.json({error:'Profile updated, but the host resource could not be linked.'},{status:500});}
     await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_DETAILS_UPDATED',entity_type:'profile',entity_id:userId,before_data:{...before,email:undefined},after_data:after});
     return NextResponse.json({ok:true});
   }
@@ -229,6 +252,7 @@ export async function PATCH(req:Request){
     if(manager.error)return NextResponse.json({error:manager.error},{status:400});
     const {error}=await admin.from('profiles').update({role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],updated_at:new Date().toISOString()}).eq('id',userId);
     if(error)return NextResponse.json({error:error.message},{status:500});
+    if(role==='HOST'){const {data:hostProfile}=await admin.from('profiles').select('full_name,phone').eq('id',userId).single();const hostResult=await ensureHostResource(admin,userId,hostProfile?.full_name||'',hostProfile?.phone||'');if(hostResult.error)return NextResponse.json({error:'Role updated, but the host resource could not be linked.'},{status:500});}
     await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_ROLE_CHANGED',entity_type:'profile',entity_id:userId,before_data:before,after_data:{...before,role}});
     return NextResponse.json({ok:true});
   }
@@ -245,6 +269,7 @@ export async function PATCH(req:Request){
     const {data:before}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).single();
     const {error}=await admin.auth.admin.updateUserById(userId,{ban_duration:active?'none':'876000h'});
     if(error)return NextResponse.json({error:error.message},{status:500});
+    if(!active&&target.role==='HOST'){const {error:hostError}=await admin.from('hosts').update({status:'UNAVAILABLE',updated_at:new Date().toISOString()}).eq('user_id',userId);if(hostError)return NextResponse.json({error:'Account was disabled, but host availability could not be updated.'},{status:500});}
     await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:active?'STAFF_ACTIVATED':'STAFF_DEACTIVATED',entity_type:'profile',entity_id:userId,before_data:before,after_data:{...before,active}});
     return NextResponse.json({ok:true});
   }
