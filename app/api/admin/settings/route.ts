@@ -2,7 +2,7 @@ import{NextResponse}from"next/server";
 import{revalidatePath}from"next/cache";
 import{getCurrentStaff}from"@/lib/supabase/auth";
 import{getSupabaseAdmin}from"@/lib/supabase/server";
-const ROLES=["SUPER_ADMIN","ADMIN"];
+const ROLES=["SUPER_ADMIN"];
 const KEYS=["group_capacity","languages","tagline","whatsapp"];
 export async function PATCH(req:Request){
  const staff=await getCurrentStaff();
