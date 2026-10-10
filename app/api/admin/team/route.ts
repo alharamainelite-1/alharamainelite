@@ -65,6 +65,9 @@ async function resolveManager(admin:any, role:string, requestedId:any, currentUs
   if(managerId===currentUserId)return {managerId:null,error:'An employee cannot report to themselves.'};
   const {data:manager,error}=await admin.from('profiles').select('id,role').eq('id',managerId).maybeSingle();
   if(error||!manager)return {managerId:null,error:'The selected direct manager does not exist.'};
+  const {data:authManager}=await admin.auth.admin.getUserById(managerId);
+  if(!authManager?.user)return {managerId:null,error:'The selected direct manager account does not exist.'};
+  if(authManager.user.banned_until&&new Date(authManager.user.banned_until).getTime()>Date.now())return {managerId:null,error:'The selected direct manager account is inactive.'};
   if(!allowed.includes(String(manager.role)))return {managerId:null,error:`This role must report to: ${allowed.join(', ')}.`};
   return {managerId,error:null};
 }
@@ -112,7 +115,7 @@ export async function GET(){
           id:u.id,email:u.email||'',full_name:p.full_name||'',phone:p.phone||'',role:p.role,
           manager_id:p.manager_id||null,manager_name:p.manager_id?byName.get(p.manager_id)||'':null,
           department:p.department||ROLE_DEPARTMENT[String(p.role)]||'OPERATIONS',permissions:p.permissions||{},
-          created_at:p.created_at||u.created_at,email_confirmed:!!u.email_confirmed_at,banned:!!u.banned_until,
+          created_at:p.created_at||u.created_at,email_confirmed:!!u.email_confirmed_at,banned:!!u.banned_until&&new Date(u.banned_until).getTime()>Date.now(),
           compensation:compensation.get(u.id)||null,bonuses:bonuses.get(u.id)||[]
         };
       })
