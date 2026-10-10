@@ -27,7 +27,14 @@ export async function GET() {
   }
   const {data,error}=await query;
   if(error)return jsonError('Unable to load staff tasks. Apply the staff-task migration first if this feature was just deployed.',500);
-  return NextResponse.json({tasks:data||[],staff:team.map((p:any)=>({id:p.id,name:p.full_name||'Staff member',role:p.role,department:p.department,manager_id:p.manager_id})),currentStaffId:staff.profile.id,currentRole:staff.profile.role,canAssign:canOversee});
+  const visibleStaff=team.filter((p:any)=>{
+    if(staff.profile.role==='SUPER_ADMIN')return true;
+    if(p.id===staff.profile.id||p.id===staff.profile.manager_id||p.manager_id===staff.profile.id)return true;
+    if(staff.profile.role==='SALES')return p.role==='BOOKINGS';
+    if(staff.profile.role==='BOOKINGS')return p.role==='FINANCE';
+    return !!staff.profile.department&&p.department===staff.profile.department;
+  });
+  return NextResponse.json({tasks:data||[],staff:visibleStaff.map((p:any)=>({id:p.id,name:p.full_name||'Staff member',role:p.role,department:p.department,manager_id:p.manager_id})),currentStaffId:staff.profile.id,currentRole:staff.profile.role,canAssign:canOversee});
 }
 
 export async function POST(req:Request) {
