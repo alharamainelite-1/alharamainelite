@@ -14,6 +14,7 @@ const ROLE_MANAGER_ROLES:Record<string,string[]> = {
   SUPER_ADMIN:[],
   OPERATIONS_MANAGER:['SUPER_ADMIN'],
   SALES:['SUPER_ADMIN'],
+  BOOKINGS:['SUPER_ADMIN'],
   MARKETING:['SUPER_ADMIN'],
   CUSTOMER_SERVICE:['SUPER_ADMIN'],
   OPERATIONS_SUPERVISOR:['OPERATIONS_MANAGER'],
@@ -26,7 +27,7 @@ const ROLE_DEPARTMENT:Record<string,string> = {
   SUPER_ADMIN:'GENERAL_MANAGEMENT', OPERATIONS_MANAGER:'OPERATIONS',
   OPERATIONS_SUPERVISOR:'OPERATIONS', JOURNEY_COORDINATOR:'OPERATIONS',
   OPERATIONS:'OPERATIONS', HOST:'OPERATIONS', SALES:'SALES',
-  MARKETING:'MARKETING', CUSTOMER_SERVICE:'CUSTOMER_SERVICE', FINANCE:'FINANCE'
+  MARKETING:'MARKETING', BOOKINGS:'BOOKINGS', CUSTOMER_SERVICE:'CUSTOMER_SERVICE', FINANCE:'FINANCE'
 };
 const PERMISSION_AREAS=['requests','guests','journeys','bookings','operations','groups','departures','resources','payments','finance','custody','expenses','reports','communications','reviews','influencers','team','staffMonitoring','settings','hosts','hotels','train','transportation','hostTasks'];
 const PERMISSION_ACTIONS=['view','create','edit','assign','approve'];

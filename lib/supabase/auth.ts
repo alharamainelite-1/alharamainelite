@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export const STAFF_ROLES = ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS','SALES','MARKETING','CUSTOMER_SERVICE','FINANCE','HOST'] as const;
+export const STAFF_ROLES = ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS','SALES','BOOKINGS','MARKETING','CUSTOMER_SERVICE','FINANCE','HOST'] as const;
 export type StaffRole = typeof STAFF_ROLES[number];
 export type StaffAction = 'view'|'create'|'edit'|'assign'|'approve';
 export type StaffPermissions = Record<string, Partial<Record<StaffAction, boolean>>>;
@@ -27,8 +27,9 @@ const STAFF_ROLE_PERMISSIONS: Record<StaffRole, Record<string, StaffAction[]>> =
   OPERATIONS: { operations:['view','edit'], transportation:['view'] },
   SALES: {
     requests:['view','create','edit'], guests:['view','edit'], journeys:['view','edit'],
-    bookings:['view','create','edit'], communications:['view','create','edit']
+    communications:['view','create','edit']
   },
+  BOOKINGS: { bookings:['view','create','edit'], guests:['view'], communications:['view','create','edit'] },
   MARKETING: { communications:['view','create','edit'] },
   CUSTOMER_SERVICE: {
     requests:['view','edit'], guests:['view','edit'], journeys:['view'], bookings:['view','edit'],

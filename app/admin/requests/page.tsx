@@ -36,7 +36,7 @@ export default async function RequestsPage() {
             <td className="px-4 py-4">{row.guest_count}</td>
             <td className="px-4 py-4">{row.expected_period_label||'Specific date'}</td>
             {canViewFinancial&&<td className="px-4 py-4">{row.currency||'USD'} {Number(row.estimated_total||0).toLocaleString()}</td>}
-            <td className="px-4 py-4"><RequestStatusForm id={row.id} status={row.status}/></td>
+            <td className="px-4 py-4"><RequestStatusForm id={row.id} status={row.status} reference={row.reference} canHandover={staff.profile.role==='SALES'}/></td>
             <td className="px-4 py-4 text-xs text-forest/45">{new Date(row.created_at).toLocaleDateString('en-GB')}</td>
           </tr>)}
         </tbody>
