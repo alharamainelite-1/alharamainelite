@@ -128,7 +128,7 @@ export async function POST(req:Request){
   const role=String(body?.role||'SALES');
   if(!email||!email.includes('@')||!full_name||!roles.includes(role as typeof STAFF_ROLES[number]))return NextResponse.json({error:'Name, valid email and a valid role are required.'},{status:400});
   const admin=getSupabaseAdmin();
-  const manager=await resolveManager(admin,role,body?.manager_id,staff.profile.id);
+  const manager=await resolveManager(admin,role,body?.manager_id);
   if(manager.error)return NextResponse.json({error:manager.error},{status:400});
   const permissions=normalizePermissions(body?.permissions);
   if(!permissions)return NextResponse.json({error:'Invalid permission settings.'},{status:400});
