@@ -29,11 +29,16 @@ export function JourneyConfirmationReview({ booking, hotels, trains, activities,
  const router = useRouter();
  const t = labels[locale]; const d = labels[language];
  const paid = booking.paymentStatus === 'RECEIVED';
- const ready = paid && checks.every(Boolean);
+ const bookingConfirmed = booking.bookingStatus === 'CONFIRMED';
+ const allRequiredServicesConfirmed = [...hotels, ...activities, ...trains].every((item) => item.status === 'CONFIRMED' && Boolean(item.reference?.trim()));
+ const requiredServicesReady = hotels.length > 0 && activities.length > 0 && allRequiredServicesConfirmed;
+ const ready = paid && bookingConfirmed && requiredServicesReady && checks.every(Boolean);
  const services = [{title:d.hotels,items:hotels},{title:d.trains,items:trains},{title:d.activities,items:activities}];
 
- function printPdf() {
+ async function printPdf() {
   if (!ready) { setError(t.missing); return; }
+  const popup = window.open('', '_blank');
+  if (!popup) { setError(locale === 'ar' ? 'يرجى السماح بالنوافذ المنبثقة لإنشاء PDF.' : 'Allow pop-ups to create the PDF.'); return; }
   const sections = services.map((section) => {
    const items = section.items.length ? section.items.map((item) =>
     '<article class="service"><h3>' + esc(item.title) + '</h3><p>' + esc([item.city,item.details].filter(Boolean).join(' · ') || '—') + '</p><p>' + esc(d.date) + ': ' + esc(dateLabel(item.date,language)) + '</p><p>' + esc(d.status) + ': ' + esc(item.status || d.notProvided) + '</p><p>' + esc(d.ref) + ': ' + esc(item.reference || d.notProvided) + '</p></article>'
@@ -41,9 +46,13 @@ export function JourneyConfirmationReview({ booking, hotels, trains, activities,
    return '<section><h2>' + esc(section.title) + '</h2>' + items + '</section>';
   }).join('');
   const html = '<!doctype html><html lang="' + language + '" dir="' + (language === 'ar' ? 'rtl':'ltr') + '"><head><meta charset="utf-8"><title>' + esc(d.title) + ' - ' + esc(booking.bookingId) + '</title><style>@page{size:A4;margin:15mm}*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Arabic",sans-serif;color:#173f35;margin:0;line-height:1.65;font-size:12px}.top{background:#063f35;color:#fff;padding:26px 30px;border-bottom:5px solid #c9a227}.brand{font-size:14px;letter-spacing:2px;color:#e6d7a4;font-weight:bold}.tag{font-size:10px;color:#f7f3ea}.heading{font-size:26px;margin:22px 0 6px}.ref{font-size:13px;color:#e6d7a4}.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.cell,.service{padding:12px;border:1px solid #e5e9e4;border-radius:10px;background:#fbfaf6;break-inside:avoid}.label{font-size:10px;color:#697b73}.value{font-size:13px;font-weight:bold}h2{font-size:16px;border-bottom:1px solid #c9a227;padding-bottom:7px;margin:24px 0 10px}.service{margin:8px 0}.service h3{font-size:13px;margin:0 0 5px}.service p{margin:4px 0}.empty{padding:12px;background:#fbfaf6;color:#687a73}.foot{border-top:1px solid #e4e7e1;margin-top:25px;padding-top:12px;color:#64746c;font-size:10px}</style></head><body><header class="top"><div class="brand"><img src="' + esc(window.location.origin) + '/brand/alharamainelite-logo.png" alt="ALHARAMAIN ELITE" style="width:190px;max-height:64px;object-fit:contain;object-position:left center;display:block" /><span>ALHARAMAIN ELITE</span></div><div class="tag">A JOURNEY WORTH REMEMBERING.</div><h1 class="heading">' + esc(d.title) + '</h1><div class="ref">' + esc(d.booking) + ': ' + esc(booking.bookingId) + '</div></header><main><div class="summary"><div class="cell"><div class="label">' + esc(d.guest) + '</div><div class="value">' + esc(booking.guestName) + '</div></div><div class="cell"><div class="label">' + esc(d.package) + '</div><div class="value">' + esc(booking.packageName) + '</div></div><div class="cell"><div class="label">' + esc(d.total) + '</div><div class="value">' + esc(booking.currency + ' ' + Number(booking.totalAmount || 0).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')) + '</div></div><div class="cell"><div class="label">' + esc(d.guests) + '</div><div class="value">' + esc(booking.guests) + '</div></div><div class="cell"><div class="label">' + esc(d.date) + '</div><div class="value">' + esc(dateLabel(booking.travelDate,language)) + '</div></div></div><p><b>' + esc(d.payment) + ':</b> ' + esc(d.received) + '</p>' + sections + '<footer class="foot"><b>ALHARAMAIN ELITE</b><p>' + esc(d.contact) + '</p><p>' + esc(d.note) + '</p><p>' + esc(d.generated) + ': ' + esc(dateLabel(new Date().toISOString(),language)) + '</p><p>' + esc('A JOURNEY WORTH REMEMBERING.') + '</p></footer></main><script>window.onload=function(){window.print()}</script></body></html>';
-  const popup = window.open('', '_blank');
-  if (!popup) { setError(locale === 'ar' ? 'يرجى السماح بالنوافذ المنبثقة لإنشاء PDF.' : 'Allow pop-ups to create the PDF.'); return; }
-  popup.document.open(); popup.document.write(html); popup.document.close();
+  try {
+   const response = await fetch('/api/admin/journey-confirmation/documents', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ bookingId:booking.id, language, checklist:{guest:checks[0],dates:checks[1],services:checks[2],group:checks[3]} }) });
+   const result = await response.json();
+   if (!response.ok) throw new Error(result.error || t.missing);
+   setDocumentId(result.document.id); setSentRecorded(false);
+   popup.document.open(); popup.document.write(html); popup.document.close();
+  } catch (e) { popup.close(); setError(e instanceof Error ? e.message : t.missing); }
  }
  async function markSent() {\n  if (!documentId) return;\n  setError('');\n  try { const response = await fetch('/api/admin/journey-confirmation/documents', { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({documentId}) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || t.saveError); setSentRecorded(true); } catch (e) { setError(e instanceof Error ? e.message : t.saveError); }\n }\n function openWhatsApp() {
   const phone = booking.whatsapp.replace(/[^\d]/g,'');
