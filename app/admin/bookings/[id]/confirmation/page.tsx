@@ -76,7 +76,6 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
       packageName: packageInfo?.name || '—',
       paymentStatus: row.payment_status,
       travelDate: row.expected_travel_date || row.expected_period_start || row.expected_period_end,
-      groupId,
     }} hotels={hotels} trains={trains} activities={activities} locale={locale} />
   </div>;
 }
