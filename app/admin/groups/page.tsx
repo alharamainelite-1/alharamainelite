@@ -5,6 +5,7 @@ import {getAdminLocale} from '@/lib/admin-locale';
 import {adminText} from '@/lib/admin-text';
 import {getCurrentStaff} from '@/lib/supabase/auth';
 import Link from 'next/link';
+import {GroupCoordinatorForm} from '@/components/admin/GroupCoordinatorForm';
 
 function compatible(a:any,b:any){
   if(a.package_id!==b.package_id) return false;
@@ -48,20 +49,21 @@ export default async function GroupsPage(){
   const locale=await getAdminLocale();
   const t=adminText[locale];
   const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);
-  let groups:any[]=[];let packages:any[]=[];let bookings:any[]=[];let members:any[]=[];let hosts:any[]=[];let hotels:any[]=[];let error='';
+  let groups:any[]=[];let packages:any[]=[];let bookings:any[]=[];let members:any[]=[];let hosts:any[]=[];let hotels:any[]=[];let coordinators:any[]=[];let error='';
   try{
     const s=getSupabaseAdmin();
     const [g,p,b,m,h,ht]=await Promise.all([
-      s.from('groups').select('id,group_id,package_id,departure_id,departure_period_start,departure_period_end,capacity,status,host_id,hotel_makkah_id,hotel_madinah_id,hotel_jeddah_id,departure:departures(departure_date,status)').order('created_at',{ascending:false}).limit(50),
+      s.from('groups').select('id,group_id,package_id,departure_id,departure_period_start,departure_period_end,capacity,status,host_id,operations_coordinator_id,hotel_makkah_id,hotel_madinah_id,hotel_jeddah_id,departure:departures(departure_date,status)').order('created_at',{ascending:false}).limit(50),
       s.from('packages').select('id,name').eq('active',true).order('name'),
       s.from('bookings').select('id,booking_id,guest_count,status,payment_status,package_id,lead_source,departure_id,expected_travel_date,expected_period_start,expected_period_end,group_matching_status').in('status',['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE']).order('created_at',{ascending:false}).limit(200),
       s.from('group_members').select('id,group_id,booking_id,guest_count').limit(300),
       s.from('hosts').select('id,name').eq('status','AVAILABLE').order('name').limit(100),
       s.from('hotels').select('id,name,city').eq('availability_status','AVAILABLE').order('name').limit(100)
     ]);
-    const dbError=g.error||p.error||b.error||m.error||h.error||ht.error;
+    const {data:coordinatorRows,error:coordinatorError}=await s.from('profiles').select('id,full_name').eq('role','OPERATIONS').order('full_name').limit(100);
+    const dbError=g.error||p.error||b.error||m.error||h.error||ht.error||coordinatorError;
     if(dbError)throw dbError;
-    groups=g.data||[];packages=p.data||[];members=m.data||[];hosts=h.data||[];hotels=ht.data||[];
+    groups=g.data||[];packages=p.data||[];members=m.data||[];hosts=h.data||[];hotels=ht.data||[];coordinators=coordinatorRows||[];
     const grouped=new Set(members.map((x:any)=>x.booking_id));
     bookings=(b.data||[]).filter((x:any)=>!grouped.has(x.id));
   }catch(e){error=e instanceof Error?e.message:'Unable to load groups.'}
@@ -112,8 +114,8 @@ export default async function GroupsPage(){
     {canManage&&<><GroupForm packages={packages} hosts={hosts} hotels={hotels}/><GroupMemberForm groups={groups.map((r:any)=>({id:r.id,group_id:r.group_id}))} bookings={bookings.filter((x:any)=>x.status==='CONFIRMED'&&x.payment_status==='RECEIVED')}/></>}
     {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4">{error}</div>}
 
-    <div className="card mt-6 overflow-x-auto"><table className="w-full min-w-[900px] text-left text-sm"><thead><tr>{(locale==='ar'?['المجموعة','موعد الانطلاق','الباقة','الفترة','السعة','المضيف','الفنادق','الحالة']:['Group','Departure','Package','Period','Capacity','Host','Hotels','Status']).map(h=><th key={h} className="px-4 py-4">{h}</th>)}</tr></thead><tbody>
-      {groups.length===0?<tr><td colSpan={8} className="p-12 text-center text-forest/45">{t.common.noGroups}</td></tr>:groups.map((r:any)=><tr key={r.id}><td className="px-4 py-4 font-semibold">{r.group_id||'—'}</td><td className="px-4 py-4">{r.departure?.departure_date||r.departure_period_start||'—'}</td><td className="px-4 py-4">{packageName(r.package_id)}</td><td className="px-4 py-4">{r.departure_period_start||r.departure_period_end?(r.departure_period_start||'—')+' → '+(r.departure_period_end||'—'):'—'}</td><td className="px-4 py-4">{r.capacity||0} <span className="text-forest/40">· {members.filter((m:any)=>m.group_id===r.id).reduce((n:number,m:any)=>n+Number(m.guest_count||0),0)} assigned</span></td><td className="px-4 py-4">{r.host_id?(locale==='ar'?'مُسند':'Assigned'):(locale==='ar'?'غير مُسند':'Unassigned')}</td><td className="px-4 py-4">{[r.hotel_makkah_id,r.hotel_madinah_id,r.hotel_jeddah_id].filter(Boolean).length}/3</td><td className="px-4 py-4">{r.status||'—'}</td></tr>)}
+    <div className="card mt-6 overflow-x-auto"><table className="w-full min-w-[1100px] text-left text-sm"><thead><tr>{(locale==='ar'?['المجموعة','موعد الانطلاق','الباقة','الفترة','السعة','المنسق المسؤول','المضيف','الفنادق','الحالة']:['Group','Departure','Package','Period','Capacity','Coordinator','Host','Hotels','Status']).map(h=><th key={h} className="px-4 py-4">{h}</th>)}</tr></thead><tbody>
+      {groups.length===0?<tr><td colSpan={9} className="p-12 text-center text-forest/45">{t.common.noGroups}</td></tr>:groups.map((r:any)=><tr key={r.id}><td className="px-4 py-4 font-semibold">{r.group_id||'—'}</td><td className="px-4 py-4">{r.departure?.departure_date||r.departure_period_start||'—'}</td><td className="px-4 py-4">{packageName(r.package_id)}</td><td className="px-4 py-4">{r.departure_period_start||r.departure_period_end?(r.departure_period_start||'—')+' → '+(r.departure_period_end||'—'):'—'}</td><td className="px-4 py-4">{r.capacity||0} <span className="text-forest/40">· {members.filter((m:any)=>m.group_id===r.id).reduce((n:number,m:any)=>n+Number(m.guest_count||0),0)} assigned</span></td><td className="px-4 py-4">{canManage?<GroupCoordinatorForm groupId={r.id} currentCoordinatorId={r.operations_coordinator_id||null} coordinators={coordinators}/>:coordinators.find((x:any)=>x.id===r.operations_coordinator_id)?.full_name||(locale==='ar'?'غير مسند':'Unassigned')}</td><td className="px-4 py-4">{r.host_id?(locale==='ar'?'مُسند':'Assigned'):(locale==='ar'?'غير مُسند':'Unassigned')}</td><td className="px-4 py-4">{[r.hotel_makkah_id,r.hotel_madinah_id,r.hotel_jeddah_id].filter(Boolean).length}/3</td><td className="px-4 py-4">{r.status||'—'}</td></tr>)}
     </tbody></table></div>
   </section>;
 }
