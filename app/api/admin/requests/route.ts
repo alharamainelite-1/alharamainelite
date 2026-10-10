@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getCurrentStaff } from '@/lib/supabase/auth';
+import { getCurrentStaff, hasStaffPermission } from '@/lib/supabase/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 
-const ROLES = ['SUPER_ADMIN', 'SALES'];
+const ROLES = ['SUPER_ADMIN', 'SALES', 'CUSTOMER_SERVICE'];
 const SALES_STATUSES = ['CONTACTED', 'DETAILS_PENDING', 'PAYMENT_PENDING', 'CANCELLED'];
 
 export async function PATCH(req: Request) {
@@ -12,6 +12,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: 'Sales access required.' }, { status: staff ? 403 : 401 });
   }
 
+  if (!hasStaffPermission(staff, 'requests', 'edit')) return NextResponse.json({ error: 'You do not have permission to update requests.' }, { status: 403 });
   const body = await req.json().catch(() => null) as { id?: string; status?: string } | null;
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!body?.id || !uuid.test(body.id) || typeof body.status !== 'string') {
