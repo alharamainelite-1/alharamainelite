@@ -40,7 +40,7 @@ export default async function OperationsPage(){
   <div className="mt-6 card p-5">
    <h2 className="serif text-2xl text-forest">{locale==='ar'?'تسجيل مصروف رحلة':'Record a journey expense'}</h2>
    <p className="mt-2 text-sm text-forest/55">{locale==='ar'?'سجّل مصروف الفندق أو النقل أو الفعاليات وارفق بيانات المورد. ستبقى الإجماليات والأرباح المالية محصورة في الإدارة والمالية.':'Record hotel, transport or activity expenses. Financial totals and profitability remain restricted to management and finance.'}</p>
-   <ExpenseForm groups={assignedGroups.map((g:any)=>({id:g.id,group_id:g.group_id}))} requireGroup={['OPERATIONS','OPERATIONS_MANAGER','JOURNEY_COORDINATOR'].includes(staff.profile.role)}/>
+   <ExpenseForm groups={assignedGroups.map((g:any)=>({id:g.id,group_id:g.group_id}))} requireGroup={['OPERATIONS','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR'].includes(staff.profile.role)}/>
   </div>
   <p className="mt-2 text-sm text-forest/55">{staff.profile.role==='OPERATIONS'?(locale==='ar'?'هذه قائمة المهام المسندة إليك فقط.':'Only operational tasks assigned to you are shown.'):t.common.operationsDesc}</p>
   {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4">{error}</div>}
