@@ -102,8 +102,13 @@ begin
       if v_booking.expected_travel_date <> (select departure_date from public.departures where id = v_group.departure_id) then
         raise exception using errcode = '23514', message = 'Booking expected date does not match group departure';
       end if;
-    elsif v_booking.departure_id is null and v_booking.expected_travel_date is null then
-      raise exception using errcode = '23514', message = 'Booking needs a travel date before group assignment';
+    elsif v_booking.departure_id is null and v_booking.expected_period_start is not null then
+      if (select departure_date from public.departures where id = v_group.departure_id) < v_booking.expected_period_start
+         or (v_booking.expected_period_end is not null and (select departure_date from public.departures where id = v_group.departure_id) > v_booking.expected_period_end) then
+        raise exception using errcode = '23514', message = 'Booking travel period does not match group departure';
+      end if;
+    elsif v_booking.departure_id is null then
+      raise exception using errcode = '23514', message = 'Booking needs a travel date or period before group assignment';
     end if;
   else
     if v_booking.expected_travel_date is null and v_booking.expected_period_start is null then
