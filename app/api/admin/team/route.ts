@@ -62,6 +62,7 @@ async function resolveManager(admin:any, role:string, requestedId:any, currentUs
     if(!data?.length)return {managerId:null,error:`Create a ${allowed.join(' or ')} account before assigning this role.`};
     managerId=data[0].id;
   }
+  if(managerId===currentUserId)return {managerId:null,error:'An employee cannot report to themselves.'};
   const {data:manager,error}=await admin.from('profiles').select('id,role').eq('id',managerId).maybeSingle();
   if(error||!manager)return {managerId:null,error:'The selected direct manager does not exist.'};
   if(!allowed.includes(String(manager.role)))return {managerId:null,error:`This role must report to: ${allowed.join(', ')}.`};
@@ -137,7 +138,7 @@ export async function POST(req:Request){
   if(error)return NextResponse.json({error:error.message},{status:400});
   if(!data.user)return NextResponse.json({error:'User invitation did not return a user.'},{status:500});
   const {error:profileError}=await admin.from('profiles').upsert({id:data.user.id,full_name,phone:phone||null,role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],permissions}, {onConflict:'id'});
-  if(profileError)return NextResponse.json({error:profileError.message},{status:500});
+  if(profileError){await admin.auth.admin.deleteUser(data.user.id);return NextResponse.json({error:profileError.message},{status:500});}
   await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:'STAFF_ACCOUNT_CREATED',entity_type:'profile',entity_id:data.user.id,after_data:{id:data.user.id,email,full_name,role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],permissions}});
   return NextResponse.json({ok:true,user:{id:data.user.id,email,full_name,role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],permissions}});
 }
@@ -179,6 +180,7 @@ export async function PATCH(req:Request){
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
     const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
     if(partner)return NextResponse.json({error:'Partner accounts cannot be managed as staff.'},{status:409});
+    if(before.role==='SUPER_ADMIN'&&nextRole!=='SUPER_ADMIN'){const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');if((count||0)<=1)return NextResponse.json({error:'Create another Super Admin before changing this account role.'},{status:409});}
     const requestedManager=body?.manager_id===undefined?before.manager_id:body.manager_id;
     const manager=await resolveManager(admin,nextRole,requestedManager,userId);
     if(manager.error)return NextResponse.json({error:manager.error},{status:400});
