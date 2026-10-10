@@ -12,7 +12,9 @@ export default async function OperationsPage(){
  const staff=await getCurrentStaff(); if(!staff)return null;
  const locale=await getAdminLocale(); const t=adminText[locale];
  let rows:any[]=[];let hosts:any[]=[];let vehicles:any[]=[];let team:any[]=[];let assignedGroups:any[]=[];let legacyHostTasks:any[]=[];let error='';
- const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);\n const isCoordinator=staff.profile.role==='JOURNEY_COORDINATOR';\n  try{
+ const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);
+ const isCoordinator=staff.profile.role==='JOURNEY_COORDINATOR';
+  try{
   const s=getSupabaseAdmin();
   const isWorker=staff.profile.role==='OPERATIONS';
   const [tasks,hs,vs,ts]=await Promise.all([
