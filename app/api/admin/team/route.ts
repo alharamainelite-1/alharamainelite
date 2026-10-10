@@ -13,9 +13,9 @@ async function requireSuperAdmin(){
 const ROLE_MANAGER_ROLES:Record<string,string[]> = {
   SUPER_ADMIN:[],
   OPERATIONS_MANAGER:['SUPER_ADMIN'],
-  SALES:['OPERATIONS_MANAGER'],
-  MARKETING:['OPERATIONS_MANAGER'],
-  CUSTOMER_SERVICE:['OPERATIONS_MANAGER'],
+  SALES:['SUPER_ADMIN'],
+  MARKETING:['SUPER_ADMIN'],
+  CUSTOMER_SERVICE:['SUPER_ADMIN'],
   OPERATIONS_SUPERVISOR:['OPERATIONS_MANAGER'],
   JOURNEY_COORDINATOR:['OPERATIONS_SUPERVISOR'],
   OPERATIONS:['OPERATIONS_SUPERVISOR'],
@@ -211,6 +211,7 @@ export async function PATCH(req:Request){
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
     const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
     if(partner)return NextResponse.json({error:'Partner accounts cannot be managed as staff.'},{status:409});
+    if(before.role!==nextRole){const {count:reportsCount}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('manager_id',userId);if((reportsCount||0)>0)return NextResponse.json({error:'Reassign this employee’s direct reports before changing their role.'},{status:409});}
     if(before.role==='SUPER_ADMIN'&&nextRole!=='SUPER_ADMIN'){const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');if((count||0)<=1)return NextResponse.json({error:'Create another Super Admin before changing this account role.'},{status:409});}
     const requestedManager=body?.manager_id===undefined?before.manager_id:body.manager_id;
     const manager=await resolveManager(admin,nextRole,requestedManager,userId);
@@ -238,6 +239,7 @@ export async function PATCH(req:Request){
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
     const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
     if(partner)return NextResponse.json({error:'Partner accounts cannot be deleted from staff management.'},{status:409});
+    const {count:reportsCount}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('manager_id',userId);if((reportsCount||0)>0)return NextResponse.json({error:'Reassign this employee’s direct reports before deleting their account.'},{status:409});
     if(before.role==='SUPER_ADMIN'){
       const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');
       if((count||0)<=1)return NextResponse.json({error:'The last Super Admin cannot be deleted.'},{status:409});
@@ -254,6 +256,7 @@ export async function PATCH(req:Request){
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
     const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
     if(partner)return NextResponse.json({error:'Partner accounts cannot be given staff roles.'},{status:409});
+    if(before.role!==role){const {count:reportsCount}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('manager_id',userId);if((reportsCount||0)>0)return NextResponse.json({error:'Reassign this employee’s direct reports before changing their role.'},{status:409});}
     if(before.role==='SUPER_ADMIN'&&role!=='SUPER_ADMIN'){const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');if((count||0)<=1)return NextResponse.json({error:'The last Super Admin cannot be demoted.'},{status:409});}
     const manager=await resolveManager(admin,role,body?.manager_id, userId);
     if(manager.error)return NextResponse.json({error:manager.error},{status:400});
@@ -270,6 +273,7 @@ export async function PATCH(req:Request){
     const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
     if(partner)return NextResponse.json({error:'Partner accounts cannot be changed from staff management.'},{status:409});
     if(!active){
+      const {count:reportsCount}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('manager_id',userId);if((reportsCount||0)>0)return NextResponse.json({error:'Reassign this employee’s direct reports before deactivating their account.'},{status:409});
       const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');
       if((count||0)<=1&&target.role==='SUPER_ADMIN')return NextResponse.json({error:'The last Super Admin cannot be deactivated.'},{status:409});
     }
