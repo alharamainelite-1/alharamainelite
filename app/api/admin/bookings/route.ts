@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getCurrentStaff } from '@/lib/supabase/auth';
+import { getCurrentStaff, hasStaffPermission } from '@/lib/supabase/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE','COMPLETED','CANCELLED'] as const;
@@ -8,6 +8,8 @@ const STATUS = ['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','P
 export async function PATCH(req: Request) {
   const staff = await getCurrentStaff();
   if (!staff) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+
+  if (!hasStaffPermission(staff, 'bookings', 'edit')) return NextResponse.json({ error: 'You do not have permission to update bookings.' }, { status: 403 });
 
   const body = await req.json().catch(() => null) as {
     bookingId?: string;

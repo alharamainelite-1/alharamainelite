@@ -1,10 +1,10 @@
 import {NextResponse} from "next/server";
 import {revalidatePath} from "next/cache";
-import {getCurrentStaff} from "@/lib/supabase/auth";
+import {getCurrentStaff,hasStaffPermission} from "@/lib/supabase/auth";
 import {getSupabaseAdmin} from "@/lib/supabase/server";
 
 const MANAGEMENT_ROLES = ["SUPER_ADMIN", "FINANCE"];
-const EXPENSE_ROLES = [...MANAGEMENT_ROLES, "OPERATIONS_MANAGER", "JOURNEY_COORDINATOR", "OPERATIONS"];
+const EXPENSE_ROLES = [...MANAGEMENT_ROLES, "OPERATIONS_MANAGER", "OPERATIONS_SUPERVISOR", "JOURNEY_COORDINATOR", "OPERATIONS"];
 const CATEGORIES = ["HOTEL", "TRANSPORT", "HOST", "TRAIN", "ACTIVITY", "MARKETING", "OTHER"];
 const CURRENCIES = ["USD", "SAR"];
 
@@ -15,6 +15,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Expense entry access required." }, { status: 403 });
   }
 
+  if (!hasStaffPermission(staff, "expenses", "create")) return NextResponse.json({ error: "You do not have permission to record expenses." }, { status: 403 });
   const body = await req.json().catch(() => null) as any;
   if (!body || body.amount === undefined || !body.category || !body.date) {
     return NextResponse.json({ error: "Amount, category and date are required." }, { status: 400 });
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
 
   const supabase = getSupabaseAdmin();
   const groupId = body.group_id ? String(body.group_id) : null;
-  if (["OPERATIONS", "OPERATIONS_MANAGER", "JOURNEY_COORDINATOR"].includes(staff.profile.role)) {
+  if (["OPERATIONS", "OPERATIONS_MANAGER", "OPERATIONS_SUPERVISOR", "JOURNEY_COORDINATOR"].includes(staff.profile.role)) {
     if (!groupId) {
       return NextResponse.json({ error: "Select a journey before recording an operational expense." }, { status: 400 });
     }

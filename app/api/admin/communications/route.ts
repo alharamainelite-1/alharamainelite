@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { getCurrentStaff } from "@/lib/supabase/auth";
+import { getCurrentStaff, hasStaffPermission } from "@/lib/supabase/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
-const READ_ROLES = ["SUPER_ADMIN","ADMIN","SALES","FINANCE","OPERATIONS","OPERATIONS_MANAGER"];
-const EDIT_ROLES = ["SUPER_ADMIN","ADMIN","SALES"];
+const READ_ROLES = ["SUPER_ADMIN","SALES","MARKETING","CUSTOMER_SERVICE","FINANCE","OPERATIONS","OPERATIONS_MANAGER","OPERATIONS_SUPERVISOR"];
+const EDIT_ROLES = ["SUPER_ADMIN","SALES","MARKETING"];
 
 export async function GET() {
   const staff = await getCurrentStaff();
   if (!staff || !READ_ROLES.includes(staff.profile.role)) return NextResponse.json({error:"Unauthorized"},{status:staff?403:401});
+  if(!hasStaffPermission(staff,"communications","view"))return NextResponse.json({error:"You do not have permission to view communication templates."},{status:403});
   const {data,error}=await getSupabaseAdmin().from("communication_templates").select("id,key,language,subject,body,active").eq("active",true).order("key").order("language");
   if(error)return NextResponse.json({error:error.message},{status:500});
   return NextResponse.json({templates:data||[]});
@@ -17,6 +18,7 @@ export async function GET() {
 export async function PATCH(req:Request) {
   const staff=await getCurrentStaff();
   if(!staff||!EDIT_ROLES.includes(staff.profile.role)) return NextResponse.json({error:"Sales access required."},{status:staff?403:401});
+  if(!hasStaffPermission(staff,"communications","edit"))return NextResponse.json({error:"You do not have permission to edit communication templates."},{status:403});
   const b=await req.json().catch(()=>null) as any;
   if(!b?.id||typeof b.body!=="string")return NextResponse.json({error:"Template and message are required."},{status:400});
   const s=getSupabaseAdmin();
@@ -32,6 +34,7 @@ export async function PATCH(req:Request) {
 export async function POST(req:Request) {
   const staff=await getCurrentStaff();
   if(!staff||!READ_ROLES.includes(staff.profile.role))return NextResponse.json({error:"Unauthorized"},{status:staff?403:401});
+  if(!hasStaffPermission(staff,"communications","create"))return NextResponse.json({error:"You do not have permission to log customer communications."},{status:403});
   const b=await req.json().catch(()=>null) as any;
   if(!b?.customerId||!b?.channel||!b?.status)return NextResponse.json({error:"Communication details are required."},{status:400});
   const {data,error}=await getSupabaseAdmin().from("communication_logs").insert({

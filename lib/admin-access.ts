@@ -1,35 +1,37 @@
 import type { StaffRole } from '@/lib/supabase/auth';
 
 export const ADMIN_ACCESS = {
-  requests: ['SUPER_ADMIN','SALES'],
-  guests: ['SUPER_ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS'],
-  journeys: ['SUPER_ADMIN','SALES','OPERATIONS_MANAGER','OPERATIONS'],
-  bookings: ['SUPER_ADMIN','SALES','FINANCE','OPERATIONS_MANAGER','OPERATIONS'],
-  operations: ['SUPER_ADMIN','OPERATIONS_MANAGER','JOURNEY_COORDINATOR','OPERATIONS'],
-  groups: ['SUPER_ADMIN','OPERATIONS_MANAGER','JOURNEY_COORDINATOR'],
+  requests: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE'],
+  guests: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','OPERATIONS_MANAGER','OPERATIONS'],
+  journeys: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','OPERATIONS_MANAGER','OPERATIONS'],
+  bookings: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','FINANCE','OPERATIONS_MANAGER','OPERATIONS'],
+  operations: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS'],
+  groups: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR'],
   departures: ['SUPER_ADMIN','OPERATIONS_MANAGER'],
-  resources: ['SUPER_ADMIN','OPERATIONS_MANAGER'],
+  resources: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'],
   payments: ['SUPER_ADMIN','FINANCE'],
   finance: ['SUPER_ADMIN','FINANCE'],
   custody: ['SUPER_ADMIN','FINANCE'],
   expenses: ['SUPER_ADMIN','FINANCE'],
   reports: ['SUPER_ADMIN','FINANCE'],
-  communications: ['SUPER_ADMIN','SALES'],
+  communications: ['SUPER_ADMIN','SALES','MARKETING','CUSTOMER_SERVICE'],
   reviews: ['SUPER_ADMIN'],
   influencers: ['SUPER_ADMIN'],
   team: ['SUPER_ADMIN'],
   staffMonitoring: ['SUPER_ADMIN'],
   settings: ['SUPER_ADMIN'],
   audit: ['SUPER_ADMIN'],
-  hosts: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
-  hotels: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
-  train: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
-  transportation: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS'],
+  hosts: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','OPERATIONS'],
+  hotels: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','OPERATIONS'],
+  train: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','OPERATIONS'],
+  transportation: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','OPERATIONS'],
   hostTasks: ['HOST'],
 } as const satisfies Record<string, readonly StaffRole[]>;
 
-export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS) {
-  return (ADMIN_ACCESS[area] as readonly StaffRole[]).includes(role);
+export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS, permissions?: Record<string, Record<string, boolean>>) {
+  if (!(ADMIN_ACCESS[area] as readonly StaffRole[]).includes(role)) return false;
+  if (role === 'SUPER_ADMIN') return true;
+  return permissions?.[area]?.view !== false;
 }
 
 export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | null {

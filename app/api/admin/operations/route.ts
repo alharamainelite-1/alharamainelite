@@ -1,10 +1,10 @@
 import{NextResponse}from"next/server";
 import{revalidatePath}from"next/cache";
-import{getCurrentStaff}from"@/lib/supabase/auth";
+import{getCurrentStaff,hasStaffPermission}from"@/lib/supabase/auth";
 import{getSupabaseAdmin}from"@/lib/supabase/server";
 
-const ROLES=["SUPER_ADMIN","OPERATIONS_MANAGER","JOURNEY_COORDINATOR","OPERATIONS"];
-const STATUS=["PENDING","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","CANCELLED"];
+const ROLES=["SUPER_ADMIN","OPERATIONS_MANAGER","OPERATIONS_SUPERVISOR","JOURNEY_COORDINATOR","OPERATIONS"];
+const STATUS=["PENDING","ASSIGNED","ACCEPTED","IN_PROGRESS","COMPLETED","VERIFIED","CLOSED","CANCELLED"];
 const LEAD_SOURCES=["PUBLIC","WOMENS_UMRAH"]; const TASK_TYPES=["AIRPORT_TRANSFER","AIRPORT_ASSISTANCE","HOTEL_TRANSFER","TRAIN_ASSISTANCE","MAKKAH_ZIYARAT","MADINAH_ZIYARAT","JEDDAH_EXPERIENCE","SPECIAL_ASSISTANCE","OTHER"];
 
 function getSlaBase(date:string,startTime?:string|null){
@@ -17,6 +17,7 @@ export async function POST(req:Request){
   if(!staff)return NextResponse.json({error:"Unauthorized."},{status:401});
   if(!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Operations access required."},{status:403});
   if(staff.profile.role==="OPERATIONS")return NextResponse.json({error:"Operations staff can only update assigned tasks."},{status:403});
+  if(!hasStaffPermission(staff,"operations","create"))return NextResponse.json({error:"You do not have permission to create operational tasks."},{status:403});
   const b=await req.json().catch(()=>null)as any;
   if(!b?.date||!b?.task_type)return NextResponse.json({error:"Date and task type are required."},{status:400});
   if(!TASK_TYPES.includes(String(b.task_type)))return NextResponse.json({error:"Invalid task type."},{status:400});
@@ -86,9 +87,24 @@ export async function PATCH(req:Request){
   if(staff.profile.role==="OPERATIONS"&&before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});
   if(staff.profile.role==="JOURNEY_COORDINATOR"){const {data:ownedGroup}=before.group_id?await s.from("groups").select("id").eq("id",before.group_id).eq("operations_coordinator_id",staff.profile.id).maybeSingle():{data:null};if(!ownedGroup)return NextResponse.json({error:"You can only access tasks for journeys assigned to you."},{status:403});if(b.status!==undefined)return NextResponse.json({error:"Coordinators assign and monitor tasks; execution status is updated by the assigned worker."},{status:403});}
   const update:any={};
+  if(b.status!==undefined&&!hasStaffPermission(staff,"operations","edit"))return NextResponse.json({error:"You do not have permission to update task status."},{status:403});
+  if(b.status==="CANCELLED"&&!hasStaffPermission(staff,"operations","approve"))return NextResponse.json({error:"You do not have permission to approve task cancellation."},{status:403});
   if(b.status!==undefined){
     if(!STATUS.includes(b.status))return NextResponse.json({error:"Invalid task status."},{status:400});
     if(staff.profile.role==="OPERATIONS"){const allowed:any={PENDING:["ACCEPTED"],ASSIGNED:["ACCEPTED"],ACCEPTED:["IN_PROGRESS"],IN_PROGRESS:["COMPLETED"]};if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:"Invalid task transition."},{status:403});}
+    const managers=["SUPER_ADMIN","OPERATIONS_MANAGER","OPERATIONS_SUPERVISOR"];
+    if(b.status==="VERIFIED"){
+      if(!managers.includes(staff.profile.role))return NextResponse.json({error:"Only management can verify completed tasks."},{status:403});
+      if(before.status!=="COMPLETED")return NextResponse.json({error:"Only completed tasks can be verified."},{status:409});
+      update.verified_at=new Date().toISOString();update.verified_by=staff.profile.id;
+    } else if(b.status==="CLOSED"){
+      if(!managers.includes(staff.profile.role))return NextResponse.json({error:"Only management can close verified tasks."},{status:403});
+      if(before.status!=="VERIFIED")return NextResponse.json({error:"Verify the task before closing it."},{status:409});
+      update.closed_at=new Date().toISOString();update.closed_by=staff.profile.id;
+    } else if(!["OPERATIONS","HOST"].includes(staff.profile.role)&&b.status!=="CANCELLED"){
+      const managementTransitions:any={PENDING:["ASSIGNED"],ASSIGNED:[],COMPLETED:[],VERIFIED:[],CLOSED:[]};
+      if(!(managementTransitions[before.status]||[]).includes(b.status))return NextResponse.json({error:"This status transition is not allowed. Workers update execution status; management verifies and closes completed tasks."},{status:409});
+    }
     if(b.status==="CANCELLED"){
       if(!["SUPER_ADMIN","OPERATIONS_MANAGER"].includes(staff.profile.role))return NextResponse.json({error:"Only management can cancel tasks."},{status:403});
       const reason=typeof b.cancellation_reason==="string"?b.cancellation_reason.trim():"";

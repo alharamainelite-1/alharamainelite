@@ -81,9 +81,9 @@ export async function middleware(req: NextRequest){
     const { data: claimsData } = await supabase.auth.getClaims();
     const userId = claimsData?.claims?.sub;
     if(!userId)return NextResponse.redirect(new URL('/admin/login',req.url));
-    const {data:profile}=await supabase.from('profiles').select('role').eq('id',userId).single();
+    const {data:profile}=await supabase.from('profiles').select('role,permissions').eq('id',userId).single();
     const area=areaForAdminPath(publicPath);
-    if(area && (!profile || !roleCanAccess(profile.role, area)))return NextResponse.redirect(new URL('/admin',req.url));
+    if(area && (!profile || !roleCanAccess(profile.role, area, profile.permissions || {})))return NextResponse.redirect(new URL('/admin',req.url));
     res.headers.set('Cache-Control','private, no-store');
   }
   return res;
