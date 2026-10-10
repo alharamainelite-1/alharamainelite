@@ -30,6 +30,7 @@ export const ADMIN_ACCESS = {
 
 export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS, permissions?: Record<string, Record<string, boolean>>) {
   if (!(ADMIN_ACCESS[area] as readonly StaffRole[]).includes(role)) return false;
+  if (role === 'SUPER_ADMIN') return true;
   return permissions?.[area]?.view !== false;
 }
 
