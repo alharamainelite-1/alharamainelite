@@ -2,9 +2,10 @@ import type { StaffRole } from '@/lib/supabase/auth';
 
 export const ADMIN_ACCESS = {
   requests: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE'],
+  staffTasks: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS','SALES','BOOKINGS','MARKETING','CUSTOMER_SERVICE','FINANCE','HOST'],
   guests: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','OPERATIONS_MANAGER','OPERATIONS'],
   journeys: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','OPERATIONS_MANAGER','OPERATIONS'],
-  bookings: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','FINANCE','OPERATIONS_MANAGER','OPERATIONS'],
+  bookings: ['SUPER_ADMIN','BOOKINGS','CUSTOMER_SERVICE','FINANCE','OPERATIONS_MANAGER','OPERATIONS'],
   operations: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS'],
   groups: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR'],
   departures: ['SUPER_ADMIN','OPERATIONS_MANAGER'],
@@ -37,7 +38,7 @@ export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS, 
 export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | null {
   const map: Array<[string, keyof typeof ADMIN_ACCESS]> = [
     ['/admin/requests','requests'],['/admin/guests','guests'],['/admin/journeys','journeys'],
-    ['/admin/bookings','bookings'],['/admin/operations','operations'],['/admin/groups','groups'],
+    ['/admin/bookings','bookings'],['/admin/staff-tasks','staffTasks'],['/admin/operations','operations'],['/admin/groups','groups'],
     ['/admin/departures','departures'],['/admin/payments','payments'],['/admin/finance','finance'],
     ['/admin/custody','custody'],['/admin/expenses','expenses'],['/admin/reports','reports'],
     ['/admin/communications','communications'],['/admin/reviews','reviews'],['/admin/influencer-partners','influencers'],
