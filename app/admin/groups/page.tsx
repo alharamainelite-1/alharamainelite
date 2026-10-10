@@ -66,7 +66,7 @@ export default async function GroupsPage(){
     bookings=(b.data||[]).filter((x:any)=>!grouped.has(x.id));
   }catch(e){error=e instanceof Error?e.message:'Unable to load groups.'}
 
-  const pending=bookings.filter((x:any)=>Number(x.guest_count||0)<5&&x.group_matching_status!=='GROUPED');
+  const pending=bookings.filter((x:any)=>x.status==='CONFIRMED'&&x.payment_status==='RECEIVED'&&Number(x.guest_count||0)<5&&x.group_matching_status!=='GROUPED');
   const suggestions=suggest(pending);
   const packageName=(id:string)=>packages.find((p:any)=>p.id===id)?.name||'—';
   const period=(x:any)=>x.expected_travel_date||x.expected_period_start||x.expected_period_end||'—';
