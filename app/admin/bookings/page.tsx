@@ -40,6 +40,7 @@ export default async function BookingsPage(){
     {canViewFinancial&&<td className="px-4 py-4">{label(row.payment_status,paymentAr)}</td>}
     <td className="px-4 py-4 text-xs text-forest/45">{new Date(row.created_at).toLocaleDateString(locale==='ar'?'ar-SA':'en-GB')}</td>
     {canInviteReviews&&<td className="px-4 py-4">{row.status==='COMPLETED'?<ReviewInvitationAction bookingId={row.id} language={locale}/>:<span className="text-xs text-forest/45">{locale==='ar'?'بعد اكتمال الرحلة':'Available after completion'}</span>}</td>}
+    {canReviewConfirmation&&<td className="px-4 py-4"><Link href={'/admin/bookings/'+row.id+'/confirmation'} className="btn btn-outline !px-3 !py-2 text-xs">{locale==='ar'?'مراجعة PDF':'Review PDF'}</Link></td>}
     <td className="px-4 py-4">{staff.profile.role==='FINANCE'?<span className="text-xs text-forest/55">{locale==='ar'?'المالية: التحقق من الدفع فقط':'Finance: payment verification only'}</span>:<BookingStatusForm bookingId={row.id} currentStatus={row.status} paymentStatus={row.payment_status}/>}</td>
    </tr>)}</tbody>
   </table></div>
