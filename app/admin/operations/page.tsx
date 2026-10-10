@@ -15,7 +15,7 @@ export default async function OperationsPage(){
   const s=getSupabaseAdmin();
   const isWorker=staff.profile.role==='OPERATIONS';
   const [tasks,hs,vs,ts]=await Promise.all([
-   (()=>{let q=s.from('operations_tasks').select('id,task_id,group_id,date,start_time,end_time,task_type,lead_source,assigned_host,assigned_vehicle,assigned_staff_id,location,status,notes').order('date',{ascending:true}).order('start_time',{ascending:true}).limit(100);if(isWorker)q=q.eq('assigned_staff_id',staff.profile.id);return q;})(),
+   (()=>{let q=s.from('operations_tasks').select('id,task_id,group_id,date,start_time,end_time,task_type,lead_source,assigned_host,assigned_vehicle,assigned_staff_id,location,status,notes,cancellation_reason,cancelled_at').order('date',{ascending:true}).order('start_time',{ascending:true}).limit(100);if(isWorker)q=q.eq('assigned_staff_id',staff.profile.id);return q;})(),
    s.from('hosts').select('id,name').order('name').limit(100),
    s.from('vehicles').select('id,vehicle_id').order('vehicle_id').limit(100),
    s.from('profiles').select('id,full_name,role').in('role',['OPERATIONS','OPERATIONS_MANAGER']).order('full_name').limit(100)
@@ -43,7 +43,7 @@ export default async function OperationsPage(){
    <tbody>{rows.length===0?<tr><td colSpan={12} className="p-12 text-center text-forest/45">{t.common.noTasks}</td></tr>:rows.map(r=><tr key={r.id}>
     <td className="px-4 py-4 font-semibold">{r.task_id||'—'}</td><td className="px-4 py-4">{r.lead_source==='WOMENS_UMRAH'?<span className="inline-flex rounded-full bg-[#f7f3ea] px-3 py-1 text-xs font-bold text-forest">{locale==='ar'?'عمرة النساء':'Women’s Umrah'}</span>:<span className="text-xs text-forest/45">{locale==='ar'?'الموقع':'Website'}</span>}</td><td className="px-4 py-4">{r.task_type||'—'}</td><td className="px-4 py-4">{r.date||'—'}</td><td className="px-4 py-4">{r.start_time||'—'}{r.end_time?' – '+r.end_time:''}</td><td className="px-4 py-4">{r.group_id||'—'}</td>
     <td className="px-4 py-4">{team.find((x:any)=>x.id===r.assigned_staff_id)?.name||(locale==='ar'?'غير مسند':'Unassigned')}</td><td className="px-4 py-4">{r.assigned_host||(locale==='ar'?'غير مسند':'Unassigned')}</td><td className="px-4 py-4">{r.assigned_vehicle||(locale==='ar'?'غير مسند':'Unassigned')}</td><td className="px-4 py-4">{r.location||'—'}</td><td className="px-4 py-4">{r.status||'—'}</td>
-    <td className="px-4 py-4">{canManage?<><OperationsAssignmentForm id={r.id} currentStatus={r.status}/><OperationsResourceForm id={r.id} hostId={r.assigned_host} vehicleId={r.assigned_vehicle} staffId={r.assigned_staff_id} hosts={hosts} vehicles={vehicles} staff={team}/></>:<OperationsAssignmentForm id={r.id} currentStatus={r.status}/>}</td>
+    <td className="px-4 py-4">{canManage?<><OperationsAssignmentForm id={r.id} currentStatus={r.status} cancellationReason={r.cancellation_reason||null} cancelledAt={r.cancelled_at||null}/><OperationsResourceForm id={r.id} hostId={r.assigned_host} vehicleId={r.assigned_vehicle} staffId={r.assigned_staff_id} hosts={hosts} vehicles={vehicles} staff={team}/></>:<OperationsAssignmentForm id={r.id} currentStatus={r.status}/>}</td>
    </tr>)}</tbody>
   </table></div><OperationsCalendar rows={rows}/>
  </section>
