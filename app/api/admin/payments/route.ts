@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getCurrentStaff } from '@/lib/supabase/auth';
+import { getCurrentStaff, hasStaffPermission } from '@/lib/supabase/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 const PAYMENT_STATUS = ['NOT_REQUESTED','PAYMENT_INSTRUCTIONS_SENT','PENDING_VERIFICATION','RECEIVED','PARTIALLY_RECEIVED','REFUNDED','FAILED'] as const;
@@ -10,6 +10,7 @@ const FINANCE_ROLES=['SUPER_ADMIN','FINANCE'];
 export async function POST(req: Request) {
   const staff=await getCurrentStaff();
   if(!staff||!FINANCE_ROLES.includes(staff.profile.role))return NextResponse.json({error:'Finance access required.'},{status:403});
+  if(!hasStaffPermission(staff,'payments','create'))return NextResponse.json({error:'You do not have permission to record payments.'},{status:403});
   const body=await req.json().catch(()=>null) as any;
   const amount=Number(body?.amount);
   const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -55,6 +56,7 @@ export async function PATCH(req: Request) {
   if (!staff) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   if (!FINANCE_ROLES.includes(staff.profile.role)) return NextResponse.json({ error: 'Finance access required.' }, { status: 403 });
 
+  if(!hasStaffPermission(staff,'payments','approve'))return NextResponse.json({error:'You do not have permission to verify payments.'},{status:403});
   const body = await req.json().catch(() => null) as { paymentId?: string; status?: string; notes?: string } | null;
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!body?.paymentId || !uuid.test(body.paymentId) || !body.status || !PAYMENT_STATUS.includes(body.status as typeof PAYMENT_STATUS[number])) {
