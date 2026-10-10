@@ -19,7 +19,7 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
   const { id } = await params;
   const db = getSupabaseAdmin();
   const { data: row, error } = await db.from('bookings')
-    .select('id,booking_id,guest_count,status,payment_status,expected_travel_date,expected_period_start,expected_period_end,customer:customers(full_name,whatsapp,email),package:packages(name)')
+    .select('id,booking_id,guest_count,total_amount,currency,status,payment_status,expected_travel_date,expected_period_start,expected_period_end,customer:customers(full_name,whatsapp,email),package:packages(name)')
     .eq('id', id).is('archived_at', null).maybeSingle();
   if (error || !row) notFound();
 
@@ -77,6 +77,8 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
       whatsapp: customer?.whatsapp || '',
       guests: Number(row.guest_count || 0),
       packageName: packageInfo?.name || '—',
+      totalAmount: Number(row.total_amount || 0),
+      currency: row.currency || 'USD',
       paymentStatus: row.payment_status,
       bookingStatus: row.status,
       travelDate: row.expected_travel_date || row.expected_period_start || row.expected_period_end,
