@@ -53,14 +53,14 @@ export default async function GroupsPage(){
   try{
     const s=getSupabaseAdmin();
     const [g,p,b,m,h,ht]=await Promise.all([
-      (()=>{let q=s.from('groups').select('id,group_id,package_id,departure_id,departure_period_start,departure_period_end,capacity,status,host_id,operations_coordinator_id,hotel_makkah_id,hotel_madinah_id,hotel_jeddah_id,departure:departures(departure_date,status)').order('created_at',{ascending:false}).limit(50);if(staff.profile.role==='OPERATIONS')q=q.eq('operations_coordinator_id',staff.profile.id);return q;})(),
+      (()=>{let q=s.from('groups').select('id,group_id,package_id,departure_id,departure_period_start,departure_period_end,capacity,status,host_id,operations_coordinator_id,hotel_makkah_id,hotel_madinah_id,hotel_jeddah_id,departure:departures(departure_date,status)').order('created_at',{ascending:false}).limit(50);if(['OPERATIONS','JOURNEY_COORDINATOR'].includes(staff.profile.role))q=q.eq('operations_coordinator_id',staff.profile.id);return q;})(),
       s.from('packages').select('id,name').eq('active',true).order('name'),
       s.from('bookings').select('id,booking_id,guest_count,status,payment_status,package_id,lead_source,departure_id,expected_travel_date,expected_period_start,expected_period_end,group_matching_status').in('status',['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE']).order('created_at',{ascending:false}).limit(200),
       s.from('group_members').select('id,group_id,booking_id,guest_count').limit(300),
       s.from('hosts').select('id,name').eq('status','AVAILABLE').order('name').limit(100),
       s.from('hotels').select('id,name,city').eq('availability_status','AVAILABLE').order('name').limit(100)
     ]);
-    const {data:coordinatorRows,error:coordinatorError}=await s.from('profiles').select('id,full_name').eq('role','OPERATIONS').order('full_name').limit(100);
+    const {data:coordinatorRows,error:coordinatorError}=await s.from('profiles').select('id,full_name').eq('role','JOURNEY_COORDINATOR').order('full_name').limit(100);
     const dbError=g.error||p.error||b.error||m.error||h.error||ht.error||coordinatorError;
     if(dbError)throw dbError;
     groups=g.data||[];packages=p.data||[];members=m.data||[];hosts=h.data||[];hotels=ht.data||[];coordinators=coordinatorRows||[];
