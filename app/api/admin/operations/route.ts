@@ -23,6 +23,7 @@ export async function POST(req:Request){
   if(b.lead_source!==undefined&&!LEAD_SOURCES.includes(String(b.lead_source)))return NextResponse.json({error:"Invalid journey source."},{status:400});
   if(b.start_time&&b.end_time&&b.end_time<=b.start_time)return NextResponse.json({error:"End time must be after start time."},{status:400});
   const s=getSupabaseAdmin();
+  if(staff.profile.role==="JOURNEY_COORDINATOR"){if(!b.group_id)return NextResponse.json({error:"A journey group is required."},{status:400});const {data:ownedGroup}=await s.from("groups").select("id").eq("id",b.group_id).eq("operations_coordinator_id",staff.profile.id).maybeSingle();if(!ownedGroup)return NextResponse.json({error:"You can only create tasks for journeys assigned to you."},{status:403});}
   if(b.assigned_staff_id){
     const {data:assignedStaff}=await s.from("profiles").select("id,role").eq("id",b.assigned_staff_id).maybeSingle();
     if(!assignedStaff)return NextResponse.json({error:"Assigned staff member was not found."},{status:404});
