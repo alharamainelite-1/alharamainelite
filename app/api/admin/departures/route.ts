@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const authResult = await auth();
   if (authResult.error) return authResult.error;
   const body = await req.json().catch(() => null) as Record<string, unknown> | null;
-  if (!validDate(body?.departure_date)) {
+  if (!body || !validDate(body.departure_date)) {
     return NextResponse.json({ error: 'Choose a valid future departure date.' }, { status: 400 });
   }
 
