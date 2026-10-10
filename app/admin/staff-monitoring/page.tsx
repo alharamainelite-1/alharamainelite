@@ -7,7 +7,7 @@ const MS_DAY=86400000;
 function fmt(v:string|null,locale:'en'|'ar'='ar'){return v?new Date(v).toLocaleString(locale==='ar'?'ar-SA':'en-GB'):'—';}
 function taskLabel(x:any,ar=false){const v=String(x.task_type||'Task');if(!ar)return v.replaceAll('_',' ');const m:any={AIRPORT_TRANSFER:'نقل من وإلى المطار',AIRPORT_ASSISTANCE:'مساعدة المطار',HOTEL_TRANSFER:'النقل إلى الفندق',TRAIN_ASSISTANCE:'مساعدة قطار الحرمين',MAKKAH_ZIYARAT:'زيارة مكة',MADINAH_ZIYARAT:'زيارة المدينة',JEDDAH_EXPERIENCE:'تجربة جدة',SPECIAL_ASSISTANCE:'مساعدة خاصة',OTHER:'أخرى'};return m[v]||v.replaceAll('_',' ');}
 function slaState(x:any,now:number){
- const open=!['COMPLETED','CANCELLED'].includes(x.status);
+ const open=!['COMPLETED','VERIFIED','CLOSED','CANCELLED'].includes(x.status);
  if(!open||!x.sla_due_at)return 'NO SLA';
  const due=new Date(x.sla_due_at).getTime();
  if(due<now)return 'OVERDUE';
@@ -40,7 +40,7 @@ export default async function StaffMonitoringPage({searchParams}:{searchParams:P
  const allOpen=tasks.filter(x=>!['COMPLETED','CANCELLED'].includes(x.status));
  const overdue=allOpen.filter(x=>slaState(x,now)==='OVERDUE');
  const dueSoon=allOpen.filter(x=>slaState(x,now)==='DUE SOON');
- const completed=tasks.filter(x=>x.status==='COMPLETED');
+ const completed=tasks.filter(x=>['COMPLETED','VERIFIED','CLOSED'].includes(x.status));
  const onTime=completed.filter(x=>x.completed_at&&x.sla_due_at&&new Date(x.completed_at).getTime()<=new Date(x.sla_due_at).getTime()).length;
  const slaRate=completed.filter(x=>x.completed_at&&x.sla_due_at).length?Math.round(onTime/completed.filter(x=>x.completed_at&&x.sla_due_at).length*100):0;
  const selectedProfile=profiles.find(p=>p.id===selected)||null; const selectedData=selectedProfile?byId.get(selectedProfile.id):null;
