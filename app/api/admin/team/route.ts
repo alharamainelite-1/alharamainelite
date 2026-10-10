@@ -97,10 +97,16 @@ export async function GET(){
   const staff=await requireSuperAdmin();
   if(!staff)return NextResponse.json({error:'Forbidden'},{status:403});
   const admin=getSupabaseAdmin();
-  const {data,error}=await admin.auth.admin.listUsers({page:1,perPage:100});
-  if(error)return NextResponse.json({error:error.message},{status:500});
+  const authUsers:any[]=[];
+  for(let page=1;page<=100;page++){
+    const {data,error}=await admin.auth.admin.listUsers({page,perPage:100});
+    if(error)return NextResponse.json({error:error.message},{status:500});
+    const batch=data.users||[];
+    authUsers.push(...batch);
+    if(batch.length<100)break;
+  }
 
-  const ids=(data.users||[]).map(u=>u.id);
+  const ids=authUsers.map(u=>u.id);
   const {data:partnerRows,error:partnerError}=await admin.from('influencer_partners').select('user_id').in('user_id',ids);
   if(partnerError)return NextResponse.json({error:partnerError.message},{status:500});
   const partnerIds=new Set((partnerRows||[]).map(p=>p.user_id));
@@ -128,7 +134,7 @@ export async function GET(){
   }
 
   return NextResponse.json({
-    users:(data.users||[])
+    users:authUsers
       .filter(u=>!partnerIds.has(u.id)&&byId.has(u.id))
       .map(u=>{
         const p=byId.get(u.id)!;
