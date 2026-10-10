@@ -54,7 +54,12 @@ export function JourneyConfirmationReview({ booking, hotels, trains, activities,
    popup.document.open(); popup.document.write(html); popup.document.close();
   } catch (e) { popup.close(); setError(e instanceof Error ? e.message : t.missing); }
  }
- async function markSent() {\n  if (!documentId) return;\n  setError('');\n  try { const response = await fetch('/api/admin/journey-confirmation/documents', { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({documentId}) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || t.saveError); setSentRecorded(true); } catch (e) { setError(e instanceof Error ? e.message : t.saveError); }\n }\n function openWhatsApp() {
+ async function markSent() {
+  if (!documentId) return;
+  setError('');
+  try { const response = await fetch('/api/admin/journey-confirmation/documents', { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({documentId}) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || t.saveError); setSentRecorded(true); } catch (e) { setError(e instanceof Error ? e.message : t.saveError); }
+ }
+ function openWhatsApp() {
   const phone = booking.whatsapp.replace(/[^\d]/g,'');
   if (!phone) { setError(t.noPhone); return; }
   const message = d.message.replace('{name}',booking.guestName || (language === 'ar' ? 'ضيفنا الكريم':'Guest'));
