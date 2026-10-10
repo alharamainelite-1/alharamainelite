@@ -6,7 +6,7 @@ create table if not exists public.journey_request_idempotency (
   reference text not null,
   booking_id text not null,
   estimated_total numeric(12,2) not null,
-  currency character(3) not null,
+  currency text not null,
   departure_date date not null,
   created_at timestamptz not null default now()
 );
@@ -52,7 +52,7 @@ returns table (
   reference text,
   booking_id text,
   estimated_total numeric,
-  currency character,
+  currency text,
   departure_date date,
   idempotency_replayed boolean
 )
@@ -106,7 +106,7 @@ begin
       v_existing.reference,
       v_existing.booking_id,
       v_existing.estimated_total,
-      v_existing.currency,
+      v_existing.currency::text,
       v_existing.departure_date,
       true;
     return;
@@ -144,7 +144,7 @@ begin
     v_result.reference::text,
     v_result.booking_id::text,
     v_result.estimated_total::numeric,
-    v_result.currency::character,
+    v_result.currency::text,
     v_result.departure_date::date,
     false;
 end;
