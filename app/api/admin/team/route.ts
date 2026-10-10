@@ -267,9 +267,9 @@ export async function PATCH(req:Request){
       if((count||0)<=1&&target.role==='SUPER_ADMIN')return NextResponse.json({error:'The last Super Admin cannot be deactivated.'},{status:409});
     }
     const {data:before}=await admin.from('profiles').select('id,full_name,role').eq('id',userId).single();
+    if(!active&&target.role==='HOST'){const {error:hostError}=await admin.from('hosts').update({status:'UNAVAILABLE',updated_at:new Date().toISOString()}).eq('user_id',userId);if(hostError)return NextResponse.json({error:'Host availability could not be updated, so the account was not disabled.'},{status:500});}
     const {error}=await admin.auth.admin.updateUserById(userId,{ban_duration:active?'none':'876000h'});
     if(error)return NextResponse.json({error:error.message},{status:500});
-    if(!active&&target.role==='HOST'){const {error:hostError}=await admin.from('hosts').update({status:'UNAVAILABLE',updated_at:new Date().toISOString()}).eq('user_id',userId);if(hostError)return NextResponse.json({error:'Account was disabled, but host availability could not be updated.'},{status:500});}
     await admin.from('audit_logs').insert({actor_id:staff.profile.id,action:active?'STAFF_ACTIVATED':'STAFF_DEACTIVATED',entity_type:'profile',entity_id:userId,before_data:before,after_data:{...before,active}});
     return NextResponse.json({ok:true});
   }
