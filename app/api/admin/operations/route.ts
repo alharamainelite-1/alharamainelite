@@ -87,6 +87,16 @@ export async function PATCH(req:Request){
   if(b.status!==undefined){
     if(!STATUS.includes(b.status))return NextResponse.json({error:"Invalid task status."},{status:400});
     if(staff.profile.role==="OPERATIONS"){const allowed:any={PENDING:["ACCEPTED"],ASSIGNED:["ACCEPTED"],ACCEPTED:["IN_PROGRESS"],IN_PROGRESS:["COMPLETED"]};if(!(allowed[before.status]||[]).includes(b.status))return NextResponse.json({error:"Invalid task transition."},{status:403});}
+    if(b.status==="CANCELLED"){
+      if(!["SUPER_ADMIN","OPERATIONS_MANAGER"].includes(staff.profile.role))return NextResponse.json({error:"Only management can cancel an operations task."},{status:403});
+      const reason=typeof b.cancellation_reason==="string"?b.cancellation_reason.trim():"";
+      if(reason.length<5||reason.length>1000)return NextResponse.json({error:"A cancellation reason of 5 to 1000 characters is required."},{status:400});
+      if(before.status==="CANCELLED")return NextResponse.json({error:"This task is already cancelled."},{status:409});
+      update.cancellation_reason=reason;
+      update.cancelled_at=new Date().toISOString();
+      update.cancelled_by=staff.profile.id;
+    }
+    if(before.status==="CANCELLED"&&b.status!=="CANCELLED")return NextResponse.json({error:"Cancelled tasks cannot be reopened. Create a replacement task instead."},{status:409});
     update.status=b.status;
     if(b.status==="IN_PROGRESS"&&!before.started_at)update.started_at=new Date().toISOString();
     if(b.status==="COMPLETED"){if(!before.started_at)update.started_at=new Date().toISOString();update.completed_at=new Date().toISOString();}
