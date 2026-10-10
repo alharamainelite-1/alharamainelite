@@ -254,6 +254,7 @@ export async function PATCH(req:Request){
     if(readError||!before)return NextResponse.json({error:'Staff profile not found.'},{status:404});
     const {data:partner}=await admin.from('influencer_partners').select('id').eq('user_id',userId).maybeSingle();
     if(partner)return NextResponse.json({error:'Partner accounts cannot be given staff roles.'},{status:409});
+    if(before.role==='SUPER_ADMIN'&&role!=='SUPER_ADMIN'){const {count}=await admin.from('profiles').select('*',{count:'exact',head:true}).eq('role','SUPER_ADMIN');if((count||0)<=1)return NextResponse.json({error:'The last Super Admin cannot be demoted.'},{status:409});}
     const manager=await resolveManager(admin,role,body?.manager_id, userId);
     if(manager.error)return NextResponse.json({error:manager.error},{status:400});
     const {error}=await admin.from('profiles').update({role,manager_id:manager.managerId,department:ROLE_DEPARTMENT[role],updated_at:new Date().toISOString()}).eq('id',userId);
