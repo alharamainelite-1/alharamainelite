@@ -16,7 +16,32 @@ export async function POST(req: Request) {
   const s=getSupabaseAdmin();
   const {data:booking}=await s.from('bookings').select('id,booking_id,total_amount,currency').eq('id',body.booking_id).single();
   if(!booking)return NextResponse.json({error:'Booking not found.'},{status:404});
-  const {data,error}=await s.from('payments').insert({payment_id:'PAY-'+Date.now().toString(36).toUpperCase(),booking_id:booking.id,amount,currency:body.currency||booking.currency||'USD',date:body.date||new Date().toISOString().slice(0,10),method:body.method||'BANK_TRANSFER',reference:body.reference||null,status:'PENDING_VERIFICATION',notes:body.notes||null}).select('*').single();
+
+  // Keep every payment in the booking's canonical currency; do not silently mix currencies.
+  const bookingCurrency=String(booking.currency||'USD').toUpperCase();
+  const currency=String(body.currency||bookingCurrency).toUpperCase();
+  if(currency!==bookingCurrency)return NextResponse.json({error:'Payment currency must match the booking currency.'},{status:400});
+
+  const paymentDate=body.date===undefined||body.date===null||body.date===''?new Date().toISOString().slice(0,10):String(body.date);
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(paymentDate)||Number.isNaN(Date.parse(paymentDate+'T00:00:00Z'))){
+    return NextResponse.json({error:'A valid payment date is required.'},{status:400});
+  }
+
+  // Include outstanding and received payments when checking the remaining balance.
+  const {data:existingPayments,error:paymentsReadError}=await s.from('payments').select('amount,currency,status').eq('booking_id',booking.id);
+  if(paymentsReadError)return NextResponse.json({error:'Could not verify the remaining booking balance.'},{status:500});
+  const committedAmount=(existingPayments||[]).reduce((sum,payment)=>{
+    const status=String(payment.status||'').toUpperCase();
+    const paymentCurrency=String(payment.currency||bookingCurrency).toUpperCase();
+    if(paymentCurrency!==bookingCurrency||status==='REFUNDED'||status==='FAILED')return sum;
+    const value=Number(payment.amount);
+    return sum+(Number.isFinite(value)&&value>0?value:0);
+  },0);
+  const totalAmount=Number(booking.total_amount);
+  if(!Number.isFinite(totalAmount)||totalAmount<=0)return NextResponse.json({error:'Booking total is invalid.'},{status:409});
+  if(amount+committedAmount>totalAmount+0.009)return NextResponse.json({error:'This payment exceeds the remaining booking balance.'},{status:409});
+
+  const {data,error}=await s.from('payments').insert({payment_id:'PAY-'+Date.now().toString(36).toUpperCase(),booking_id:booking.id,amount,currency,date:paymentDate,method:body.method||'BANK_TRANSFER',reference:body.reference||null,status:'PENDING_VERIFICATION',notes:body.notes||null}).select('*').single();
   if(error)return NextResponse.json({error:error.message},{status:500});
   await s.from('bookings').update({payment_status:'PENDING_VERIFICATION',updated_at:new Date().toISOString()}).eq('id',booking.id);
   await s.from('audit_logs').insert({actor_id:staff.profile.id,action:'PAYMENT_RECORDED',entity_type:'payment',entity_id:data.id,after_data:data});
