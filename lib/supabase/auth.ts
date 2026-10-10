@@ -6,10 +6,48 @@ export const STAFF_ROLES = ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPER
 export type StaffRole = typeof STAFF_ROLES[number];
 export type StaffAction = 'view'|'create'|'edit'|'assign'|'approve';
 export type StaffPermissions = Record<string, Partial<Record<StaffAction, boolean>>>;
+const STAFF_ROLE_PERMISSIONS: Record<StaffRole, Record<string, StaffAction[]>> = {
+  SUPER_ADMIN: {},
+  OPERATIONS_MANAGER: {
+    guests:['view'], journeys:['view'], bookings:['view'], operations:['view','create','edit','assign'],
+    groups:['view','create','edit','assign'], resources:['view','create','edit','assign'],
+    hosts:['view','create','edit','assign'], hotels:['view','create','edit','assign'],
+    train:['view','create','edit','assign'], transportation:['view','create','edit','assign'],
+    expenses:['view','create']
+  },
+  OPERATIONS_SUPERVISOR: {
+    operations:['view','create','edit','assign'], groups:['view','create','edit','assign'],
+    resources:['view','create','edit','assign'], hosts:['view','create','edit','assign'],
+    hotels:['view','create','edit','assign'], train:['view','create','edit','assign'],
+    transportation:['view','create','edit','assign'], expenses:['view','create']
+  },
+  JOURNEY_COORDINATOR: {
+    operations:['view','create','edit','assign'], groups:['view'], resources:['view','assign'], expenses:['view','create']
+  },
+  OPERATIONS: { operations:['view','edit'], transportation:['view'] },
+  SALES: {
+    requests:['view','create','edit'], guests:['view','edit'], journeys:['view','edit'],
+    bookings:['view','create','edit'], communications:['view','create','edit']
+  },
+  MARKETING: { communications:['view','create','edit'] },
+  CUSTOMER_SERVICE: {
+    requests:['view','edit'], guests:['view','edit'], journeys:['view'], bookings:['view','edit'],
+    communications:['view','create','edit']
+  },
+  FINANCE: {
+    bookings:['view'], payments:['view','create','approve'], expenses:['view','approve'],
+    reports:['view'], finance:['view']
+  },
+  HOST: { hostTasks:['view','edit'] }
+};
+
 export function hasStaffPermission(staff: { profile: { role?: StaffRole; permissions?: StaffPermissions | null } } | null, area: string, action: StaffAction = 'view') {
-  if (staff?.profile.role === 'SUPER_ADMIN') return true;
+  const role = staff?.profile.role;
+  if (!role || !STAFF_ROLES.includes(role)) return false;
+  if (role === 'SUPER_ADMIN') return true;
+  if (!STAFF_ROLE_PERMISSIONS[role][area]?.includes(action)) return false;
   const override = staff?.profile.permissions?.[area]?.[action];
-  return typeof override === 'boolean' ? override : true;
+  return override !== false;
 }
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vpeagpnsljoaaafrtbed.supabase.co';
