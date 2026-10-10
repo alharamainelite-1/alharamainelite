@@ -114,7 +114,8 @@ export async function PATCH(req:Request) {
     const {data:current}=await s.from('profiles').select('manager_id,department').eq('id',staff.profile.id).maybeSingle();
     const sameDepartment=!!current?.department&&current.department===target.department;
     const managerRelation=target.id===current?.manager_id||target.manager_id===staff.profile.id;
-    if(!sameDepartment&&!managerRelation)return jsonError('Handover is allowed only within the same department or to/from the direct manager.',403);
+    const salesToBookings=staff.profile.role==='SALES'&&target.role==='BOOKINGS';
+    if(!sameDepartment&&!managerRelation&&!salesToBookings)return jsonError('Handover is allowed within a department, to/from a direct manager, or from Sales to Bookings.',403);
     if(before.handover_status==='PENDING')return jsonError('A handover request is already pending.',409);
     patch.handover_status='PENDING';patch.handover_from_staff_id=staff.profile.id;patch.handover_to_staff_id=target.id;patch.handover_note=body.note.trim();patch.handover_requested_at=new Date().toISOString();patch.handover_decided_at=null;event='STAFF_TASK_HANDOVER_REQUESTED';
   }else if(body.action==='accept_handover'||body.action==='reject_handover'){
