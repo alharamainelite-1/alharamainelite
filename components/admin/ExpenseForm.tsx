@@ -19,7 +19,8 @@ export function ExpenseForm({
     event.preventDefault();
     setBusy(true);
     setMessage("");
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     try {
       const response = await fetch("/api/admin/expenses", {
         method: "POST",
@@ -38,7 +39,7 @@ export function ExpenseForm({
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || (ar ? "تعذر إضافة المصروف." : "Could not add expense."));
       setMessage(ar ? "تم تسجيل المصروف وإرساله للمراجعة." : "Expense recorded and sent for review.");
-      event.currentTarget.reset();
+      formElement.reset();
       window.setTimeout(() => window.location.reload(), 700);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : (ar ? "تعذر إضافة المصروف." : "Could not add expense."));
