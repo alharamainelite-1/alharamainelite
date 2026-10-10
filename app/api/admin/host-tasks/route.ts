@@ -21,6 +21,7 @@ export async function PATCH(req:Request){
   cancellationReason=typeof b.cancellation_reason==='string'?b.cancellation_reason.trim():'';
   if(cancellationReason.length<3||cancellationReason.length>1000)return NextResponse.json({error:'A cancellation reason between 3 and 1000 characters is required.'},{status:400});
   if(before.status==='CANCELLED')return NextResponse.json({error:'Task is already cancelled.'},{status:409});
+  if(before.status==='COMPLETED')return NextResponse.json({error:'Completed tasks cannot be cancelled.'},{status:409});
  } else if(before.status==='CANCELLED') {
   return NextResponse.json({error:'Cancelled tasks cannot be reopened from this action.'},{status:409});
  }
