@@ -20,12 +20,8 @@ export async function PATCH(req: Request) {
 
   // Payment receipt and operational stages must never be changed from the
   // request screen. They have dedicated, guarded workflows.
-  if (!SALES_STATUSES.includes(body.status) && body.status !== 'CONFIRMED') {
+  if (!SALES_STATUSES.includes(body.status)) {
     return NextResponse.json({ error: 'Use the dedicated payment or booking workflow for this status.' }, { status: 409 });
-  }
-
-  if (staff.profile.role === 'SALES' && !SALES_STATUSES.includes(body.status)) {
-    return NextResponse.json({ error: 'You do not have permission for this status.' }, { status: 403 });
   }
 
   const supabase = getSupabaseAdmin();
@@ -84,7 +80,7 @@ export async function PATCH(req: Request) {
     revalidatePath('/admin/groups');
     revalidatePath('/admin/journeys');
     revalidatePath('/admin');
-    return NextResponse.json({ request: data, booking: data && (data as { booking?: unknown }).booking });
+    return NextResponse.json({ booking: data && (data as { booking?: unknown }).booking });
   }
 
   // Requests without a booking can only move through sales intake stages.
