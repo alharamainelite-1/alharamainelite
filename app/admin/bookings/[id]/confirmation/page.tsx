@@ -30,21 +30,23 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
   let activities: any[] = [];
   if (groupId) {
     const [hotelResult, trainResult, activityResult] = await Promise.all([
-      db.from('hotel_assignments').select('id,city,room_type,room_count,check_in,check_out,notes,hotel:hotels(name,address)').eq('group_id', groupId),
+      db.from('hotel_assignments').select('id,city,room_type,room_count,check_in,check_out,notes,confirmation_status,confirmation_reference,hotel:hotels(name,address)').eq('group_id', groupId),
       db.from('train_bookings').select('id,travel_date,origin,destination,departure_time,arrival_time,reference,status,notes').eq('group_id', groupId),
-      db.from('booking_activities').select('id,starts_at,ends_at,notes,activity:activities(name,city,location)').or('booking_id.eq.' + row.id + ',group_id.eq.' + groupId),
+      db.from('booking_activities').select('id,starts_at,ends_at,notes,confirmation_status,confirmation_reference,activity:activities(name,city,location)').or('booking_id.eq.' + row.id + ',group_id.eq.' + groupId),
     ]);
     hotels = (hotelResult.data || []).map((item: any) => ({
       id: item.id,
+      type: 'hotel' as const,
       title: item.hotel?.name || (locale === 'ar' ? 'فندق غير محدد' : 'Hotel not specified'),
       city: item.city,
       date: item.check_in,
-      status: locale === 'ar' ? 'يلزم التحقق من تأكيد الفندق' : 'Hotel confirmation needs verification',
-      reference: null,
+      status: item.confirmation_status,
+      reference: item.confirmation_reference,
       details: [item.room_type, item.room_count ? (locale === 'ar' ? 'عدد الغرف: ' : 'Rooms: ') + item.room_count : null, item.check_out ? (locale === 'ar' ? 'المغادرة: ' : 'Check-out: ') + item.check_out : null, item.hotel?.address, item.notes].filter(Boolean).join(' · '),
     }));
     trains = (trainResult.data || []).map((item: any) => ({
       id: item.id,
+      type: 'train' as const,
       title: [item.origin, item.destination].filter(Boolean).join(' → ') || (locale === 'ar' ? 'قطار الحرمين' : 'Haramain train'),
       city: null,
       date: item.travel_date || item.departure_time,
@@ -54,11 +56,12 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
     }));
     activities = (activityResult.data || []).map((item: any) => ({
       id: item.id,
+      type: 'activity' as const,
       title: item.activity?.name || (locale === 'ar' ? 'زيارة / جولة' : 'Visit / tour'),
       city: item.activity?.city,
       date: item.starts_at,
-      status: locale === 'ar' ? 'يلزم التحقق من التأكيد' : 'Confirmation needs verification',
-      reference: null,
+      status: item.confirmation_status,
+      reference: item.confirmation_reference,
       details: [item.activity?.location, item.ends_at ? (locale === 'ar' ? 'النهاية: ' : 'Ends: ') + item.ends_at : null, item.notes].filter(Boolean).join(' · '),
     }));
   }
