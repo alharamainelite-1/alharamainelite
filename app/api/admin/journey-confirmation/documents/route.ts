@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   if (!staff) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   if (staff.profile.role !== 'SUPER_ADMIN') return NextResponse.json({ error: 'Super Admin access required.' }, { status: 403 });
   const body = await request.json().catch(() => null) as { bookingId?: string; language?: string; checklist?: unknown } | null;
-  if (!body || !UUID.test(body.bookingId || '') || !['ar','en'].includes(body.language || '')) {
+  if (!body || !UUID.test(body.bookingId || '') || !['ar','en','so'].includes(body.language || '')) {
     return NextResponse.json({ error: 'Valid booking and document language are required.' }, { status: 400 });
   }
   const checklist = body.checklist as Record<string, unknown> | undefined;
