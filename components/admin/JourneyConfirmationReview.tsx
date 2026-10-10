@@ -35,6 +35,8 @@ export function JourneyConfirmationReview({ booking, hotels, trains, activities,
  const [serviceEdits, setServiceEdits] = useState<Record<string,{status:string;reference:string;busy:boolean}>>({});
  const [documentId, setDocumentId] = useState<string | null>(null);
  const [sentRecorded, setSentRecorded] = useState(false);
+ const [pdfUploaded, setPdfUploaded] = useState(false);
+ const [uploadingPdf, setUploadingPdf] = useState(false);
  const router = useRouter();
  const t = labels[locale]; const d = labels[language];
  const paid = booking.paymentStatus === 'RECEIVED';
@@ -59,9 +61,27 @@ export function JourneyConfirmationReview({ booking, hotels, trains, activities,
    const response = await fetch('/api/admin/journey-confirmation/documents', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ bookingId:booking.id, language, checklist:{guest:checks[0],dates:checks[1],services:checks[2],group:checks[3]} }) });
    const result = await response.json();
    if (!response.ok) throw new Error(result.error || t.missing);
-   setDocumentId(result.document.id); setSentRecorded(false);
+   setDocumentId(result.document.id); setSentRecorded(false); setPdfUploaded(false);
    popup.document.open(); popup.document.write(html); popup.document.close();
   } catch (e) { popup.close(); setError(e instanceof Error ? e.message : t.missing); }
+ }
+ async function uploadPdf(file: File | undefined) {
+  if (!documentId || !file) return;
+  setError(''); setUploadingPdf(true);
+  try {
+   const form = new FormData();
+   form.append('documentId', documentId);
+   form.append('file', file);
+   const response = await fetch('/api/admin/journey-confirmation/documents/upload', { method:'POST', body:form });
+   const result = await response.json();
+   if (!response.ok) throw new Error(result.error || t.saveError);
+   setPdfUploaded(true);
+   router.refresh();
+  } catch (e) {
+   setError(e instanceof Error ? e.message : t.saveError);
+  } finally {
+   setUploadingPdf(false);
+  }
  }
  async function markSent() {
   if (!documentId) return;
