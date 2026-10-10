@@ -17,7 +17,7 @@ function defaultDepartment(role:Role){if(role==='SUPER_ADMIN')return 'GENERAL_MA
 function defaultPermission(role:Role,area:string,action:string){
  if(role==='SUPER_ADMIN')return true;
  const map:Record<string,Record<string,string[]>>={
-  OPERATIONS_MANAGER:{guests:['view'],journeys:['view'],bookings:['view'],operations:['view','create','edit','assign'],groups:['view','create','edit','assign'],resources:['view','create','edit','assign'],hosts:['view','create','edit','assign'],hotels:['view','create','edit','assign'],train:['view','create','edit','assign'],transportation:['view','create','edit','assign'],expenses:['view','create']},
+  OPERATIONS_MANAGER:{guests:['view'],journeys:['view'],bookings:['view'],operations:['view','create','edit','assign','approve'],groups:['view','create','edit','assign'],resources:['view','create','edit','assign'],hosts:['view','create','edit','assign'],hotels:['view','create','edit','assign'],train:['view','create','edit','assign'],transportation:['view','create','edit','assign'],expenses:['view','create']},
   OPERATIONS_SUPERVISOR:{operations:['view','create','edit','assign'],groups:['view','create','edit','assign'],resources:['view','create','edit','assign'],hosts:['view','create','edit','assign'],hotels:['view','create','edit','assign'],train:['view','create','edit','assign'],transportation:['view','create','edit','assign'],expenses:['view','create']},
   JOURNEY_COORDINATOR:{operations:['view','create','edit','assign'],groups:['view'],resources:['view','assign'],expenses:['view','create']},
   OPERATIONS:{operations:['view','edit'],transportation:['view']},
