@@ -7,6 +7,7 @@ export type StaffRole = typeof STAFF_ROLES[number];
 export type StaffAction = 'view'|'create'|'edit'|'assign'|'approve';
 export type StaffPermissions = Record<string, Partial<Record<StaffAction, boolean>>>;
 export function hasStaffPermission(staff: { profile: { permissions?: StaffPermissions | null } } | null, area: string, action: StaffAction = 'view') {
+  if (staff?.profile.role === 'SUPER_ADMIN') return true;
   const override = staff?.profile.permissions?.[area]?.[action];
   return typeof override === 'boolean' ? override : true;
 }
