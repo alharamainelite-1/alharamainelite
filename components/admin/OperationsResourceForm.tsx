@@ -1,6 +1,6 @@
 "use client";
 import{useState}from"react";
-export function OperationsResourceForm({id,hostId,vehicleId,staffId,hosts,vehicles,staff}:{id:string;hostId:string|null;vehicleId:string|null;staffId:string|null;hosts:{id:string;name:string}[];vehicles:{id:string;vehicle_id:string}[];staff:{id:string;name:string}[];canAssignStaff?:boolean}){
+export function OperationsResourceForm({id,hostId,vehicleId,staffId,hosts,vehicles,staff,canAssignStaff=true}:{id:string;hostId:string|null;vehicleId:string|null;staffId:string|null;hosts:{id:string;name:string}[];vehicles:{id:string;vehicle_id:string}[];staff:{id:string;name:string}[];canAssignStaff?:boolean}){
  const ar=typeof document!=='undefined'&&!document.cookie.includes('he_locale=en');const[h,setH]=useState(hostId||""),[v,setV]=useState(vehicleId||""),[u,setU]=useState(staffId||""),[b,setB]=useState(false);
  async function save(){setB(true);const r=await fetch("/api/admin/operations/resources",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({id,assigned_host:h||null,assigned_vehicle:v||null,...(canAssignStaff?{assigned_staff_id:u||null}:{})})});if(r.ok)location.reload();else setB(false)}
  return <div className="grid gap-1">
