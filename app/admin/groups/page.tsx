@@ -54,7 +54,7 @@ export default async function GroupsPage(){
     const [g,p,b,m,h,ht]=await Promise.all([
       s.from('groups').select('id,group_id,package_id,departure_id,departure_period_start,departure_period_end,capacity,status,host_id,hotel_makkah_id,hotel_madinah_id,hotel_jeddah_id,departure:departures(departure_date,status)').order('created_at',{ascending:false}).limit(50),
       s.from('packages').select('id,name').eq('active',true).order('name'),
-      s.from('bookings').select('id,booking_id,guest_count,status,package_id,lead_source,departure_id,expected_travel_date,expected_period_start,expected_period_end,group_matching_status').in('status',['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE']).order('created_at',{ascending:false}).limit(200),
+      s.from('bookings').select('id,booking_id,guest_count,status,payment_status,package_id,lead_source,departure_id,expected_travel_date,expected_period_start,expected_period_end,group_matching_status').in('status',['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE']).order('created_at',{ascending:false}).limit(200),
       s.from('group_members').select('id,group_id,booking_id,guest_count').limit(300),
       s.from('hosts').select('id,name').eq('status','AVAILABLE').order('name').limit(100),
       s.from('hotels').select('id,name,city').eq('availability_status','AVAILABLE').order('name').limit(100)
@@ -109,7 +109,7 @@ export default async function GroupsPage(){
       </div>
     </div>}
 
-    {canManage&&<><GroupForm packages={packages} hosts={hosts} hotels={hotels}/><GroupMemberForm groups={groups.map((r:any)=>({id:r.id,group_id:r.group_id}))} bookings={bookings.filter((x:any)=>['CONFIRMED','PREPARING','ACTIVE'].includes(x.status))}/></>}
+    {canManage&&<><GroupForm packages={packages} hosts={hosts} hotels={hotels}/><GroupMemberForm groups={groups.map((r:any)=>({id:r.id,group_id:r.group_id}))} bookings={bookings.filter((x:any)=>x.status==='CONFIRMED'&&x.payment_status==='RECEIVED')}/></>}
     {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4">{error}</div>}
 
     <div className="card mt-6 overflow-x-auto"><table className="w-full min-w-[900px] text-left text-sm"><thead><tr>{(locale==='ar'?['المجموعة','موعد الانطلاق','الباقة','الفترة','السعة','المضيف','الفنادق','الحالة']:['Group','Departure','Package','Period','Capacity','Host','Hotels','Status']).map(h=><th key={h} className="px-4 py-4">{h}</th>)}</tr></thead><tbody>
