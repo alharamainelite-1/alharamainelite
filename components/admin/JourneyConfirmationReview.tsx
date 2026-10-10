@@ -41,7 +41,7 @@ export function JourneyConfirmationReview({ booking, hotels, trains, activities,
   if (!popup) { setError(locale === 'ar' ? 'يرجى السماح بالنوافذ المنبثقة لإنشاء PDF.' : 'Allow pop-ups to create the PDF.'); return; }
   const sections = services.map((section) => {
    const items = section.items.length ? section.items.map((item) =>
-    '<article class="service"><h3>' + esc(item.title) + '</h3><p>' + esc([item.city,item.details].filter(Boolean).join(' · ') || '—') + '</p><p>' + esc(d.date) + ': ' + esc(dateLabel(item.date,language)) + '</p><p>' + esc(d.status) + ': ' + esc(item.status || d.notProvided) + '</p><p>' + esc(d.ref) + ': ' + esc(item.reference || d.notProvided) + '</p></article>'
+    '<article class="service"><h3>' + esc(item.title) + '</h3><p>' + esc([item.city,item.details].filter(Boolean).join(' · ') || '—') + '</p><p>' + esc(d.date) + ': ' + esc(dateLabel(item.date,language)) + '</p><p>' + esc(d.status) + ': ' + esc(item.status === 'CONFIRMED' ? d.statusConfirmed : item.status === 'CANCELLED' ? d.statusCancelled : d.statusPending) + '</p><p>' + esc(d.ref) + ': ' + esc(item.reference || d.notProvided) + '</p></article>'
    ).join('') : '<p class="empty">' + esc(d.empty) + '</p>';
    return '<section><h2>' + esc(section.title) + '</h2>' + items + '</section>';
   }).join('');
