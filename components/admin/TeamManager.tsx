@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import {adminText} from '@/lib/admin-text';
 
-type Role='SUPER_ADMIN'|'OPERATIONS_MANAGER'|'OPERATIONS_SUPERVISOR'|'JOURNEY_COORDINATOR'|'OPERATIONS'|'SALES'|'MARKETING'|'CUSTOMER_SERVICE'|'FINANCE'|'HOST';
+type Role='SUPER_ADMIN'|'OPERATIONS_MANAGER'|'OPERATIONS_SUPERVISOR'|'JOURNEY_COORDINATOR'|'OPERATIONS'|'SALES'|'BOOKINGS'|'MARKETING'|'CUSTOMER_SERVICE'|'FINANCE'|'HOST';
 type Compensation={staff_id:string;base_salary:number;currency:'USD'|'SAR';pay_frequency:string;effective_from:string;notes?:string|null};
 type Bonus={id:string;staff_id:string;amount:number;currency:'USD'|'SAR';bonus_date:string;reason:string;status:string;approved_at?:string|null;paid_at?:string|null;notes?:string|null};
 type User={id:string;email:string;full_name:string;phone:string;role:Role;manager_id:string|null;manager_name?:string|null;department:string;permissions:Record<string,Record<string,boolean>>;created_at:string;email_confirmed:boolean;banned:boolean;compensation:Compensation|null;bonuses:Bonus[]};
