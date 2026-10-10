@@ -3,6 +3,7 @@ import {getCurrentStaff} from '@/lib/supabase/auth';
 import {OperationsTaskForm} from '@/components/admin/OperationsTaskForm';
 import {OperationsAssignmentForm} from '@/components/admin/OperationsAssignmentForm';
 import {OperationsResourceForm} from '@/components/admin/OperationsResourceForm';
+import {HostTaskCancellationForm} from '@/components/admin/HostTaskCancellationForm';
 import {OperationsCalendar} from '@/components/admin/OperationsCalendar';
 import {ExpenseForm} from '@/components/admin/ExpenseForm';
 import {getAdminLocale} from '@/lib/admin-locale'; import {adminText} from '@/lib/admin-text';
@@ -10,7 +11,8 @@ import {getAdminLocale} from '@/lib/admin-locale'; import {adminText} from '@/li
 export default async function OperationsPage(){
  const staff=await getCurrentStaff(); if(!staff)return null;
  const locale=await getAdminLocale(); const t=adminText[locale];
- let rows:any[]=[];let hosts:any[]=[];let vehicles:any[]=[];let team:any[]=[];let assignedGroups:any[]=[];let error='';
+ let rows:any[]=[];let hosts:any[]=[];let vehicles:any[]=[];let team:any[]=[];let assignedGroups:any[]=[];let legacyHostTasks:any[]=[];let error='';
+ const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);
  try{
   const s=getSupabaseAdmin();
   const isWorker=staff.profile.role==='OPERATIONS';
@@ -27,6 +29,7 @@ export default async function OperationsPage(){
   const groupResult=await groupQuery;
   if(groupResult.error)throw groupResult.error;
   assignedGroups=groupResult.data||[];
+  if(canManage){const ht=await s.from('host_tasks').select('id,task_id,host_id,date,start_time,end_time,task_type,status,location,notes,cancellation_reason,cancelled_at').order('date',{ascending:true}).limit(100);if(ht.error)throw ht.error;legacyHostTasks=ht.data||[];}
  }catch(e){error=e instanceof Error?e.message:'Unable to load operations.'}
  const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);
  return <section className="pb-12">
@@ -45,6 +48,8 @@ export default async function OperationsPage(){
     <td className="px-4 py-4">{team.find((x:any)=>x.id===r.assigned_staff_id)?.name||(locale==='ar'?'غير مسند':'Unassigned')}</td><td className="px-4 py-4">{r.assigned_host||(locale==='ar'?'غير مسند':'Unassigned')}</td><td className="px-4 py-4">{r.assigned_vehicle||(locale==='ar'?'غير مسند':'Unassigned')}</td><td className="px-4 py-4">{r.location||'—'}</td><td className="px-4 py-4">{r.status||'—'}</td>
     <td className="px-4 py-4">{canManage?<><OperationsAssignmentForm id={r.id} currentStatus={r.status}/><OperationsResourceForm id={r.id} hostId={r.assigned_host} vehicleId={r.assigned_vehicle} staffId={r.assigned_staff_id} hosts={hosts} vehicles={vehicles} staff={team}/></>:<OperationsAssignmentForm id={r.id} currentStatus={r.status}/>}</td>
    </tr>)}</tbody>
-  </table></div><OperationsCalendar rows={rows}/>
+  </table></div>
+  {canManage&&<div className="mt-8"><h2 className="serif text-2xl text-forest">{locale==='ar'?'مهام المضيفين القديمة':'Legacy host tasks'}</h2><p className="mt-2 text-sm text-forest/55">{locale==='ar'?'يمكن للإدارة إلغاء المهمة مع تسجيل السبب، وسيظهر السبب للمضيف.':'Management can cancel a legacy host task with an audited reason, which remains visible to the host.'}</p><div className="card mt-4 overflow-x-auto"><table className="w-full min-w-[900px] text-left text-sm"><thead><tr>{(locale==='ar'?['المهمة','المضيف','التاريخ','الوقت','النوع','الحالة','سبب الإلغاء / الإجراء']:['Task','Host','Date','Time','Type','Status','Cancellation reason / action']).map(h=><th key={h} className="px-4 py-4">{h}</th>)}</tr></thead><tbody>{legacyHostTasks.length===0?<tr><td colSpan={7} className="p-8 text-center text-forest/45">{locale==='ar'?'لا توجد مهام مضيفين قديمة.':'No legacy host tasks.'}</td></tr>:legacyHostTasks.map(task=><tr key={task.id} className="border-t border-forest/10"><td className="px-4 py-4 font-semibold">{task.task_id||task.id}</td><td className="px-4 py-4">{hosts.find((h:any)=>h.id===task.host_id)?.name||'—'}</td><td className="px-4 py-4">{task.date||'—'}</td><td className="px-4 py-4">{task.start_time||'—'}{task.end_time?' – '+task.end_time:''}</td><td className="px-4 py-4">{task.task_type||'—'}</td><td className="px-4 py-4">{task.status||'—'}</td><td className="px-4 py-4">{task.status==='CANCELLED'?<div className="max-w-xs text-xs text-forest/65">{task.cancellation_reason|| (locale==='ar'?'لا يوجد سبب مسجل':'No reason recorded')}{task.cancelled_at&&<div className="mt-1">{new Date(task.cancelled_at).toLocaleString(locale==='ar'?'ar-SA':'en-GB')}</div>}</div>:<HostTaskCancellationForm id={task.id} currentStatus={task.status||'PENDING'} locale={locale}/>}</td></tr>)}</tbody></table></div></div>}
+  <OperationsCalendar rows={rows}/>
  </section>
 }
