@@ -23,6 +23,7 @@ function validDate(value: unknown) {
 }
 
 function boundedInteger(value: unknown, fallback: number, min: number, max: number) {
+  if (value === undefined || value === null || value === '') return fallback;
   const number = Number(value);
   if (!Number.isInteger(number)) return fallback;
   return Math.min(Math.max(number, min), max);
