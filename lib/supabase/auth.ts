@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export const STAFF_ROLES = ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS','SALES','BOOKINGS','MARKETING,'CUSTOMER_SERVICE','FINANCE','HOST'] as const;
+export const STAFF_ROLES = ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS','SALES','BOOKINGS','MARKETING','CUSTOMER_SERVICE','FINANCE','HOST'] as const;
 export type StaffRole = typeof STAFF_ROLES[number];
 export type StaffAction = 'view'|'create'|'edit'|'assign'|'approve';
 export type StaffPermissions = Record<string, Partial<Record<StaffAction, boolean>>>;
