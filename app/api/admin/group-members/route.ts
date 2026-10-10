@@ -1,40 +1,101 @@
-import{NextResponse}from"next/server";
-import{revalidatePath}from"next/cache";
-import{getCurrentStaff}from"@/lib/supabase/auth";
-import{getSupabaseAdmin}from"@/lib/supabase/server";
-const ROLES=["SUPER_ADMIN","ADMIN","OPERATIONS_MANAGER"];
-export async function POST(req:Request){
- const staff=await getCurrentStaff(); if(!staff)return NextResponse.json({error:"Unauthorized."},{status:401});
- if(!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Operations manager access required."},{status:403});
- const b=await req.json().catch(()=>null)as any;
- if(!b?.group_id||!b?.booking_id)return NextResponse.json({error:"Group and booking are required."},{status:400});
- const s=getSupabaseAdmin();
- const[{data:g},{data:booking},{data:existing}]=await Promise.all([
-  s.from("groups").select("id,capacity,departure_id").eq("id",b.group_id).single(),
-  s.from("bookings").select("id,guest_count,status,departure_id").eq("id",b.booking_id).single(),
-  s.from("group_members").select("id,group_id,guest_count").eq("booking_id",b.booking_id)
- ]);
- if(!g)return NextResponse.json({error:"Group not found."},{status:404});
- if(!booking)return NextResponse.json({error:"Booking not found."},{status:404});
- if(["CANCELLED","COMPLETED"].includes(booking.status))return NextResponse.json({error:"This booking cannot be added to a group."},{status:409});
- if(existing?.length)return NextResponse.json({error:"This booking is already assigned to a group."},{status:409});
- if(g.departure_id!==booking.departure_id)return NextResponse.json({error:"Booking and group must use the same departure date."},{status:409});
- const{data:members}=await s.from("group_members").select("guest_count").eq("group_id",b.group_id);
- const used=(members||[]).reduce((n:any,x:any)=>n+Number(x.guest_count||0),0);
- const guestCount=Number(booking.guest_count||0);
- if(used+guestCount>g.capacity)return NextResponse.json({error:`Group capacity exceeded. Available: ${Math.max(g.capacity-used,0)} guests.`},{status:409});
- const{data,error}=await s.from("group_members").insert({group_id:b.group_id,booking_id:b.booking_id,guest_count:guestCount,approved_by:staff.profile.id,approved_at:new Date().toISOString()}).select("*").single();
- if(error)return NextResponse.json({error:error.message},{status:500});
- await s.from("audit_logs").insert({actor_id:staff.profile.id,action:"BOOKING_ADDED_TO_GROUP",entity_type:"group_member",entity_id:data.id,after_data:data});
- revalidatePath("/admin/groups"); return NextResponse.json({member:data},{status:201});
+import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
+import { getCurrentStaff } from '@/lib/supabase/auth';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
+
+const ROLES = ['SUPER_ADMIN', 'OPERATIONS_MANAGER'];
+
+export async function POST(req: Request) {
+  const staff = await getCurrentStaff();
+  if (!staff) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+  if (!ROLES.includes(staff.profile.role)) {
+    return NextResponse.json({ error: 'Operations manager access required.' }, { status: 403 });
+  }
+
+  const body = await req.json().catch(() => null) as { group_id?: string; booking_id?: string } | null;
+  if (!body?.group_id || !body.booking_id) {
+    return NextResponse.json({ error: 'Group and booking are required.' }, { status: 400 });
+  }
+
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuid.test(body.group_id) || !uuid.test(body.booking_id)) {
+    return NextResponse.json({ error: 'A valid group and booking are required.' }, { status: 400 });
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.rpc('assign_booking_to_group_atomic', {
+    p_group_id: body.group_id,
+    p_booking_id: body.booking_id,
+    p_staff_id: staff.profile.id,
+  });
+
+  if (error) {
+    const message = error.message || '';
+    const status =
+      error.code === 'P0002' ? 404 :
+      error.code === '23505' ? 409 :
+      error.code === '23514' ? 409 :
+      error.code === '42501' ? 403 : 500;
+    const safeMessage = [
+      'Group not found',
+      'Booking not found',
+      'Group is not open for assignments',
+      'Only confirmed bookings can be assigned to a group',
+      'Booking payment must be fully received before group assignment',
+      'Booking and group packages do not match',
+      'Booking and group departure dates do not match',
+      'Booking expected date does not match group departure',
+      'Booking needs a travel date before group assignment',
+      'Booking needs a travel period before group assignment',
+      'Booking travel period does not match group',
+      'Booking is already assigned to a group',
+      'Group capacity exceeded',
+      'Group assignment access required',
+    ].find((candidate) => message.includes(candidate)) || 'Could not assign booking to group. Please try again.';
+    return NextResponse.json({ error: safeMessage }, { status });
+  }
+
+  revalidatePath('/admin/groups');
+  revalidatePath('/admin/bookings');
+  revalidatePath('/admin/journeys');
+  return NextResponse.json(data, { status: 201 });
 }
-export async function DELETE(req:Request){
- const staff=await getCurrentStaff(); if(!staff)return NextResponse.json({error:"Unauthorized."},{status:401});
- if(!ROLES.includes(staff.profile.role))return NextResponse.json({error:"Operations manager access required."},{status:403});
- const b=await req.json().catch(()=>null)as any; if(!b?.id)return NextResponse.json({error:"Membership id is required."},{status:400});
- const s=getSupabaseAdmin(); const{data:before}=await s.from("group_members").select("*").eq("id",b.id).single();
- if(!before)return NextResponse.json({error:"Membership not found."},{status:404});
- const{error}=await s.from("group_members").delete().eq("id",b.id); if(error)return NextResponse.json({error:error.message},{status:500});
- await s.from("audit_logs").insert({actor_id:staff.profile.id,action:"BOOKING_REMOVED_FROM_GROUP",entity_type:"group_member",entity_id:b.id,before_data:before});
- revalidatePath("/admin/groups"); return NextResponse.json({ok:true});
+
+export async function DELETE(req: Request) {
+  const staff = await getCurrentStaff();
+  if (!staff) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+  if (!ROLES.includes(staff.profile.role)) {
+    return NextResponse.json({ error: 'Operations manager access required.' }, { status: 403 });
+  }
+
+  const body = await req.json().catch(() => null) as { id?: string } | null;
+  if (!body?.id) return NextResponse.json({ error: 'Membership id is required.' }, { status: 400 });
+
+  const supabase = getSupabaseAdmin();
+  const { data: before, error: readError } = await supabase
+    .from('group_members')
+    .select('*')
+    .eq('id', body.id)
+    .maybeSingle();
+  if (readError) return NextResponse.json({ error: 'Unable to load group assignment.' }, { status: 500 });
+  if (!before) return NextResponse.json({ error: 'Membership not found.' }, { status: 404 });
+
+  const { error } = await supabase.from('group_members').delete().eq('id', body.id);
+  if (error) return NextResponse.json({ error: 'Could not remove booking from group.' }, { status: 500 });
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: staff.profile.id,
+    action: 'BOOKING_REMOVED_FROM_GROUP',
+    entity_type: 'group_member',
+    entity_id: body.id,
+    before_data: before,
+  });
+  if (auditError) {
+    console.error('group_member_removal_audit_failed', { membershipId: body.id, code: auditError.code });
+  }
+
+  revalidatePath('/admin/groups');
+  revalidatePath('/admin/bookings');
+  revalidatePath('/admin/journeys');
+  return NextResponse.json({ ok: true, auditRecorded: !auditError });
 }
