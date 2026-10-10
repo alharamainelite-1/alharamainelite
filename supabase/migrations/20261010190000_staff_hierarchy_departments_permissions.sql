@@ -33,3 +33,40 @@ END $$;
 
 CREATE INDEX IF NOT EXISTS profiles_manager_id_idx ON public.profiles(manager_id);
 CREATE INDEX IF NOT EXISTS profiles_department_idx ON public.profiles(department);
+
+-- Backfill existing staff departments and attach the existing operations manager
+-- to the current General Manager without changing any other reporting lines.
+UPDATE public.profiles p
+SET manager_id = (SELECT s.id FROM public.profiles s WHERE s.role::text = 'SUPER_ADMIN' ORDER BY s.created_at ASC LIMIT 1),
+    department = CASE p.role::text
+      WHEN 'SUPER_ADMIN' THEN 'GENERAL_MANAGEMENT'
+      WHEN 'OPERATIONS_MANAGER' THEN 'OPERATIONS'
+      WHEN 'OPERATIONS_SUPERVISOR' THEN 'OPERATIONS'
+      WHEN 'JOURNEY_COORDINATOR' THEN 'OPERATIONS'
+      WHEN 'OPERATIONS' THEN 'OPERATIONS'
+      WHEN 'HOST' THEN 'OPERATIONS'
+      WHEN 'SALES' THEN 'SALES'
+      WHEN 'MARKETING' THEN 'MARKETING'
+      WHEN 'CUSTOMER_SERVICE' THEN 'CUSTOMER_SERVICE'
+      WHEN 'FINANCE' THEN 'FINANCE'
+      ELSE COALESCE(p.department, 'OPERATIONS')
+    END
+WHERE p.role::text = 'OPERATIONS_MANAGER'
+  AND p.manager_id IS NULL
+  AND EXISTS (SELECT 1 FROM public.profiles s WHERE s.role::text = 'SUPER_ADMIN');
+
+UPDATE public.profiles p
+SET department = CASE p.role::text
+  WHEN 'SUPER_ADMIN' THEN 'GENERAL_MANAGEMENT'
+  WHEN 'OPERATIONS_MANAGER' THEN 'OPERATIONS'
+  WHEN 'OPERATIONS_SUPERVISOR' THEN 'OPERATIONS'
+  WHEN 'JOURNEY_COORDINATOR' THEN 'OPERATIONS'
+  WHEN 'OPERATIONS' THEN 'OPERATIONS'
+  WHEN 'HOST' THEN 'OPERATIONS'
+  WHEN 'SALES' THEN 'SALES'
+  WHEN 'MARKETING' THEN 'MARKETING'
+  WHEN 'CUSTOMER_SERVICE' THEN 'CUSTOMER_SERVICE'
+  WHEN 'FINANCE' THEN 'FINANCE'
+  ELSE COALESCE(p.department, 'OPERATIONS')
+END
+WHERE p.department IS NULL;
