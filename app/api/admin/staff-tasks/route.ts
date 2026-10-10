@@ -38,7 +38,7 @@ export async function POST(req:Request) {
     if(!['SALES','SUPER_ADMIN'].includes(staff.profile.role))return jsonError('Only Sales can hand a qualified customer to Bookings.',403);
     if(typeof body.request_id!=='string'||typeof body.assigned_staff_id!=='string'||typeof body.note!=='string'||body.note.trim().length<5||body.note.trim().length>1000)return jsonError('Request, Booking assignee and a handover note of 5–1000 characters are required.');
     const s=getSupabaseAdmin();
-    const {data:request,error:requestError}=await s.from('journey_requests').select('id,reference,guest_count,status,expected_period_label,lead_source,packages(name,slug)').eq('id',body.request_id).maybeSingle();
+    const {data:request,error:requestError}=await s.from('journey_requests').select('id,reference,customer_id,guest_count,status,expected_period_label,lead_source,customers(full_name,whatsapp,country),packages(name,slug)').eq('id',body.request_id).maybeSingle();
     if(requestError)return jsonError('Unable to load the journey request.',500);
     if(!request)return jsonError('Journey request not found.',404);
     if(!['DETAILS_PENDING','PAYMENT_PENDING'].includes(String(request.status)))return jsonError('Sales must complete customer qualification before handing the request to Bookings.',409);
@@ -48,10 +48,14 @@ export async function POST(req:Request) {
     const {data:existing}=await s.from('staff_tasks').select('id,status').eq('title',title).in('status',OPEN_STATUSES).limit(1).maybeSingle();
     if(existing)return jsonError('This request already has an open handover to Bookings.',409);
     const {data:booking}=await s.from('bookings').select('id,booking_id,status').eq('request_id',request.id).is('archived_at',null).maybeSingle();
+    const customer=(request as any).customers||{};
     const pkg=(request as any).packages||{};
     const details=[
       'Journey request: '+String(request.reference||request.id),
       'Request ID: '+request.id,
+      'Customer: '+String(customer.full_name||'Not provided'),
+      'WhatsApp: '+String(customer.whatsapp||'Not provided'),
+      'Country: '+String(customer.country||'Not provided'),
       'Linked booking: '+String(booking?.booking_id||'Not found yet'),
       'Booking status: '+String(booking?.status||'Not created'),
       'Package: '+String(pkg.name||'Not provided'),
