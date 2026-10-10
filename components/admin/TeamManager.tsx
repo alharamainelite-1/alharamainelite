@@ -2,14 +2,24 @@
 import {useEffect,useState} from 'react';
 import {adminText} from '@/lib/admin-text';
 
-type Role='SUPER_ADMIN'|'OPERATIONS_MANAGER'|'JOURNEY_COORDINATOR'|'OPERATIONS'|'SALES'|'FINANCE'|'HOST';
+type Role='SUPER_ADMIN'|'OPERATIONS_MANAGER'|'OPERATIONS_SUPERVISOR'|'JOURNEY_COORDINATOR'|'OPERATIONS'|'SALES'|'MARKETING'|'CUSTOMER_SERVICE'|'FINANCE'|'HOST';
 type Compensation={staff_id:string;base_salary:number;currency:'USD'|'SAR';pay_frequency:string;effective_from:string;notes?:string|null};
 type Bonus={id:string;staff_id:string;amount:number;currency:'USD'|'SAR';bonus_date:string;reason:string;status:string;approved_at?:string|null;paid_at?:string|null;notes?:string|null};
-type User={id:string;email:string;full_name:string;phone:string;role:Role;created_at:string;email_confirmed:boolean;banned:boolean;compensation:Compensation|null;bonuses:Bonus[]};
-const roles:Role[]=['OPERATIONS_MANAGER','JOURNEY_COORDINATOR','OPERATIONS','SALES','FINANCE','HOST'];
-const roleLabels:Record<Role,string>={SUPER_ADMIN:'المدير العام',OPERATIONS_MANAGER:'مدير العمليات',JOURNEY_COORDINATOR:'منسق الرحلة',OPERATIONS:'موظف العمليات',SALES:'المبيعات',FINANCE:'المالية',HOST:'المضيف'};
+type User={id:string;email:string;full_name:string;phone:string;role:Role;manager_id:string|null;manager_name?:string|null;department:string;permissions:Record<string,Record<string,boolean>>;created_at:string;email_confirmed:boolean;banned:boolean;compensation:Compensation|null;bonuses:Bonus[]};
+const roles:Role[]=['OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','SALES','MARKETING','CUSTOMER_SERVICE','JOURNEY_COORDINATOR','OPERATIONS','HOST','FINANCE'];
+const roleLabels:Record<Role,string>={SUPER_ADMIN:'الإدارة العامة',OPERATIONS_MANAGER:'مدير العمليات',OPERATIONS_SUPERVISOR:'مشرف العمليات',JOURNEY_COORDINATOR:'منسق العمليات',OPERATIONS:'موظف العمليات',SALES:'المبيعات والحجوزات',MARKETING:'التسويق',CUSTOMER_SERVICE:'خدمة العملاء',FINANCE:'المالية',HOST:'المضيف'};
+const managerRoles:Record<Role,Role[]>={SUPER_ADMIN:[],OPERATIONS_MANAGER:['SUPER_ADMIN'],OPERATIONS_SUPERVISOR:['OPERATIONS_MANAGER'],SALES:['OPERATIONS_MANAGER'],MARKETING:['OPERATIONS_MANAGER'],CUSTOMER_SERVICE:['OPERATIONS_MANAGER'],JOURNEY_COORDINATOR:['OPERATIONS_SUPERVISOR'],OPERATIONS:['OPERATIONS_SUPERVISOR'],HOST:['JOURNEY_COORDINATOR'],FINANCE:['SUPER_ADMIN']};
+const departmentLabels:Record<string,{ar:string;en:string}>={GENERAL_MANAGEMENT:{ar:'الإدارة العامة',en:'General Management'},OPERATIONS:{ar:'العمليات',en:'Operations'},SALES:{ar:'المبيعات والحجوزات',en:'Sales & Bookings'},MARKETING:{ar:'التسويق',en:'Marketing'},CUSTOMER_SERVICE:{ar:'خدمة العملاء',en:'Customer Service'},FINANCE:{ar:'المالية',en:'Finance'}};
+const permissionAreas=[{key:'requests',ar:'طلبات الرحلات',en:'Journey requests'},{key:'guests',ar:'العملاء',en:'Customers'},{key:'bookings',ar:'الحجوزات',en:'Bookings'},{key:'operations',ar:'العمليات والمهام',en:'Operations & tasks'},{key:'groups',ar:'المجموعات',en:'Groups'},{key:'resources',ar:'الموارد',en:'Resources'},{key:'communications',ar:'التواصل',en:'Communications'},{key:'payments',ar:'المدفوعات',en:'Payments'},{key:'expenses',ar:'المصروفات',en:'Expenses'},{key:'reports',ar:'التقارير',en:'Reports'},{key:'hosts',ar:'المضيفون',en:'Hosts'}];
+const permissionActions=[{key:'view',ar:'عرض',en:'View'},{key:'create',ar:'إنشاء',en:'Create'},{key:'edit',ar:'تعديل',en:'Edit'},{key:'assign',ar:'إسناد',en:'Assign'},{key:'approve',ar:'اعتماد',en:'Approve'}];
+function defaultManager(role:Role,users:User[],excludeId?:string){const allowed=managerRoles[role]||[];return users.find(u=>u.id!==excludeId&&!u.banned&&allowed.includes(u.role))?.id||'';}
+function defaultDepartment(role:Role){if(role==='SUPER_ADMIN')return 'GENERAL_MANAGEMENT';if(['SALES'].includes(role))return 'SALES';if(role==='MARKETING')return 'MARKETING';if(role==='CUSTOMER_SERVICE')return 'CUSTOMER_SERVICE';if(role==='FINANCE')return 'FINANCE';return 'OPERATIONS';}
+function defaultPermission(role:Role,area:string,action:string){const map:Record<string,string[]>={SUPER_ADMIN:['requests','guests','journeys','bookings','operations','groups','resources','communications','payments','expenses','reports','hosts','finance','custody','departures','reviews','influencers','team','staffMonitoring','settings','hotels','train','transportation','hostTasks'],OPERATIONS_MANAGER:['guests','journeys','bookings','operations','groups','resources','hosts','hotels','train','transportation','expenses'],OPERATIONS_SUPERVISOR:['operations','groups','resources','hosts','hotels','train','transportation','expenses'],JOURNEY_COORDINATOR:['operations','groups','expenses'],OPERATIONS:['operations','transportation'],SALES:['requests','guests','journeys','bookings','communications'],MARKETING:['communications'],CUSTOMER_SERVICE:['requests','guests','journeys','bookings','communications'],FINANCE:['bookings','payments','expenses','reports','finance'],HOST:['hostTasks']};return (map[role]||[]).includes(area)&&(action==='view'||(area==='operations'&&['create','edit','assign'].includes(action)&&['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR'].includes(role))||(action==='approve'&&['SUPER_ADMIN','FINANCE'].includes(role)&&['payments','expenses','bookings'].includes(area))||(action==='create'&&['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','SALES','MARKETING','CUSTOMER_SERVICE','FINANCE'].includes(role)));}
 const descriptions:Record<Role,{en:string;ar:string}>={
  SUPER_ADMIN:{en:'Full control, staff accounts, permissions, settings, finance and all operations.',ar:'صلاحية كاملة تشمل الموظفين والصلاحيات والإعدادات والمالية والعمليات.'},
+ OPERATIONS_SUPERVISOR:{en:'Supervises journey preparation, coordinators, task quality and operational readiness.',ar:'يشرف على تجهيز الرحلات والمنسقين وجودة المهام والجاهزية التشغيلية.'},
+ MARKETING:{en:'Manages marketing campaigns, content, partners and lead-generation activity.',ar:'إدارة الحملات والمحتوى والشركاء التسويقيين وجذب العملاء.'},
+ CUSTOMER_SERVICE:{en:'Handles customer questions, service updates and complaint follow-up.',ar:'متابعة استفسارات العملاء وتحديثاتهم وشكاواهم.'},
  OPERATIONS_MANAGER:{en:'Owns journey readiness, groups, hotels, transport, train, hosts and operational tasks.',ar:'مسؤول عن جاهزية الرحلات والمجموعات والفنادق والنقل والقطار والمضيفين والمهام التشغيلية.'},
  JOURNEY_COORDINATOR:{en:'Owns assigned journeys, coordinates the group schedule and assigns host tasks for those journeys.',ar:'مسؤول عن الرحلات المسندة إليه، وتنسيق جدول المجموعة وإسناد مهام المضيفين ضمن رحلاته.'},
  OPERATIONS:{en:'Works on assigned operational tasks, resources and journey readiness.',ar:'تنفيذ المهام التشغيلية والموارد وجاهزية الرحلات.'},
@@ -25,7 +35,8 @@ export default function TeamManager(){
  const [message,setMessage]=useState('');
  const [locale,setLocale]=useState<'en'|'ar'>('ar');
  const [selected,setSelected]=useState<User|null>(null);
- const [edit,setEdit]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role});
+ const [edit,setEdit]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role,manager_id:''});
+ const [editPermissions,setEditPermissions]=useState<Record<string,Record<string,boolean>>>({});
  const [password,setPassword]=useState('');
  const [passwordMsg,setPasswordMsg]=useState('');
  const [salary,setSalary]=useState('');
@@ -38,7 +49,7 @@ export default function TeamManager(){
  const [bonusCurrency,setBonusCurrency]=useState<'SAR'|'USD'>('SAR');
  const [bonusDate,setBonusDate]=useState(new Date().toISOString().slice(0,10));
  const [bonusMsg,setBonusMsg]=useState('');
- const [form,setForm]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role});
+ const [form,setForm]=useState({full_name:'',email:'',phone:'',role:'SALES' as Role,manager_id:''});
  const t=adminText[locale];
 
  useEffect(()=>{const m=document.cookie.match(/(?:^|; )he_locale=([^;]+)/);if(m&&m[1]==='en')setLocale('en');},[]);
@@ -46,7 +57,7 @@ export default function TeamManager(){
   setLoading(true);
   const r=await fetch('/api/admin/team',{cache:'no-store'});
   const j=await r.json();
-  if(r.ok)setUsers(j.users||[]);else setMessage(j.error||'Unable to load team.');
+  if(r.ok){const list:User[]=j.users||[];setUsers(list);setForm(old=>({...old,manager_id:old.manager_id||defaultManager(old.role,list)}));}else setMessage(j.error||'Unable to load team.');
   setLoading(false);
  }
  useEffect(()=>{load();},[]);
@@ -56,7 +67,7 @@ export default function TeamManager(){
   const r=await fetch('/api/admin/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)});
   const j=await r.json();
   setMessage(r.ok?t.invitationSent:j.error||'Unable to create account.');
-  if(r.ok){setForm({full_name:'',email:'',phone:'',role:'SALES'});await load();}
+  if(r.ok){setForm({full_name:'',email:'',phone:'',role:'SALES',manager_id:defaultManager('SALES',users)});await load();}
   setBusy(false);
  }
  async function update(userId:string,body:Record<string,unknown>){
@@ -69,7 +80,8 @@ export default function TeamManager(){
  }
  function openProfile(u:User){
   setSelected(u);
-  setEdit({full_name:u.full_name,email:u.email,phone:u.phone||'',role:u.role});
+  setEdit({full_name:u.full_name,email:u.email,phone:u.phone||'',role:u.role,manager_id:u.manager_id||''});
+  setEditPermissions(u.permissions||{});
   setPassword('');
   setPasswordMsg('');
   setSalary(u.compensation?String(u.compensation.base_salary):'');
@@ -96,9 +108,10 @@ export default function TeamManager(){
      <input required value={form.full_name} onChange={e=>setForm(Object.assign({},form,{full_name:e.target.value}))} placeholder={t.fullName} className="rounded-xl border border-forest/10 bg-white px-4 py-3 text-sm outline-none"/>
      <input required type="email" value={form.email} onChange={e=>setForm(Object.assign({},form,{email:e.target.value}))} placeholder={t.workEmail} className="rounded-xl border border-forest/10 bg-white px-4 py-3 text-sm outline-none"/>
      <input value={form.phone} onChange={e=>setForm(Object.assign({},form,{phone:e.target.value}))} placeholder={t.phone} className="rounded-xl border border-forest/10 bg-white px-4 py-3 text-sm outline-none"/>
-     <select value={form.role} onChange={e=>setForm(Object.assign({},form,{role:e.target.value as Role}))} className="rounded-xl border border-forest/10 bg-white px-4 py-3 text-sm outline-none">
+     <select value={form.role} onChange={e=>{const role=e.target.value as Role;setForm(old=>({...old,role,manager_id:defaultManager(role,users)}));}} className="rounded-xl border border-forest/10 bg-white px-4 py-3 text-sm outline-none">
       {roles.map(r=><option key={r} value={r}>{locale==='ar'?roleLabels[r]:r.replaceAll('_',' ')}</option>)}
      </select>
+     <label className="grid gap-2 text-sm font-semibold text-forest">{locale==='ar'?'المدير المباشر':'Direct manager'}<select value={form.manager_id} onChange={e=>setForm(old=>({...old,manager_id:e.target.value}))} required className="rounded-xl border border-forest/10 bg-white px-4 py-3 text-sm font-normal outline-none"><option value="">{locale==='ar'?'اختر المدير المباشر':'Select direct manager'}</option>{users.filter(u=>managerRoles[form.role].includes(u.role)&&!u.banned).map(u=><option key={u.id} value={u.id}>{u.full_name||u.email} — {locale==='ar'?roleLabels[u.role]:u.role.replaceAll('_',' ')}</option>)}</select><span className="text-xs font-normal text-forest/45">{locale==='ar'?'القسم: ':'Department: '}{locale==='ar'?departmentLabels[defaultDepartment(form.role)]?.ar:departmentLabels[defaultDepartment(form.role)]?.en}</span></label>
      <button disabled={busy} className="btn btn-primary">{busy?t.working:t.sendInvitation}</button>
     </form>
    </div>
@@ -136,8 +149,10 @@ export default function TeamManager(){
      <label className="text-sm font-semibold text-forest">{locale==='ar'?'الاسم الكامل':'Full name'}<input value={edit.full_name} onChange={e=>setEdit(Object.assign({},edit,{full_name:e.target.value}))} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold"/></label>
      <label className="text-sm font-semibold text-forest">{locale==='ar'?'البريد الإلكتروني':'Email'}<input type="email" value={edit.email} onChange={e=>setEdit(Object.assign({},edit,{email:e.target.value}))} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold"/></label>
      <label className="text-sm font-semibold text-forest">{locale==='ar'?'رقم الجوال':'Phone'}<input value={edit.phone} onChange={e=>setEdit(Object.assign({},edit,{phone:e.target.value}))} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold"/></label>
-     <label className="text-sm font-semibold text-forest">{locale==='ar'?'الدور والصلاحية':'Role & permission'}<select value={edit.role} onChange={e=>setEdit(Object.assign({},edit,{role:e.target.value as Role}))} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold">{['SUPER_ADMIN'].concat(roles).map(r=><option key={r} value={r}>{locale==='ar'?roleLabels[r as Role]:r}</option>)}</select></label>
+     <label className="text-sm font-semibold text-forest">{locale==='ar'?'الدور الوظيفي':'Role'}<select value={edit.role} onChange={e=>{const role=e.target.value as Role;setEdit(old=>({...old,role,manager_id:defaultManager(role,users,selected?.id)}));}} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold">{['SUPER_ADMIN'].concat(roles).map(r=><option key={r} value={r}>{locale==='ar'?roleLabels[r as Role]:r.replaceAll('_',' ')}</option>)}</select></label>
+     <label className="text-sm font-semibold text-forest">{locale==='ar'?'المدير المباشر':'Direct manager'}<select value={edit.manager_id} onChange={e=>setEdit(old=>({...old,manager_id:e.target.value}))} disabled={edit.role==='SUPER_ADMIN'} className="mt-2 w-full rounded-xl border border-forest/10 bg-white px-4 py-3 font-normal outline-none focus:border-gold"><option value="">{edit.role==='SUPER_ADMIN'?(locale==='ar'?'لا يوجد — الإدارة العامة':'None — General Management'):(locale==='ar'?'اختر المدير المباشر':'Select direct manager')}</option>{users.filter(u=>u.id!==selected.id&&managerRoles[edit.role].includes(u.role)&&!u.banned).map(u=><option key={u.id} value={u.id}>{u.full_name||u.email} — {locale==='ar'?roleLabels[u.role]:u.role.replaceAll('_',' ')}</option>)}</select><span className="mt-1 block text-xs font-normal text-forest/45">{locale==='ar'?'القسم: ':'Department: '}{locale==='ar'?departmentLabels[defaultDepartment(edit.role)]?.ar:departmentLabels[defaultDepartment(edit.role)]?.en}</span></label>
     </div>
+    <div className="mt-6 rounded-xl border border-forest/10 bg-white p-5"><div className="eyebrow">{locale==='ar'?'الصلاحيات التفصيلية':'Fine-grained permissions'}</div><p className="mt-2 text-xs leading-5 text-forest/55">{locale==='ar'?'يمكنك إيقاف صلاحية محددة لهذا الموظف. تظل قيود الدور الأساسي مطبقة ولا يمكن تجاوزها من هذه القائمة.':'You can deny specific actions for this employee. Base role restrictions remain enforced and cannot be bypassed here.'}</p><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[560px] text-xs"><thead><tr><th className="p-2 text-start">{locale==='ar'?'القسم':'Area'}</th>{permissionActions.map(a=><th key={a.key} className="p-2 text-center">{locale==='ar'?a.ar:a.en}</th>)}</tr></thead><tbody>{permissionAreas.map(area=><tr key={area.key} className="border-t border-forest/10"><td className="p-2 font-semibold">{locale==='ar'?area.ar:area.en}</td>{permissionActions.map(action=>{const allowed=editPermissions[area.key]?.[action.key]??defaultPermission(edit.role,area.key,action.key);return <td key={action.key} className="p-2 text-center"><input aria-label={`${area.key} ${action.key}`} type="checkbox" checked={allowed} onChange={e=>setEditPermissions(old=>({...old,[area.key]:{...(old[area.key]||{}),[action.key]:e.target.checked}}))}/></td>})}</tr>)}</tbody></table></div></div>
     <div className="mt-6 rounded-xl bg-[#f7f3ea] p-4"><div className="text-xs font-semibold text-forest/55">{locale==='ar'?'حالة الحساب':'Account status'}</div><div className="mt-2 font-semibold text-forest">{selected.banned?(locale==='ar'?'معطل':'Disabled'):(locale==='ar'?'نشط':'Active')}</div></div>
     <div className="mt-6 rounded-xl border border-gold/20 bg-[#fffaf0] p-5">
      <div className="eyebrow">{locale==='ar'?'الملف المالي للموظف':'Employee finance'}</div>
@@ -205,7 +220,7 @@ export default function TeamManager(){
       <button type="button" disabled={busy} onClick={()=>update(selected.id,{action:'active',active:selected.banned})} className="rounded-xl border border-forest/15 px-4 py-3 text-sm font-semibold text-forest hover:bg-[#f7f3ea]">{selected.banned?(locale==='ar'?'إعادة تفعيل الحساب':'Reactivate account'):(locale==='ar'?'تعطيل الحساب':'Disable account')}</button>
       <button type="button" disabled={busy} onClick={async()=>{if(!window.confirm(locale==='ar'?'هل أنت متأكد من حذف حساب هذا الموظف نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.':'Permanently delete this staff account? This cannot be undone.'))return;await update(selected.id,{action:'delete'});setSelected(null);}} className="rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-50">{locale==='ar'?'حذف الحساب نهائيًا':'Delete permanently'}</button>
      </div>
-     <div className="flex justify-end gap-3"><button type="button" disabled={busy} onClick={closeProfile} className="btn btn-outline">{locale==='ar'?'إغلاق':'Close'}</button><button type="button" disabled={busy||!edit.full_name.trim()||edit.email.indexOf('@')<1} onClick={()=>update(selected.id,{action:'details',full_name:edit.full_name,email:edit.email,phone:edit.phone,role:edit.role})} className="btn btn-primary">{locale==='ar'?'حفظ التعديلات':'Save changes'}</button></div>
+     <div className="flex justify-end gap-3"><button type="button" disabled={busy} onClick={closeProfile} className="btn btn-outline">{locale==='ar'?'إغلاق':'Close'}</button><button type="button" disabled={busy||!edit.full_name.trim()||edit.email.indexOf('@')<1} onClick={()=>update(selected.id,{action:'details',full_name:edit.full_name,email:edit.email,phone:edit.phone,role:edit.role,manager_id:edit.manager_id||null,permissions:editPermissions})} className="btn btn-primary">{locale==='ar'?'حفظ التعديلات':'Save changes'}</button></div>
     </div>
    </div>
   </div>}
