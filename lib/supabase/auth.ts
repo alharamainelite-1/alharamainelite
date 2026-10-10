@@ -9,7 +9,7 @@ export type StaffPermissions = Record<string, Partial<Record<StaffAction, boolea
 const STAFF_ROLE_PERMISSIONS: Record<StaffRole, Record<string, StaffAction[]>> = {
   SUPER_ADMIN: {},
   OPERATIONS_MANAGER: {
-    guests:['view'], journeys:['view'], bookings:['view'], operations:['view','create','edit','assign'],
+    guests:['view'], journeys:['view'], bookings:['view'], operations:['view','create','edit','assign','approve'],
     groups:['view','create','edit','assign'], resources:['view','create','edit','assign'],
     hosts:['view','create','edit','assign'], hotels:['view','create','edit','assign'],
     train:['view','create','edit','assign'], transportation:['view','create','edit','assign'],
