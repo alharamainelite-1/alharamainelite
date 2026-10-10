@@ -10,6 +10,9 @@ export async function PATCH(req: Request) {
   if (!staff) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
   if (!hasStaffPermission(staff, 'bookings', 'edit')) return NextResponse.json({ error: 'You do not have permission to update bookings.' }, { status: 403 });
+  // Booking staff may manage booking details, but payment receipt is Finance-only.
+  const requestBody = await req.clone().json().catch(() => null) as { status?: string } | null;
+  if (requestBody?.status === 'PAYMENT_RECEIVED' && !['SUPER_ADMIN','FINANCE'].includes(staff.profile.role)) return NextResponse.json({ error: 'Payment receipt must be confirmed through Finance.' }, { status: 403 });
 
   const body = await req.json().catch(() => null) as {
     bookingId?: string;
