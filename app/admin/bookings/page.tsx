@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import { BookingStatusForm } from '@/components/admin/BookingStatusForm';
 import { getAdminLocale } from '@/lib/admin-locale';
@@ -20,13 +21,14 @@ export default async function BookingsPage(){
    .is('archived_at',null).order('created_at',{ascending:false}).limit(50);
   if(e)throw e;rows=data||[];
  }catch(e){error=e instanceof Error?e.message:'Unable to load bookings.'}
- const columns=(canViewFinancial?10:8)+(canInviteReviews?1:0);
+ const canReviewConfirmation=staff.profile.role==='SUPER_ADMIN';
+ const columns=(canViewFinancial?10:8)+(canInviteReviews?1:0)+(canReviewConfirmation?1:0);
  const label=(value:string,map:Record<string,string>)=>locale==='ar'?(map[value]||value):value.replaceAll('_',' ');
  return <section className="pb-12">
   <div><div className="eyebrow">{t.common.salesFinance}</div><h1 className="serif mt-2 text-4xl text-forest">{t.page.bookings}</h1><p className="mt-2 text-sm text-forest/55">{t.common.trackBookings}</p></div>
   {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{t.common.database}: {error}</div>}
   <div className="card mt-6 overflow-x-auto"><table className="w-full min-w-[980px] text-left text-sm">
-   <thead className="border-b border-forest/10 bg-[#faf8f2]"><tr>{(locale==='ar'?['رقم الحجز','العميل','الباقة','المصدر','الضيوف',...(canViewFinancial?['الإجمالي']:[]),'حالة الحجز',...(canViewFinancial?['الدفع']:[]),'تاريخ الإنشاء',...(canInviteReviews?['رابط التقييم']:[]),'تحديث']:['Booking ID','Customer','Package','Source','Guests',...(canViewFinancial?['Total']:[]),'Booking status',...(canViewFinancial?['Payment']:[]),'Created',...(canInviteReviews?['Review link']:[]),'Update']).map(h=><th key={h} className="px-4 py-4 font-semibold text-forest">{h}</th>)}</tr></thead>
+   <thead className="border-b border-forest/10 bg-[#faf8f2]"><tr>{(locale==='ar'?['رقم الحجز','العميل','الباقة','المصدر','الضيوف',...(canViewFinancial?['الإجمالي']:[]),'حالة الحجز',...(canViewFinancial?['الدفع']:[]),'تاريخ الإنشاء',...(canInviteReviews?['رابط التقييم']:[]),...(canReviewConfirmation?['تأكيد الرحلة']:[]),'تحديث']:['Booking ID','Customer','Package','Source','Guests',...(canViewFinancial?['Total']:[]),'Booking status',...(canViewFinancial?['Payment']:[]),'Created',...(canInviteReviews?['Review link']:[]),...(canReviewConfirmation?['Journey confirmation']:[]),'Update']).map(h=><th key={h} className="px-4 py-4 font-semibold text-forest">{h}</th>)}</tr></thead>
    <tbody>{rows.length===0?<tr><td colSpan={columns} className="px-4 py-12 text-center text-forest/45">{t.common.noBookings}</td></tr>:rows.map((row:any)=><tr key={row.id} className="border-b border-forest/8 last:border-0">
     <td className="px-4 py-4 font-semibold text-forest">{row.booking_id}</td>
     <td className="px-4 py-4"><div className="font-semibold">{row.customers?.full_name||'—'}</div><div className="text-xs text-forest/45">{row.customers?.whatsapp||''}</div></td>
