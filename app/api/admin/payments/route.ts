@@ -13,40 +13,39 @@ export async function POST(req: Request) {
   const body=await req.json().catch(()=>null) as any;
   const amount=Number(body?.amount);
   if(!body?.booking_id||!Number.isFinite(amount)||amount<=0)return NextResponse.json({error:'Booking and a valid amount are required.'},{status:400});
-  const s=getSupabaseAdmin();
-  const {data:booking}=await s.from('bookings').select('id,booking_id,total_amount,currency').eq('id',body.booking_id).single();
-  if(!booking)return NextResponse.json({error:'Booking not found.'},{status:404});
-
-  // Keep every payment in the booking's canonical currency; do not silently mix currencies.
-  const bookingCurrency=String(booking.currency||'USD').toUpperCase();
-  const currency=String(body.currency||bookingCurrency).toUpperCase();
-  if(currency!==bookingCurrency)return NextResponse.json({error:'Payment currency must match the booking currency.'},{status:400});
-
   const paymentDate=body.date===undefined||body.date===null||body.date===''?new Date().toISOString().slice(0,10):String(body.date);
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)||Number.isNaN(Date.parse(paymentDate+'T00:00:00Z'))){
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(paymentDate)||Number.isNaN(Date.parse(paymentDate+'T00:00:00Z'))){
     return NextResponse.json({error:'A valid payment date is required.'},{status:400});
   }
-
-  // Include outstanding and received payments when checking the remaining balance.
-  const {data:existingPayments,error:paymentsReadError}=await s.from('payments').select('amount,currency,status').eq('booking_id',booking.id);
-  if(paymentsReadError)return NextResponse.json({error:'Could not verify the remaining booking balance.'},{status:500});
-  const committedAmount=(existingPayments||[]).reduce((sum,payment)=>{
-    const status=String(payment.status||'').toUpperCase();
-    const paymentCurrency=String(payment.currency||bookingCurrency).toUpperCase();
-    if(paymentCurrency!==bookingCurrency||status==='REFUNDED'||status==='FAILED')return sum;
-    const value=Number(payment.amount);
-    return sum+(Number.isFinite(value)&&value>0?value:0);
-  },0);
-  const totalAmount=Number(booking.total_amount);
-  if(!Number.isFinite(totalAmount)||totalAmount<=0)return NextResponse.json({error:'Booking total is invalid.'},{status:409});
-  if(amount+committedAmount>totalAmount+0.009)return NextResponse.json({error:'This payment exceeds the remaining booking balance.'},{status:409});
-
-  const {data,error}=await s.from('payments').insert({payment_id:'PAY-'+Date.now().toString(36).toUpperCase(),booking_id:booking.id,amount,currency,date:paymentDate,method:body.method||'BANK_TRANSFER',reference:body.reference||null,status:'PENDING_VERIFICATION',notes:body.notes||null}).select('*').single();
-  if(error)return NextResponse.json({error:error.message},{status:500});
-  await s.from('bookings').update({payment_status:'PENDING_VERIFICATION',updated_at:new Date().toISOString()}).eq('id',booking.id);
-  await s.from('audit_logs').insert({actor_id:staff.profile.id,action:'PAYMENT_RECORDED',entity_type:'payment',entity_id:data.id,after_data:data});
+  const {data,error}=await getSupabaseAdmin().rpc('record_booking_payment_atomic',{
+    p_booking_id:body.booking_id,
+    p_staff_id:staff.profile.id,
+    p_amount:amount,
+    p_currency:typeof body.currency==='string'?body.currency:null,
+    p_date:paymentDate,
+    p_method:typeof body.method==='string'?body.method:'BANK_TRANSFER',
+    p_reference:typeof body.reference==='string'?body.reference.slice(0,300):null,
+    p_notes:typeof body.notes==='string'?body.notes.slice(0,4000):null
+  });
+  if(error){
+    const code=error.code||'';
+    const message=error.message||'';
+    const status=code==='P0002'?404:code==='42501'?403:code==='22023'?400:500;
+    const safeMessage=[
+      'Booking not found',
+      'Payment recording access required',
+      'Invalid payment amount',
+      'Payment currency must match the booking currency',
+      'Payment exceeds remaining booking balance',
+      'Only bank transfer is enabled',
+      'Payment notes are too long',
+      'Payment reference is too long'
+    ].find(candidate=>message.includes(candidate))||'Could not record payment. Please try again.';
+    console.error('atomic_payment_record_failed',{code,message});
+    return NextResponse.json({error:safeMessage},{status});
+  }
   revalidatePath('/admin/payments');revalidatePath('/admin/bookings');revalidatePath('/admin/finance');
-  return NextResponse.json({payment:data},{status:201});
+  return NextResponse.json(data,{status:201});
 }
 
 export async function PATCH(req: Request) {
