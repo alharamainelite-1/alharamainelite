@@ -48,7 +48,7 @@ export default async function GroupsPage(){
   if(!staff)return null;
   const locale=await getAdminLocale();
   const t=adminText[locale];
-  const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);
+  const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'].includes(staff.profile.role);
   let groups:any[]=[];let packages:any[]=[];let bookings:any[]=[];let members:any[]=[];let hosts:any[]=[];let hotels:any[]=[];let coordinators:any[]=[];let error='';
   try{
     const s=getSupabaseAdmin();
