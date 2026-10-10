@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FileDown, MessageCircle, ShieldCheck } from 'lucide-react';
 
 type Service = { id: string; type: 'hotel' | 'activity' | 'train'; title: string; city?: string | null; date?: string | null; status?: string | null; reference?: string | null; details?: string | null };
-type HistoryItem = { id:string; version:number; language:string; document_status:string; created_at:string; sent_at?:string|null };
+type HistoryItem = { id:string; version:number; language:string; document_status:string; created_at:string; sent_at?:string|null; pdf_path?:string|null };
 type DocumentLanguage = 'ar' | 'en' | 'so';
 type Props = { history: HistoryItem[]; booking: { id: string; bookingId: string; guestName: string; whatsapp: string; guests: number; packageName: string; totalAmount: number; currency: string; paymentStatus: string; bookingStatus: string; travelDate?: string | null; groupId?: string | null }; hotels: Service[]; trains: Service[]; activities: Service[]; locale: 'ar' | 'en' };
 
