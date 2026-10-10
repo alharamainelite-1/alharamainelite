@@ -30,37 +30,40 @@ export async function PATCH(req: Request) {
   if (!FINANCE_ROLES.includes(staff.profile.role)) return NextResponse.json({ error: 'Finance access required.' }, { status: 403 });
 
   const body = await req.json().catch(() => null) as { paymentId?: string; status?: string; notes?: string } | null;
-  if (!body?.paymentId || !body.status || !PAYMENT_STATUS.includes(body.status as typeof PAYMENT_STATUS[number])) {
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!body?.paymentId || !uuid.test(body.paymentId) || !body.status || !PAYMENT_STATUS.includes(body.status as typeof PAYMENT_STATUS[number])) {
     return NextResponse.json({ error: 'Invalid payment update.' }, { status: 400 });
+  }
+  if (body.notes !== undefined && typeof body.notes !== 'string') {
+    return NextResponse.json({ error: 'Payment notes must be text.' }, { status: 400 });
   }
 
   const supabase = getSupabaseAdmin();
-  const { data: before, error: readError } = await supabase.from('payments').select('*').eq('id', body.paymentId).single();
-  if (readError || !before) return NextResponse.json({ error: 'Payment not found.' }, { status: 404 });
+  const { data, error } = await supabase.rpc('update_payment_status_atomic', {
+    p_payment_id: body.paymentId,
+    p_staff_id: staff.profile.id,
+    p_status: body.status,
+    p_notes: typeof body.notes === 'string' ? body.notes.slice(0, 4000) : null,
+  });
 
-  const now = new Date().toISOString();
-  const update: Record<string, unknown> = { status: body.status };
-  if (body.status === 'RECEIVED') { update.verified_by = staff.profile.id; update.verified_at = now; }
-  if (body.status !== 'RECEIVED') { update.verified_by = null; update.verified_at = null; }
-  if (body.notes !== undefined) update.notes = String(body.notes).slice(0, 4000);
-
-  const { data: after, error } = await supabase.from('payments').update(update).eq('id', body.paymentId).select('*').single();
-  if (error || !after) return NextResponse.json({ error: error?.message || 'Could not update payment.' }, { status: 500 });
-
-  const { data: bookingBefore } = await supabase.from('bookings').select('id,total_amount').eq('id',before.booking_id).single();
-  const { data: receivedRows } = await supabase.from('payments').select('amount,status').eq('booking_id',before.booking_id);
-  const receivedTotal=(receivedRows||[]).filter((p:any)=>p.status==='RECEIVED').reduce((n:number,p:any)=>n+Number(p.amount||0),0);
-  const fullyPaid=Boolean(bookingBefore && receivedTotal>=Number(bookingBefore.total_amount));
-  const bookingStatus=fullyPaid?'PAYMENT_RECEIVED':undefined;
-  const paymentState=fullyPaid?'RECEIVED':(receivedTotal>0?'PARTIALLY_RECEIVED':body.status);
-  const bookingUpdate: Record<string, unknown> = { payment_status: paymentState, updated_at: now };
-  if (bookingStatus) bookingUpdate.status = bookingStatus;
-  const { data: booking } = await supabase.from('bookings').update(bookingUpdate).eq('id', before.booking_id).select('*').single();
-  await supabase.from('audit_logs').insert({ actor_id: staff.profile.id, action: 'PAYMENT_STATUS_UPDATED', entity_type: 'payment', entity_id: before.id, before_data: before, after_data: after });
-  if (booking) await supabase.from('audit_logs').insert({ actor_id: staff.profile.id, action: 'BOOKING_PAYMENT_STATUS_SYNCED', entity_type: 'booking', entity_id: booking.id, after_data: booking });
+  if (error) {
+    const code = error.code || '';
+    const message = error.message || '';
+    const status = code === 'P0002' ? 404 : code === '42501' ? 403 : code === '22023' ? 400 : 500;
+    const safeMessage = [
+      'Payment verification access required',
+      'Payment not found',
+      'Booking not found',
+      'Invalid payment status',
+    ].find((candidate) => message.includes(candidate)) || 'Could not update payment. Please try again.';
+    console.error('atomic_payment_status_update_failed', { code, message });
+    return NextResponse.json({ error: safeMessage }, { status });
+  }
 
   revalidatePath('/admin');
   revalidatePath('/admin/payments');
   revalidatePath('/admin/bookings');
-  return NextResponse.json({ payment: after, booking });
+  revalidatePath('/admin/finance');
+  revalidatePath('/partner/dashboard');
+  return NextResponse.json(data);
 }
