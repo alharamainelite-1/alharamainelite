@@ -33,8 +33,40 @@ export async function GET() {
 export async function POST(req:Request) {
   const staff=await getCurrentStaff();
   if(!staff)return jsonError('Unauthorized.',401);
-  if(!(staff.profile.role==='SUPER_ADMIN'||MANAGERS.includes(staff.profile.role)))return jsonError('Only management can assign new staff tasks.',403);
   const body=await req.json().catch(()=>null) as any;
+  if(body?.action==='sales_handover'){
+    if(!['SALES','SUPER_ADMIN'].includes(staff.profile.role))return jsonError('Only Sales can hand a qualified customer to Bookings.',403);
+    if(typeof body.request_id!=='string'||typeof body.assigned_staff_id!=='string'||typeof body.note!=='string'||body.note.trim().length<5||body.note.trim().length>1000)return jsonError('Request, Booking assignee and a handover note of 5–1000 characters are required.');
+    const s=getSupabaseAdmin();
+    const {data:request,error:requestError}=await s.from('journey_requests').select('id,reference,guest_count,status,expected_period_label,lead_source,customers(full_name,whatsapp,country),packages(name,slug)').eq('id',body.request_id).maybeSingle();
+    if(requestError)return jsonError('Unable to load the journey request.',500);
+    if(!request)return jsonError('Journey request not found.',404);
+    if(!['DETAILS_PENDING','PAYMENT_PENDING'].includes(String(request.status)))return jsonError('Sales must complete customer qualification before handing the request to Bookings.',409);
+    const {data:assignee,error:assigneeError}=await s.from('profiles').select('id,role,department').eq('id',body.assigned_staff_id).maybeSingle();
+    if(assigneeError||!assignee||assignee.role!=='BOOKINGS')return jsonError('Choose an active employee from the Bookings team.',400);
+    const title='Booking intake: '+String(request.reference||request.id);
+    const {data:existing}=await s.from('staff_tasks').select('id,status').eq('title',title).in('status',OPEN_STATUSES).limit(1).maybeSingle();
+    if(existing)return jsonError('This request already has an open handover to Bookings.',409);
+    const customer=(request as any).customers||{};
+    const pkg=(request as any).packages||{};
+    const details=[
+      'Journey request: '+String(request.reference||request.id),
+      'Request ID: '+request.id,
+      'Customer: '+String(customer.full_name||'Not provided'),
+      'WhatsApp: '+String(customer.whatsapp||'Not provided'),
+      'Country: '+String(customer.country||'Not provided'),
+      'Package: '+String(pkg.name||'Not provided'),
+      'Guests: '+String(request.guest_count||'Not provided'),
+      'Expected travel period: '+String(request.expected_period_label||'To be confirmed'),
+      'Sales handover note: '+body.note.trim()
+    ].join('\\n');
+    const due=new Date(Date.now()+24*60*60*1000).toISOString();
+    const {data:task,error}=await s.from('staff_tasks').insert({task_code:'ST-'+new Date().getFullYear()+'-'+Math.random().toString(36).slice(2,8).toUpperCase(),title,description:details,department:'BOOKINGS',priority:'NORMAL',status:'ASSIGNED',assigned_staff_id:assignee.id,created_by:staff.profile.id,due_at:due}).select('*').single();
+    if(error)return jsonError('Could not create the Bookings handover task.',500);
+    await audit(s,staff.profile.id,'SALES_HANDED_REQUEST_TO_BOOKINGS',null,{task,request_id:request.id,booking_staff_id:assignee.id});
+    return NextResponse.json({task});
+  }
+  if(!(staff.profile.role==='SUPER_ADMIN'||MANAGERS.includes(staff.profile.role)))return jsonError('Only management can assign new staff tasks.',403);
   if(!body||typeof body.title!=='string'||body.title.trim().length<3||body.title.trim().length>180||typeof body.assigned_staff_id!=='string')return jsonError('Task title and assignee are required.');
   const s=getSupabaseAdmin();
   const {data:assignee,error:assigneeError}=await s.from('profiles').select('id,role,department,manager_id').eq('id',body.assigned_staff_id).maybeSingle();
