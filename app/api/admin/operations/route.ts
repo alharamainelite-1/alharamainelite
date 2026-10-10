@@ -82,7 +82,8 @@ export async function PATCH(req:Request){
   const s=getSupabaseAdmin();
   const{data:before}=await s.from("operations_tasks").select("*").eq("id",b.id).single();
   if(!before)return NextResponse.json({error:"Task not found."},{status:404});
-  if(staff.profile.role==="OPERATIONS"&&before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});\n  if(staff.profile.role==="JOURNEY_COORDINATOR"){const {data:ownedGroup}=before.group_id?await s.from("groups").select("id").eq("id",before.group_id).eq("operations_coordinator_id",staff.profile.id).maybeSingle():{data:null};if(!ownedGroup)return NextResponse.json({error:"You can only access tasks for journeys assigned to you."},{status:403});if(b.status!==undefined)return NextResponse.json({error:"Coordinators assign and monitor tasks; execution status is updated by the assigned worker."},{status:403});}
+  if(staff.profile.role==="OPERATIONS"&&before.assigned_staff_id!==staff.profile.id)return NextResponse.json({error:"You can only update tasks assigned to you."},{status:403});
+  if(staff.profile.role==="JOURNEY_COORDINATOR"){const {data:ownedGroup}=before.group_id?await s.from("groups").select("id").eq("id",before.group_id).eq("operations_coordinator_id",staff.profile.id).maybeSingle():{data:null};if(!ownedGroup)return NextResponse.json({error:"You can only access tasks for journeys assigned to you."},{status:403});if(b.status!==undefined)return NextResponse.json({error:"Coordinators assign and monitor tasks; execution status is updated by the assigned worker."},{status:403});}
   const update:any={};
   if(b.status!==undefined){
     if(!STATUS.includes(b.status))return NextResponse.json({error:"Invalid task status."},{status:400});
