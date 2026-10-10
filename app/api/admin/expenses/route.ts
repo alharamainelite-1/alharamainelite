@@ -4,7 +4,7 @@ import {getCurrentStaff} from "@/lib/supabase/auth";
 import {getSupabaseAdmin} from "@/lib/supabase/server";
 
 const MANAGEMENT_ROLES = ["SUPER_ADMIN", "FINANCE"];
-const EXPENSE_ROLES = [...MANAGEMENT_ROLES, "OPERATIONS_MANAGER", "OPERATIONS"];
+const EXPENSE_ROLES = [...MANAGEMENT_ROLES, "OPERATIONS_MANAGER", "JOURNEY_COORDINATOR", "OPERATIONS"];
 const CATEGORIES = ["HOTEL", "TRANSPORT", "HOST", "TRAIN", "ACTIVITY", "MARKETING", "OTHER"];
 const CURRENCIES = ["USD", "SAR"];
 
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
   const supabase = getSupabaseAdmin();
   const groupId = body.group_id ? String(body.group_id) : null;
-  if (["OPERATIONS", "OPERATIONS_MANAGER"].includes(staff.profile.role)) {
+  if (["OPERATIONS", "OPERATIONS_MANAGER", "JOURNEY_COORDINATOR"].includes(staff.profile.role)) {
     if (!groupId) {
       return NextResponse.json({ error: "Select a journey before recording an operational expense." }, { status: 400 });
     }
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       .maybeSingle();
     if (error) return NextResponse.json({ error: "Could not verify journey assignment." }, { status: 500 });
     if (!group) return NextResponse.json({ error: "Journey not found." }, { status: 404 });
-    if (staff.profile.role === "OPERATIONS" && group.operations_coordinator_id !== staff.profile.id) {
+    if (["OPERATIONS", "JOURNEY_COORDINATOR"].includes(staff.profile.role) && group.operations_coordinator_id !== staff.profile.id) {
       return NextResponse.json({ error: "You can only record expenses for journeys assigned to you." }, { status: 403 });
     }
   } else if (groupId) {
