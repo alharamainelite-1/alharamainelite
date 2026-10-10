@@ -4,7 +4,7 @@ import {getCurrentStaff} from "@/lib/supabase/auth";
 import {getSupabaseAdmin} from "@/lib/supabase/server";
 
 const MANAGEMENT_ROLES = ["SUPER_ADMIN", "FINANCE"];
-const EXPENSE_ROLES = [...MANAGEMENT_ROLES, "OPERATIONS"];
+const EXPENSE_ROLES = [...MANAGEMENT_ROLES, "OPERATIONS_MANAGER", "OPERATIONS"];
 const CATEGORIES = ["HOTEL", "TRANSPORT", "HOST", "TRAIN", "ACTIVITY", "MARKETING", "OTHER"];
 const CURRENCIES = ["USD", "SAR"];
 
