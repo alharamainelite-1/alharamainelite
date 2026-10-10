@@ -12,8 +12,7 @@ export default async function OperationsPage(){
  const staff=await getCurrentStaff(); if(!staff)return null;
  const locale=await getAdminLocale(); const t=adminText[locale];
  let rows:any[]=[];let hosts:any[]=[];let vehicles:any[]=[];let team:any[]=[];let assignedGroups:any[]=[];let legacyHostTasks:any[]=[];let error='';
- const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);\n const isCoordinator=staff.profile.role==='JOURNEY_COORDINATOR';\n const canAssignResources=canManage||isCoordinator;
- try{
+ const canManage=['SUPER_ADMIN','OPERATIONS_MANAGER'].includes(staff.profile.role);\n const isCoordinator=staff.profile.role==='JOURNEY_COORDINATOR';\n  try{
   const s=getSupabaseAdmin();
   const isWorker=staff.profile.role==='OPERATIONS';
   const [tasks,hs,vs,ts]=await Promise.all([
@@ -32,7 +31,7 @@ export default async function OperationsPage(){
   if(canManage){const ht=await s.from('host_tasks').select('id,task_id,host_id,date,start_time,end_time,task_type,status,location,notes,cancellation_reason,cancelled_at').order('date',{ascending:true}).limit(100);if(ht.error)throw ht.error;legacyHostTasks=ht.data||[];}
  }catch(e){error=e instanceof Error?e.message:'Unable to load operations.'}
  return <section className="pb-12">
-  {(canManage||isCoordinator)&&<OperationsTaskForm groups={assignedGroups.map((g:any)=>({id:g.id,group_id:g.group_id}))} requireGroup={isCoordinator}/ >}
+  {(canManage||isCoordinator)&&<OperationsTaskForm groups={assignedGroups.map((g:any)=>({id:g.id,group_id:g.group_id}))} requireGroup={isCoordinator}/>}
   <h1 className="serif text-4xl text-forest">{t.page.operations}</h1>
   <div className="mt-6 card p-5">
    <h2 className="serif text-2xl text-forest">{locale==='ar'?'تسجيل مصروف رحلة':'Record a journey expense'}</h2>
