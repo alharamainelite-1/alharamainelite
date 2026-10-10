@@ -67,7 +67,7 @@ export default function TeamManager(){
   setLoading(true);
   const r=await fetch('/api/admin/team',{cache:'no-store'});
   const j=await r.json();
-  if(r.ok){const list:User[]=j.users||[];setUsers(list);setForm(old=>({...old,manager_id:old.manager_id||defaultManager(old.role,list)}));}else setMessage(j.error||'Unable to load team.');
+  if(r.ok){const list:User[]=j.users||[];setUsers(list);setForm(old=>({...old,manager_id:old.manager_id||defaultManager(old.role,list)}));if(selected){const fresh=list.find(u=>u.id===selected.id);if(fresh)setSelected(fresh);}}else setMessage(j.error||'Unable to load team.');
   setLoading(false);
  }
  useEffect(()=>{load();},[]);
