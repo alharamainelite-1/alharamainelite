@@ -53,7 +53,7 @@ export default async function GroupsPage(){
   try{
     const s=getSupabaseAdmin();
     const [g,p,b,m,h,ht]=await Promise.all([
-      s.from('groups').select('id,group_id,package_id,departure_id,departure_period_start,departure_period_end,capacity,status,host_id,operations_coordinator_id,hotel_makkah_id,hotel_madinah_id,hotel_jeddah_id,departure:departures(departure_date,status)').order('created_at',{ascending:false}).limit(50),
+      (()=>{let q=s.from('groups').select('id,group_id,package_id,departure_id,departure_period_start,departure_period_end,capacity,status,host_id,operations_coordinator_id,hotel_makkah_id,hotel_madinah_id,hotel_jeddah_id,departure:departures(departure_date,status)').order('created_at',{ascending:false}).limit(50);if(staff.profile.role==='OPERATIONS')q=q.eq('operations_coordinator_id',staff.profile.id);return q;})(),
       s.from('packages').select('id,name').eq('active',true).order('name'),
       s.from('bookings').select('id,booking_id,guest_count,status,payment_status,package_id,lead_source,departure_id,expected_travel_date,expected_period_start,expected_period_end,group_matching_status').in('status',['NEW_REQUEST','CONTACTED','DETAILS_PENDING','PAYMENT_PENDING','PAYMENT_RECEIVED','CONFIRMED','PREPARING','ACTIVE']).order('created_at',{ascending:false}).limit(200),
       s.from('group_members').select('id,group_id,booking_id,guest_count').limit(300),
@@ -68,7 +68,7 @@ export default async function GroupsPage(){
     bookings=(b.data||[]).filter((x:any)=>!grouped.has(x.id));
   }catch(e){error=e instanceof Error?e.message:'Unable to load groups.'}
 
-  const pending=bookings.filter((x:any)=>x.status==='CONFIRMED'&&x.payment_status==='RECEIVED'&&Number(x.guest_count||0)<5&&x.group_matching_status!=='GROUPED');
+  const pending=canManage?bookings.filter((x:any)=>x.status==='CONFIRMED'&&x.payment_status==='RECEIVED'&&Number(x.guest_count||0)<5&&x.group_matching_status!=='GROUPED'):[];
   const suggestions=suggest(pending);
   const packageName=(id:string)=>packages.find((p:any)=>p.id===id)?.name||'—';
   const period=(x:any)=>x.expected_travel_date||x.expected_period_start||x.expected_period_end||'—';
