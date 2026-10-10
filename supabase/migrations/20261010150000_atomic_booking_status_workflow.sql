@@ -128,7 +128,7 @@ begin
 
   if v_booking.request_id is not null then
     update public.journey_requests
-    set status = p_status,
+    set status = p_status::booking_status,
         updated_at = now()
     where id = v_booking.request_id;
   end if;
