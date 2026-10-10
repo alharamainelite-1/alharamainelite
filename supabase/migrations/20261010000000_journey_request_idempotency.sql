@@ -65,8 +65,9 @@ declare
   v_existing public.journey_request_idempotency%rowtype;
   v_result record;
 begin
+  -- Backward-compatible fallback while older deployed clients are still live.
   if p_idempotency_key is null then
-    raise exception 'An idempotency key is required' using errcode = '22023';
+    p_idempotency_key := gen_random_uuid();
   end if;
 
   v_fingerprint := md5(jsonb_build_object(
