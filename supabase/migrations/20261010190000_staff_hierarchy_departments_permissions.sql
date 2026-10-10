@@ -70,18 +70,3 @@ SET department = CASE p.role::text
   ELSE COALESCE(p.department, 'OPERATIONS')
 END
 WHERE p.department IS NULL;
-
-CREATE OR REPLACE FUNCTION public.is_staff()
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $function$
-  SELECT EXISTS (
-    SELECT 1
-    FROM public.profiles p
-    WHERE p.id = (SELECT auth.uid())
-      AND p.role IN ('SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS','SALES','MARKETING','CUSTOMER_SERVICE','FINANCE','HOST')
-  );
-$function$;
