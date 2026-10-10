@@ -10,7 +10,6 @@ const roleConfig:any={
  FINANCE:{en:{eyebrow:"FINANCE WORKSPACE",title:"Finance",intro:"Your workspace is focused on payment verification, expenses and financial reporting.",primary:"Open Payments",href:"/admin/payments"},ar:{eyebrow:"المساحة المالية",title:"المالية",intro:"مساحتك مخصصة للتحقق من المدفوعات والمصروفات والتقارير المالية.",primary:"فتح المدفوعات",href:"/admin/payments"}},
  OPERATIONS_MANAGER:{en:{eyebrow:"OPERATIONS MANAGEMENT",title:"Operations Manager",intro:"Your workspace is focused on groups, resources, hosts and keeping every journey operationally ready.",primary:"Open Operations",href:"/admin/operations"},ar:{eyebrow:"إدارة العمليات",title:"مدير العمليات",intro:"مساحتك مخصصة للمجموعات والموارد والمضيفين وجاهزية الرحلات التشغيلية.",primary:"فتح العمليات",href:"/admin/operations"}},
  OPERATIONS:{en:{eyebrow:"OPERATIONS WORKSPACE",title:"Operations",intro:"Your workspace is focused on assigned operational work, schedules, resources and task completion.",primary:"Open My Operations",href:"/admin/operations"},ar:{eyebrow:"مساحة العمليات",title:"العمليات",intro:"مساحتك مخصصة للمهام التشغيلية والجدولة والموارد وإنجاز المهام المسندة.",primary:"فتح العمليات",href:"/admin/operations"}},
- ADMIN:{en:{eyebrow:"MANAGEMENT WORKSPACE",title:"Administration",intro:"Manage customers, journeys and operational coordination. Financial workspaces are intentionally separated.",primary:"Open Journeys",href:"/admin/journeys"},ar:{eyebrow:"مساحة الإدارة",title:"الإدارة",intro:"إدارة العملاء والرحلات والتنسيق التشغيلي. تم فصل المساحات المالية عن الإدارة.",primary:"فتح الرحلات",href:"/admin/journeys"}},
  SUPER_ADMIN:{en:{eyebrow:"EXECUTIVE CONTROL",title:"General Manager",intro:"Full control of the platform, team permissions, security and business operations.",primary:"Open Team",href:"/admin/team"},ar:{eyebrow:"الإدارة العامة",title:"المدير العام",intro:"تحكم كامل في المنصة والفريق والصلاحيات والأمان والعمليات.",primary:"فتح الفريق",href:"/admin/team"}}
 };
 
@@ -64,17 +63,9 @@ async function OperationsDashboard({locale}:{locale:'en'|'ar'}){
  return <RoleShell cfg={roleConfig.OPERATIONS[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Stat label={locale==='ar'?'المهام المفتوحة':'OPEN TASKS'} value={open.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مقبولة':'ACCEPTED'} value={accepted.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهام اليوم':'TODAY'} value={today.count||0} href="/admin/operations"/></div><WorkspaceSteps items={locale==='ar'?["راجع جدولك","نفذ المهمة","حدّث الحالة","أبلغ عن أي تعارض"]:["Review schedule","Execute task","Update status","Report conflicts"]} links={["/admin/operations","/admin/operations","/admin/operations","/admin/operations"]}/></RoleShell>
 }
 
-async function ManagementDashboard({locale,superAdmin=false}:{locale:'en'|'ar';superAdmin?:boolean}){
- const cfg=superAdmin?roleConfig.SUPER_ADMIN[locale]:roleConfig.ADMIN[locale];
- if(superAdmin)return <RoleShell cfg={cfg}><ExecutiveOverview locale={locale}/></RoleShell>;
- const s=getSupabaseAdmin();
- const [requests,journeys,tasks,completed]=await Promise.all([
-  s.from("journey_requests").select("*",{count:"exact",head:true}).in("status",["NEW_REQUEST","CONTACTED","DETAILS_PENDING"]),
-  s.from("bookings").select("*",{count:"exact",head:true}).in("status",["CONFIRMED","PREPARING","ACTIVE"]),
-  s.from("operations_tasks").select("*",{count:"exact",head:true}).not("status","in","(COMPLETED,CANCELLED)"),
-  s.from("bookings").select("*",{count:"exact",head:true}).eq("status","COMPLETED")
- ]);
- return <RoleShell cfg={cfg}><div className="mb-5 flex justify-end">{superAdmin&&<Link href="/admin/journey-archive" className="btn btn-secondary">{locale==='ar'?'إدارة الرحلات التجريبية':'Manage test journeys'}</Link>}</div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'طلبات تحتاج متابعة':'REQUESTS TO REVIEW'} value={requests.count||0} href="/admin/requests"/><Stat label={locale==='ar'?'رحلات نشطة':'ACTIVE JOURNEYS'} value={journeys.count||0} href="/admin/journeys"/><Stat label={locale==='ar'?'مهام تشغيلية':'OPEN OPERATIONS'} value={tasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'رحلات مكتملة':'COMPLETED'} value={completed.count||0} href="/admin/journeys"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الطلبات","متابعة الرحلات","متابعة التشغيل","مراجعة الأداء"]:["Review requests","Monitor journeys","Monitor operations","Review performance"]} links={["/admin/requests","/admin/journeys","/admin/operations","/admin/reports"]}/></RoleShell>
+async function ManagementDashboard({locale}:{locale:'en'|'ar'}) {
+ const cfg=roleConfig.SUPER_ADMIN[locale];
+ return <RoleShell cfg={cfg}><div className="mb-5 flex justify-end"><Link href="/admin/journey-archive" className="btn btn-secondary">{locale==='ar'?'إدارة الرحلات التجريبية':'Manage test journeys'}</Link></div><ExecutiveOverview locale={locale}/></RoleShell>;
 }
 
 function RoleShell({cfg,children}:{cfg:any;children:React.ReactNode}){
@@ -98,6 +89,5 @@ export default async function AdminHome(){
  if(role==='FINANCE') return <FinanceDashboard locale={locale}/>;
  if(role==='OPERATIONS_MANAGER') return <OperationsManagerDashboard locale={locale}/>;
  if(role==='OPERATIONS') return <OperationsDashboard locale={locale}/>;
- if(role==='ADMIN') return <ManagementDashboard locale={locale}/>;
- return <ManagementDashboard locale={locale} superAdmin/>;
+ return <ManagementDashboard locale={locale}/>;
 }
