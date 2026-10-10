@@ -3,7 +3,7 @@ import {useState} from "react";
 
 const L:Record<string,string>={PENDING:"معلقة",ASSIGNED:"تم التعيين",ACCEPTED:"تم القبول",IN_PROGRESS:"قيد التنفيذ",COMPLETED:"مكتملة",CANCELLED:"ملغاة"};
 
-export function OperationsAssignmentForm({id,currentStatus}:{id:string;currentStatus:string}){
+export function OperationsAssignmentForm({id,currentStatus,cancellationReason,cancelledAt}:{id:string;currentStatus:string;cancellationReason?:string|null;cancelledAt?:string|null}){
   const [s,setS]=useState(currentStatus||"PENDING");
   const [reason,setReason]=useState("");
   const [busy,setBusy]=useState(false);
@@ -26,6 +26,6 @@ export function OperationsAssignmentForm({id,currentStatus}:{id:string;currentSt
     {s==="CANCELLED"&&!isCancelled&&<textarea aria-label={ar?"سبب الإلغاء":"Cancellation reason"} required minLength={5} maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)} placeholder={ar?"اكتب سبب الإلغاء (مطلوب)":"Enter cancellation reason (required)"} className="min-h-20 rounded-lg border border-forest/15 p-2 text-xs" />}
     {s!==currentStatus&&!isCancelled&&<button disabled={busy||(s==="CANCELLED"&&reason.trim().length<5)} onClick={save} className="btn btn-outline !px-3 !py-2 text-xs">{busy?"…":ar?"حفظ":"Save"}</button>}
     {error&&<span role="alert" className="text-xs text-red-700">{error}</span>}
-    {currentStatus==="CANCELLED"&&<span className="text-xs text-forest/55">{ar?"تم إلغاء المهمة؛ لا يمكن إعادة فتحها.":"Cancelled task; reopening is disabled."}</span>}
+    {currentStatus==="CANCELLED"&&<div className="rounded-lg bg-[#f7f3ea] p-2 text-xs text-forest/70"><p>{ar?"سبب الإلغاء:":"Cancellation reason:"} {cancellationReason||"—"}</p>{cancelledAt&&<p className="mt-1">{ar?"وقت الإلغاء:":"Cancelled at:"} {new Date(cancelledAt).toLocaleString(ar?"ar-SA":"en-GB")}</p>}<p className="mt-1">{ar?"لا يمكن إعادة فتح المهمة الملغاة.":"Cancelled tasks cannot be reopened."}</p></div>}
   </div>;
 }
