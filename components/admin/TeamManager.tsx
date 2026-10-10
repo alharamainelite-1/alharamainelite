@@ -16,14 +16,18 @@ function defaultManager(role:Role,users:User[],excludeId?:string){const allowed=
 function defaultDepartment(role:Role){if(role==='SUPER_ADMIN')return 'GENERAL_MANAGEMENT';if(['SALES'].includes(role))return 'SALES';if(role==='MARKETING')return 'MARKETING';if(role==='CUSTOMER_SERVICE')return 'CUSTOMER_SERVICE';if(role==='FINANCE')return 'FINANCE';return 'OPERATIONS';}
 function defaultPermission(role:Role,area:string,action:string){
  if(role==='SUPER_ADMIN')return true;
- const map:Record<string,string[]>={SUPER_ADMIN:['requests','guests','journeys','bookings','operations','groups','resources','communications','payments','expenses','reports','hosts','finance','custody','departures','reviews','influencers','team','staffMonitoring','settings','hotels','train','transportation','hostTasks'],OPERATIONS_MANAGER:['guests','journeys','bookings','operations','groups','resources','hosts','hotels','train','transportation','expenses'],OPERATIONS_SUPERVISOR:['operations','groups','resources','hosts','hotels','train','transportation','expenses'],JOURNEY_COORDINATOR:['operations','groups','resources','expenses'],OPERATIONS:['operations','transportation'],SALES:['requests','guests','journeys','bookings','communications'],MARKETING:['communications'],CUSTOMER_SERVICE:['requests','guests','journeys','bookings','communications'],FINANCE:['bookings','payments','expenses','reports','finance'],HOST:['hostTasks']};
- if(!(map[role]||[]).includes(area))return false;
- if(action==='view')return true;
- if(action==='edit')return (['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR'].includes(role)&&['operations','groups','resources','hosts','hotels','train','transportation','expenses'].includes(area))||(['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','MARKETING'].includes(role)&&['requests','guests','journeys','bookings','communications'].includes(area))||(role==='OPERATIONS'&&area==='operations')||(['SUPER_ADMIN','FINANCE'].includes(role)&&['payments','expenses','reports','finance'].includes(area));
- if(action==='create')return (['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'].includes(role)&&['operations','groups','resources','hosts','hotels','train','transportation','expenses'].includes(area))||(role==='JOURNEY_COORDINATOR'&&['operations','groups','expenses'].includes(area))||(['SUPER_ADMIN','SALES'].includes(role)&&['requests','bookings'].includes(area))||(['SUPER_ADMIN','MARKETING','CUSTOMER_SERVICE','SALES'].includes(role)&&area==='communications')||(['SUPER_ADMIN','FINANCE'].includes(role)&&['payments','expenses'].includes(area));
- if(action==='assign')return (['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'].includes(role)&&['groups','operations','resources','hosts','hotels','train','transportation'].includes(area))||(role==='JOURNEY_COORDINATOR'&&['operations','resources'].includes(area));
- if(action==='approve')return ['SUPER_ADMIN','FINANCE'].includes(role)&&['payments','expenses','bookings'].includes(area);
- return false;
+ const map:Record<string,Record<string,string[]>>={
+  OPERATIONS_MANAGER:{guests:['view'],journeys:['view'],bookings:['view'],operations:['view','create','edit','assign'],groups:['view','create','edit','assign'],resources:['view','create','edit','assign'],hosts:['view','create','edit','assign'],hotels:['view','create','edit','assign'],train:['view','create','edit','assign'],transportation:['view','create','edit','assign'],expenses:['view','create']},
+  OPERATIONS_SUPERVISOR:{operations:['view','create','edit','assign'],groups:['view','create','edit','assign'],resources:['view','create','edit','assign'],hosts:['view','create','edit','assign'],hotels:['view','create','edit','assign'],train:['view','create','edit','assign'],transportation:['view','create','edit','assign'],expenses:['view','create']},
+  JOURNEY_COORDINATOR:{operations:['view','create','edit','assign'],groups:['view'],resources:['view','assign'],expenses:['view','create']},
+  OPERATIONS:{operations:['view','edit'],transportation:['view']},
+  SALES:{requests:['view','create','edit'],guests:['view','edit'],journeys:['view','edit'],bookings:['view','create','edit'],communications:['view','create','edit']},
+  MARKETING:{communications:['view','create','edit']},
+  CUSTOMER_SERVICE:{requests:['view','edit'],guests:['view','edit'],journeys:['view'],bookings:['view','edit'],communications:['view','create','edit']},
+  FINANCE:{bookings:['view'],payments:['view','create','approve'],expenses:['view','approve'],reports:['view'],finance:['view']},
+  HOST:{hostTasks:['view','edit']}
+ };
+ return (map[role]?.[area]||[]).includes(action);
 }
 const descriptions:Record<Role,{en:string;ar:string}>={
  SUPER_ADMIN:{en:'Full control, staff accounts, permissions, settings, finance and all operations.',ar:'صلاحية كاملة تشمل الموظفين والصلاحيات والإعدادات والمالية والعمليات.'},
