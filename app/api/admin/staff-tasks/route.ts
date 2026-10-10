@@ -27,7 +27,7 @@ export async function GET() {
   }
   const {data,error}=await query;
   if(error)return jsonError('Unable to load staff tasks. Apply the staff-task migration first if this feature was just deployed.',500);
-  return NextResponse.json({tasks:data||[],staff:team.map((p:any)=>({id:p.id,name:p.full_name||'Staff member',role:p.role,department:p.department,manager_id:p.manager_id})),currentStaffId:staff.profile.id,canAssign:canOversee});
+  return NextResponse.json({tasks:data||[],staff:team.map((p:any)=>({id:p.id,name:p.full_name||'Staff member',role:p.role,department:p.department,manager_id:p.manager_id})),currentStaffId:staff.profile.id,currentRole:staff.profile.role,canAssign:canOversee});
 }
 
 export async function POST(req:Request) {
