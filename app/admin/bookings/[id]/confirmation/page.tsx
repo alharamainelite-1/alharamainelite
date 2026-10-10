@@ -66,6 +66,7 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
     }));
   }
 
+  const { data: documentHistory } = await db.from('journey_confirmation_documents').select('id,version,language,document_status,created_at,sent_at').eq('booking_id', row.id).order('version', { ascending: false });
   const customer: any = Array.isArray(row.customer) ? row.customer[0] : row.customer;
   const packageInfo: any = Array.isArray(row.package) ? row.package[0] : row.package;
   return <div>
@@ -82,6 +83,6 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
       paymentStatus: row.payment_status,
       bookingStatus: row.status,
       travelDate: row.expected_travel_date || row.expected_period_start || row.expected_period_end,
-    }} hotels={hotels} trains={trains} activities={activities} locale={locale} />
+    }} hotels={hotels} trains={trains} activities={activities} history={documentHistory || []} locale={locale} />
   </div>;
 }
