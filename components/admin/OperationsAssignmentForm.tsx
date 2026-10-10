@@ -1,7 +1,7 @@
 "use client";
 import {useState} from "react";
 const L:Record<string,string>={PENDING:"معلقة",ASSIGNED:"تم الإسناد",ACCEPTED:"تم القبول",IN_PROGRESS:"قيد التنفيذ",COMPLETED:"مكتملة",VERIFIED:"تم التحقق",CLOSED:"مغلقة",CANCELLED:"ملغاة"};
-const TRANSITIONS:Record<string,string[]>={PENDING:["PENDING","ASSIGNED","CANCELLED"],ASSIGNED:["ASSIGNED","CANCELLED"],ACCEPTED:["ACCEPTED","IN_PROGRESS"],IN_PROGRESS:["IN_PROGRESS","COMPLETED"],COMPLETED:["COMPLETED","VERIFIED","CANCELLED"],VERIFIED:["VERIFIED","CLOSED","CANCELLED"],CLOSED:["CLOSED"],CANCELLED:["CANCELLED"]};
+const TRANSITIONS:Record<string,string[]>={PENDING:["PENDING","ASSIGNED","CANCELLED"],ASSIGNED:["ASSIGNED","CANCELLED"],ACCEPTED:["ACCEPTED","CANCELLED"],IN_PROGRESS:["IN_PROGRESS","CANCELLED"],COMPLETED:["COMPLETED","VERIFIED","CANCELLED"],VERIFIED:["VERIFIED","CLOSED","CANCELLED"],CLOSED:["CLOSED"],CANCELLED:["CANCELLED"]};
 const WORKER_TRANSITIONS:Record<string,string[]>={PENDING:["PENDING"],ASSIGNED:["ASSIGNED","ACCEPTED"],ACCEPTED:["ACCEPTED","IN_PROGRESS"],IN_PROGRESS:["IN_PROGRESS","COMPLETED"],COMPLETED:["COMPLETED"],VERIFIED:["VERIFIED"],CLOSED:["CLOSED"],CANCELLED:["CANCELLED"]};
 export function OperationsAssignmentForm({id,currentStatus,canManage=false,verifiedAt,closedAt}:{id:string;currentStatus:string;canManage?:boolean;verifiedAt?:string|null;closedAt?:string|null}){
  const [s,setS]=useState(currentStatus||"PENDING"),[reason,setReason]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
