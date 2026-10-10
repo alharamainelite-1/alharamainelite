@@ -28,8 +28,9 @@ export const ADMIN_ACCESS = {
   hostTasks: ['HOST'],
 } as const satisfies Record<string, readonly StaffRole[]>;
 
-export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS) {
-  return (ADMIN_ACCESS[area] as readonly StaffRole[]).includes(role);
+export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS, permissions?: Record<string, Record<string, boolean>>) {
+  if (!(ADMIN_ACCESS[area] as readonly StaffRole[]).includes(role)) return false;
+  return permissions?.[area]?.view !== false;
 }
 
 export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | null {
