@@ -12,9 +12,11 @@ export async function POST(req: Request) {
   if(!staff||!FINANCE_ROLES.includes(staff.profile.role))return NextResponse.json({error:'Finance access required.'},{status:403});
   const body=await req.json().catch(()=>null) as any;
   const amount=Number(body?.amount);
-  if(!body?.booking_id||!Number.isFinite(amount)||amount<=0)return NextResponse.json({error:'Booking and a valid amount are required.'},{status:400});
+  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if(typeof body?.booking_id!=='string'||!uuid.test(body.booking_id)||!Number.isFinite(amount)||amount<=0)return NextResponse.json({error:'Booking and a valid amount are required.'},{status:400});
   const paymentDate=body.date===undefined||body.date===null||body.date===''?new Date().toISOString().slice(0,10):String(body.date);
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)||Number.isNaN(Date.parse(paymentDate+'T00:00:00Z'))){
+  const parsedDate=new Date(paymentDate+'T00:00:00Z');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)||Number.isNaN(parsedDate.getTime())||parsedDate.toISOString().slice(0,10)!==paymentDate){
     return NextResponse.json({error:'A valid payment date is required.'},{status:400});
   }
   const {data,error}=await getSupabaseAdmin().rpc('record_booking_payment_atomic',{
