@@ -67,8 +67,10 @@ export default function TeamManager(){
   setLoading(true);
   const r=await fetch('/api/admin/team',{cache:'no-store'});
   const j=await r.json();
-  if(r.ok){const list:User[]=j.users||[];setUsers(list);setForm(old=>({...old,manager_id:old.manager_id||defaultManager(old.role,list)}));if(selected){const fresh=list.find(u=>u.id===selected.id);if(fresh)setSelected(fresh);}}else setMessage(j.error||'Unable to load team.');
+  if(r.ok){const list:User[]=j.users||[];setUsers(list);setForm(old=>({...old,manager_id:old.manager_id||defaultManager(old.role,list)}));setLoading(false);return list;}
+  setMessage(j.error||'Unable to load team.');
   setLoading(false);
+  return null;
  }
  useEffect(()=>{load();},[]);
 
@@ -84,7 +86,7 @@ export default function TeamManager(){
   setBusy(true);setMessage('');
   const r=await fetch('/api/admin/team',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({userId},body))});
   const j=await r.json();
-  if(r.ok){setMessage(locale==='ar'?'تم تحديث الحساب بنجاح.':'Account updated successfully.');await load();}
+  if(r.ok){setMessage(locale==='ar'?'تم تحديث الحساب بنجاح.':'Account updated successfully.');const list=await load();const fresh=list?.find(u=>u.id===userId);if(fresh)setSelected(fresh);}
   else setMessage(j.error||'Unable to update account.');
   setBusy(false);
  }
