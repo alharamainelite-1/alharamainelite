@@ -27,7 +27,12 @@ export async function POST(req: Request) {
   if (!CATEGORIES.includes(String(body.category))) {
     return NextResponse.json({ error: "Invalid expense category." }, { status: 400 });
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(body.date))) {
+  const expenseDate = String(body.date);
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(expenseDate) ||
+    Number.isNaN(Date.parse(`${expenseDate}T00:00:00.000Z`)) ||
+    new Date(`${expenseDate}T00:00:00.000Z`).toISOString().slice(0, 10) !== expenseDate
+  ) {
     return NextResponse.json({ error: "Invalid expense date." }, { status: 400 });
   }
   const currency = String(body.currency || "USD");
@@ -64,7 +69,7 @@ export async function POST(req: Request) {
     category: String(body.category),
     amount,
     currency,
-    date: String(body.date),
+    date: expenseDate,
     reference: body.reference ? String(body.reference).slice(0, 200) : null,
     notes: body.notes ? String(body.notes).slice(0, 2000) : null,
     created_by: staff.profile.id,
