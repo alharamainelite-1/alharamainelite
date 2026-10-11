@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic';
 
 type PageProps = { params: Promise<{ id: string }> };
 type Relation<T> = T | T[] | null;
+function firstRelation<T>(value:Relation<T>):T|null{return Array.isArray(value)?(value[0]??null):(value as T|null)}
 type HotelAssignmentRow = { id:string; city:string|null; room_type:string|null; room_count:number|null; check_in:string|null; check_out:string|null; notes:string|null; confirmation_status:string|null; confirmation_reference:string|null; hotel:Relation<{name:string|null;address:string|null}> };
 type TrainBookingRow = { id:string; travel_date:string|null; origin:string|null; destination:string|null; departure_time:string|null; arrival_time:string|null; reference:string|null; status:string|null; notes:string|null };
 type ActivityBookingRow = { id:string; starts_at:string|null; ends_at:string|null; notes:string|null; confirmation_status:string|null; confirmation_reference:string|null; activity:Relation<{name:string|null;city:string|null;location:string|null}> };
@@ -41,16 +42,16 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
       db.from('train_bookings').select('id,travel_date,origin,destination,departure_time,arrival_time,reference,status,notes').eq('group_id', groupId),
       db.from('booking_activities').select('id,starts_at,ends_at,notes,confirmation_status,confirmation_reference,activity:activities(name,city,location)').or('booking_id.eq.' + row.id + ',group_id.eq.' + groupId),
     ]);
-    hotels = (hotelResult.data || []).map((item: HotelAssignmentRow) => ({
+    hotels = (hotelResult.data || []).map((item: HotelAssignmentRow) => { const hotel=firstRelation(item.hotel); return ({
       id: item.id,
       type: 'hotel' as const,
-      title: item.hotel?.name || (locale === 'ar' ? 'فندق غير محدد' : 'Hotel not specified'),
+      title: hotel?.name || (locale === 'ar' ? 'فندق غير محدد' : 'Hotel not specified'),
       city: item.city,
       date: item.check_in,
       status: item.confirmation_status,
       reference: item.confirmation_reference,
-      details: [item.room_type, item.room_count ? (locale === 'ar' ? 'عدد الغرف: ' : 'Rooms: ') + item.room_count : null, item.check_out ? (locale === 'ar' ? 'المغادرة: ' : 'Check-out: ') + item.check_out : null, item.hotel?.address, item.notes].filter(Boolean).join(' · '),
-    }));
+      details: [item.room_type, item.room_count ? (locale === 'ar' ? 'عدد الغرف: ' : 'Rooms: ') + item.room_count : null, item.check_out ? (locale === 'ar' ? 'المغادرة: ' : 'Check-out: ') + item.check_out : null, hotel?.address, item.notes].filter(Boolean).join(' · '),
+    }); });
     trains = (trainResult.data || []).map((item: TrainBookingRow) => ({
       id: item.id,
       type: 'train' as const,
@@ -61,16 +62,16 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
       reference: item.reference,
       details: [item.departure_time, item.arrival_time, item.notes].filter(Boolean).join(' · '),
     }));
-    activities = (activityResult.data || []).map((item: ActivityBookingRow) => ({
+    activities = (activityResult.data || []).map((item: ActivityBookingRow) => { const activity=firstRelation(item.activity); return ({
       id: item.id,
       type: 'activity' as const,
-      title: item.activity?.name || (locale === 'ar' ? 'زيارة / جولة' : 'Visit / tour'),
-      city: item.activity?.city,
+      title: activity?.name || (locale === 'ar' ? 'زيارة / جولة' : 'Visit / tour'),
+      city: activity?.city,
       date: item.starts_at,
       status: item.confirmation_status,
       reference: item.confirmation_reference,
-      details: [item.activity?.location, item.ends_at ? (locale === 'ar' ? 'النهاية: ' : 'Ends: ') + item.ends_at : null, item.notes].filter(Boolean).join(' · '),
-    }));
+      details: [activity?.location, item.ends_at ? (locale === 'ar' ? 'النهاية: ' : 'Ends: ') + item.ends_at : null, item.notes].filter(Boolean).join(' · '),
+    }); });
   }
 
   const { data: documentHistory } = await db.from('journey_confirmation_documents').select('id,version,language,document_status,created_at,sent_at,pdf_path').eq('booking_id', row.id).order('version', { ascending: false });
