@@ -1,4 +1,5 @@
 import {cookies} from 'next/headers';
+import Image from 'next/image';
 import {defaultLocale,isLocale,pageCopy} from '@/lib/i18n';
 
 export default async function About(){
@@ -11,7 +12,7 @@ export default async function About(){
       <div className="mt-12 space-y-14">
         <div className="max-w-4xl"><h2 className="serif text-4xl text-forest">{t.storyTitle}</h2><p className="mt-4 text-base leading-8 text-forest/70">{t.story}</p></div>
         <div><h2 className="serif text-4xl text-forest">{t.whyTitle}</h2><div className="mt-6 grid gap-4 md:grid-cols-2">{t.why.map(([a,b])=><div className="card p-6" key={a}><h3 className="font-semibold text-forest">{a}</h3><p className="mt-2 text-sm leading-6 text-forest/60">{b}</p></div>)}</div></div>
-        <div className="grid gap-6 md:grid-cols-[1.1fr_.9fr] md:items-center"><div className="overflow-hidden rounded-[28px]"><img src="https://images.pexels.com/photos/34744920/pexels-photo-34744920.jpeg?auto=compress&cs=tinysrgb&w=1800" alt="Jeddah, Saudi Arabia" className="h-full min-h-72 w-full object-cover"/></div><div><div className="eyebrow">{t.originTitle}</div><p className="mt-4 text-lg leading-8 text-forest/70">{t.origin}</p></div></div>
+        <div className="grid gap-6 md:grid-cols-[1.1fr_.9fr] md:items-center"><div className="relative min-h-72 overflow-hidden rounded-[28px]"><Image src="https://images.pexels.com/photos/34744920/pexels-photo-34744920.jpeg?auto=compress&cs=tinysrgb&w=1800" alt="Jeddah, Saudi Arabia" fill sizes="(max-width: 768px) 100vw, 55vw" unoptimized className="object-cover"/></div><div><div className="eyebrow">{t.originTitle}</div><p className="mt-4 text-lg leading-8 text-forest/70">{t.origin}</p></div></div>
         <div><h2 className="serif text-4xl text-forest">{t.valuesTitle}</h2><div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{t.values.map(([a,b])=><div className="card p-6" key={a}><h3 className="font-semibold text-forest">{a}</h3><p className="mt-2 text-sm leading-6 text-forest/60">{b}</p></div>)}</div></div>
         <div className="border-t border-forest/10 pt-10"><h2 className="serif text-4xl text-forest">{t.finalTitle}</h2><p className="mt-4 max-w-3xl text-base leading-8 text-forest/70">{t.finalText}</p></div>
       </div>
