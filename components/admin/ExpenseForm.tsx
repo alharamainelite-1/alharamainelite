@@ -17,6 +17,7 @@ export function ExpenseForm({
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     setBusy(true);
     setMessage("");
     const formElement = event.currentTarget;
@@ -38,11 +39,11 @@ export function ExpenseForm({
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || (ar ? "تعذر إضافة المصروف." : "Could not add expense."));
-      setMessage(ar ? "تم تسجيل المصروف وإرساله للمراجعة." : "Expense recorded and sent for review.");
       formElement.reset();
-      window.setTimeout(() => window.location.reload(), 700);
+      setMessage(ar ? "تم تسجيل المصروف وإرساله للمراجعة. يمكنك تسجيل مصروف آخر." : "Expense recorded and sent for review. You can record another expense.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : (ar ? "تعذر إضافة المصروف." : "Could not add expense."));
+    } finally {
       setBusy(false);
     }
   }
