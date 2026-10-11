@@ -39,6 +39,7 @@ const descriptions:Record<Role,{en:string;ar:string}>={
  OPERATIONS_MANAGER:{en:'Owns journey readiness, groups, hotels, transport, train, hosts and operational tasks.',ar:'مسؤول عن جاهزية الرحلات والمجموعات والفنادق والنقل والقطار والمضيفين والمهام التشغيلية.'},
  JOURNEY_COORDINATOR:{en:'Owns assigned journeys, coordinates the group schedule and assigns host tasks for those journeys.',ar:'مسؤول عن الرحلات المسندة إليه، وتنسيق جدول المجموعة وإسناد مهام المضيفين ضمن رحلاته.'},
  OPERATIONS:{en:'Works on assigned operational tasks, resources and journey readiness.',ar:'تنفيذ المهام التشغيلية والموارد وجاهزية الرحلات.'},
+ OPERATIONS_BOOKINGS:{en:'Coordinates supplier booking requests, quotations, missing details, confirmations and operational costs.',ar:'يتابع طلبات حجوزات الموردين وعروض الأسعار والنواقص والتأكيدات والتكاليف التشغيلية.'},
  SALES:{en:'Owns lead qualification and customer follow-up, then formally hands qualified customers to Bookings. Cannot edit booking records or verify payments.',ar:'مسؤول عن تأهيل العملاء ومتابعتهم وتسليم المؤهلين رسميًا للحجوزات، ولا يعدل سجلات الحجز أو يعتمد الدفع.'},
  BOOKINGS:{en:'Owns booking records after an accepted Sales handover. Finance alone confirms payment receipt.',ar:'مسؤول عن سجلات الحجز بعد قبول التسليم من المبيعات. المالية وحدها تعتمد استلام المدفوعات.'},
  FINANCE:{en:'Owns payment verification, expenses and financial reporting.',ar:'مسؤول عن التحقق من المدفوعات والمصروفات والتقارير المالية.'},
