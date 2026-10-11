@@ -66,7 +66,7 @@ export default async function BookingConfirmationPage({ params }: PageProps) {
       id: item.id,
       type: 'activity' as const,
       title: activity?.name || (locale === 'ar' ? 'زيارة / جولة' : 'Visit / tour'),
-      city: activity?.city,
+      city: activity?.city ?? null,
       date: item.starts_at,
       status: item.confirmation_status,
       reference: item.confirmation_reference,
