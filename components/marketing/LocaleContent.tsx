@@ -1,1 +1,3 @@
-import{messages,Locale}from'@/lib/i18n';export function LocaleContent({locale,section,keyName}:{locale:Locale;section:'nav'|'request';keyName:string}){const value=(messages[locale] as any)?.[section]?.[keyName]??(messages.en as any)[section][keyName];return <>{value}</>}
+import{messages,Locale}from'@/lib/i18n';
+type MessageSection='nav'|'request';
+export function LocaleContent({locale,section,keyName}:{locale:Locale;section:MessageSection;keyName:string}){const localized=messages[locale][section] as Record<string,unknown>;const fallback=messages.en[section] as Record<string,unknown>;const value=localized[keyName]??fallback[keyName];return <>{typeof value==='string'?value:null}</>}
