@@ -11,6 +11,7 @@ export const metadata:Metadata={robots:{index:false,follow:false}};
 type NavItem={en:string;ar:string;href:string;roles?:string[]};
 const nav:NavItem[]=[
  {en:'Dashboard',ar:'لوحة التحكم',href:'/admin'},
+ {en:'General Management Results',ar:'نتائج الإدارة العامة والقرارات',href:'/admin/general-management',roles:['SUPER_ADMIN']},
  {en:'Journey Requests',ar:'طلبات الرحلات',href:'/admin/requests',roles:[...ADMIN_ACCESS.requests]},
  {en:'Customers',ar:'العملاء',href:'/admin/guests',roles:[...ADMIN_ACCESS.guests]},
  {en:'Journeys',ar:'الرحلات',href:'/admin/journeys',roles:[...ADMIN_ACCESS.journeys]},
