@@ -10,7 +10,7 @@ export async function PublishedGuestReviews({ locale }: { locale: 'en'|'so'|'ar'
   .eq('status','PUBLISHED').eq('verified',true).order('review_date',{ascending:false}).limit(24);
  const rows=(data||[]) as PublishedReview[];
  const imageUrls:Record<string,string>={};
- await Promise.all(rows.filter((r)=>r.image_path&&r.image_consent).map(async(r)=>{const {data:photo}=await getSupabasePublicServer().storage.from('guest-review-photos').createSignedUrl(r.image_path,300);if(photo?.signedUrl)imageUrls[r.id]=photo.signedUrl;}));
+ await Promise.all(rows.map(async(r)=>{if(!r.image_path||!r.image_consent)return;const {data:photo}=await getSupabasePublicServer().storage.from('guest-review-photos').createSignedUrl(r.image_path,300);if(photo?.signedUrl)imageUrls[r.id]=photo.signedUrl;}));
  return <section className="mt-10">
   <div className="eyebrow">{locale==='ar'?'آراء الضيوف الموثقة':locale==='so'?'Faallooyinka martida ee la xaqiijiyay':'Verified guest reviews'}</div>
   {rows.length>0?<div className="mt-5 grid gap-5 md:grid-cols-2">{rows.map((r)=><article key={r.id} className="card p-7">
