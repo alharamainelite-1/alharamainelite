@@ -104,7 +104,10 @@ export async function PATCH(req:Request) {
   if(!before)return jsonError('Task not found.',404);
   const isOwner=before.assigned_staff_id===staff.profile.id;
   const isRecipient=before.handover_to_staff_id===staff.profile.id;
-  const isManager=staff.profile.role==='SUPER_ADMIN'||(MANAGERS.includes(staff.profile.role)&&(before.created_by===staff.profile.id||before.assigned_staff_id===staff.profile.id));
+  const {data:assigneeProfile,error:assigneeProfileError}=await s.from('profiles').select('manager_id').eq('id',before.assigned_staff_id).maybeSingle();
+  if(assigneeProfileError)return jsonError('Unable to verify task ownership.',500);
+  const managesAssignee=assigneeProfile?.manager_id===staff.profile.id;
+  const isManager=staff.profile.role==='SUPER_ADMIN'||(MANAGERS.includes(staff.profile.role)&&(before.created_by===staff.profile.id||before.assigned_staff_id===staff.profile.id||managesAssignee));
   let patch:any={updated_at:new Date().toISOString()};
   let event='';
   if(body.action==='accept'){
