@@ -48,25 +48,52 @@ async function FinanceDashboard({locale}:{locale:'en'|'ar'}){
 }
 
 async function OperationsManagerDashboard({locale}:{locale:'en'|'ar'}){
- const s=getSupabaseAdmin();
- const [tasks,groups,hosts,vehicles]=await Promise.all([
-  s.from("operations_tasks").select("*",{count:"exact",head:true}).neq("status","COMPLETED").neq("status","CANCELLED"),
-  s.from("groups").select("*",{count:"exact",head:true}),
-  s.from("hosts").select("*",{count:"exact",head:true}).in("status",["AVAILABLE","ASSIGNED"]),
-  s.from("vehicles").select("*",{count:"exact",head:true}).in("status",["AVAILABLE","ASSIGNED"])
+ const s=getSupabaseAdmin(); const today=new Date().toISOString().slice(0,10);
+ const [tasks,groups,hosts,vehicles,overdue]=await Promise.all([
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
+  s.from("groups").select("id",{count:"exact",head:true}),
+  s.from("hosts").select("id",{count:"exact",head:true}).in("status",["AVAILABLE","ASSIGNED"]),
+  s.from("vehicles").select("id",{count:"exact",head:true}).in("status",["AVAILABLE","ASSIGNED"]),
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).lt("date",today).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)")
  ]);
- return <RoleShell cfg={roleConfig.OPERATIONS_MANAGER[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'المهام المفتوحة':'OPEN TASKS'} value={tasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'المجموعات':'GROUPS'} value={groups.count||0} href="/admin/groups"/><Stat label={locale==='ar'?'المضيفون':'HOSTS'} value={hosts.count||0} href="/admin/hosts"/><Stat label={locale==='ar'?'المركبات':'VEHICLES'} value={vehicles.count||0} href="/admin/transportation"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الرحلات المؤكدة","بناء المجموعات","توزيع الموارد","متابعة الجاهزية"]:["Review confirmed journeys","Build groups","Assign resources","Monitor readiness"]} links={["/admin/journeys","/admin/groups","/admin/operations","/admin/operations"]}/></RoleShell>
+ return <RoleShell cfg={roleConfig.OPERATIONS_MANAGER[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5"><Stat label={locale==='ar'?'المهام المفتوحة':'OPEN TASKS'} value={tasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'المهام المتأخرة':'OVERDUE TASKS'} value={overdue.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'المجموعات':'GROUPS'} value={groups.count||0} href="/admin/groups"/><Stat label={locale==='ar'?'المضيفون المتاحون':'AVAILABLE HOSTS'} value={hosts.count||0} href="/admin/hosts"/><Stat label={locale==='ar'?'المركبات المتاحة':'AVAILABLE VEHICLES'} value={vehicles.count||0} href="/admin/transportation"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الرحلات المؤكدة","بناء المجموعات","توزيع الموارد","متابعة الجاهزية"]:["Review confirmed journeys","Build groups","Assign resources","Monitor readiness"]} links={["/admin/journeys","/admin/groups","/admin/operations","/admin/operations"]}/></RoleShell>
 }
 
 async function OperationsDashboard({locale,staffId}:{locale:'en'|'ar';staffId:string}){
- const s=getSupabaseAdmin();
- // Workers must see counts for their own assigned tasks only, matching the Operations page filter.
- const [open,accepted,today]=await Promise.all([
-  s.from("operations_tasks").select("id",{count:"exact",head:true}).eq("assigned_staff_id",staffId).not("status","in","(COMPLETED,CANCELLED,CLOSED)"),
+ const s=getSupabaseAdmin(); const today=new Date().toISOString().slice(0,10);
+ const [open,accepted,todayTasks,overdue]=await Promise.all([
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).eq("assigned_staff_id",staffId).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
   s.from("operations_tasks").select("id",{count:"exact",head:true}).eq("assigned_staff_id",staffId).eq("status","ACCEPTED"),
-  s.from("operations_tasks").select("id",{count:"exact",head:true}).eq("assigned_staff_id",staffId).eq("date",new Date().toISOString().slice(0,10))
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).eq("assigned_staff_id",staffId).eq("date",today).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).eq("assigned_staff_id",staffId).lt("date",today).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)")
  ]);
- return <RoleShell cfg={roleConfig.OPERATIONS[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Stat label={locale==='ar'?'المهام المسندة المفتوحة':'MY OPEN TASKS'} value={open.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهام مقبولة':'MY ACCEPTED TASKS'} value={accepted.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهام اليوم':'MY TASKS TODAY'} value={today.count||0} href="/admin/operations"/></div><WorkspaceSteps items={locale==='ar'?["راجع مهامك المسندة","نفذ المهمة","حدّث الحالة","أبلغ عن أي تعارض"]:["Review assigned tasks","Execute the task","Update its status","Report conflicts"]} links={["/admin/operations","/admin/operations","/admin/operations","/admin/operations"]}/></RoleShell>
+ return <RoleShell cfg={roleConfig.OPERATIONS[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'مهامي المفتوحة':'MY OPEN TASKS'} value={open.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهامي المقبولة':'MY ACCEPTED TASKS'} value={accepted.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهامي اليوم':'MY TASKS TODAY'} value={todayTasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهامي المتأخرة':'MY OVERDUE TASKS'} value={overdue.count||0} href="/admin/operations"/></div><WorkspaceSteps items={locale==='ar'?["راجع مهامك المسندة","نفذ المهمة","حدّث الحالة","أبلغ عن أي تعارض"]:["Review assigned tasks","Execute the task","Update its status","Report conflicts"]} links={["/admin/operations","/admin/operations","/admin/operations","/admin/operations"]}/></RoleShell>
+}
+
+async function OperationsSupervisorDashboard({locale}:{locale:'en'|'ar'}){
+ const s=getSupabaseAdmin(); const today=new Date().toISOString().slice(0,10);
+ const [open,overdue,todayTasks,unassigned]=await Promise.all([
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).lt("date",today).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).eq("date",today).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
+  s.from("operations_tasks").select("id",{count:"exact",head:true}).is("assigned_staff_id",null).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)")
+ ]);
+ return <RoleShell cfg={roleConfig.OPERATIONS_SUPERVISOR[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'المهام المفتوحة':'OPEN TASKS'} value={open.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'المهام المتأخرة':'OVERDUE TASKS'} value={overdue.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'مهام اليوم':'DUE TODAY'} value={todayTasks.count||0} href="/admin/operations"/><Stat label={locale==='ar'?'تحتاج إلى إسناد':'NEED ASSIGNMENT'} value={unassigned.count||0} href="/admin/operations"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الرحلات القادمة","إسناد المنسقين","متابعة المهام","حل تعارض الموارد"]:["Review upcoming journeys","Assign coordinators","Monitor tasks","Resolve resource conflicts"]} links={["/admin/groups","/admin/groups","/admin/operations","/admin/operations"]}/></RoleShell>
+}
+
+async function JourneyCoordinatorDashboard({locale,staffId}:{locale:'en'|'ar';staffId:string}){
+ const s=getSupabaseAdmin(); const today=new Date().toISOString().slice(0,10);
+ const {data:groups,error}=await s.from("groups").select("id").eq("operations_coordinator_id",staffId).limit(500);
+ const ids=(groups||[]).map((g:any)=>g.id);
+ let open=0,overdue=0,todayTasks=0;
+ if(!error&&ids.length){
+  const [a,b,c]=await Promise.all([
+   s.from("operations_tasks").select("id",{count:"exact",head:true}).in("group_id",ids).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
+   s.from("operations_tasks").select("id",{count:"exact",head:true}).in("group_id",ids).lt("date",today).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)"),
+   s.from("operations_tasks").select("id",{count:"exact",head:true}).in("group_id",ids).eq("date",today).not("status","in","(COMPLETED,VERIFIED,CLOSED,CANCELLED)")
+  ]);open=a.count||0;overdue=b.count||0;todayTasks=c.count||0;
+ }
+ return <RoleShell cfg={roleConfig.JOURNEY_COORDINATOR[locale]}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label={locale==='ar'?'الرحلات المسندة':'MY JOURNEYS'} value={ids.length} href="/admin/groups"/><Stat label={locale==='ar'?'المهام المفتوحة':'OPEN TASKS'} value={open} href="/admin/operations"/><Stat label={locale==='ar'?'المهام المتأخرة':'OVERDUE TASKS'} value={overdue} href="/admin/operations"/><Stat label={locale==='ar'?'مهام اليوم':'DUE TODAY'} value={todayTasks} href="/admin/operations"/></div><WorkspaceSteps items={locale==='ar'?["مراجعة الرحلات المسندة","إعداد جدول الرحلة","إسناد المضيف والمركبة","متابعة التنفيذ"]:["Review assigned journeys","Plan the journey schedule","Assign host and vehicle","Track execution"]} links={["/admin/groups","/admin/operations","/admin/operations","/admin/operations"]}/></RoleShell>
 }
 
 async function ManagementDashboard({locale}:{locale:'en'|'ar'}) {
@@ -100,8 +127,8 @@ export default async function AdminHome(){
  if(role==='FINANCE') return <FinanceDashboard locale={locale}/>;
  if(role==='OPERATIONS_MANAGER') return <OperationsManagerDashboard locale={locale}/>;
  if(role==='OPERATIONS') return <OperationsDashboard locale={locale} staffId={staff.profile.id}/>;
- if(role==='OPERATIONS_SUPERVISOR') return <RoleShell cfg={roleConfig.OPERATIONS_SUPERVISOR[locale]}><WorkspaceSteps items={locale==='ar'?["مراجعة الرحلات القادمة","إسناد المنسقين","متابعة المهام","حل تعارض الموارد"]:["Review upcoming journeys","Assign coordinators","Monitor tasks","Resolve resource conflicts"]} links={["/admin/groups","/admin/groups","/admin/operations","/admin/operations"]}/></RoleShell>;
- if(role==='JOURNEY_COORDINATOR') return <RoleShell cfg={roleConfig.JOURNEY_COORDINATOR[locale]}><WorkspaceSteps items={locale==='ar'?["مراجعة الرحلات المسندة","إعداد جدول الرحلة","إسناد المضيف والمركبة","متابعة التنفيذ"]:["Review assigned journeys","Plan the journey schedule","Assign host and vehicle","Track execution"]} links={["/admin/groups","/admin/operations","/admin/operations","/admin/operations"]}/></RoleShell>;
+ if(role==='OPERATIONS_SUPERVISOR') return <OperationsSupervisorDashboard locale={locale}/>;
+ if(role==='JOURNEY_COORDINATOR') return <JourneyCoordinatorDashboard locale={locale} staffId={staff.profile.id}/>;
  if(role==='MARKETING') return <RoleShell cfg={roleConfig.MARKETING[locale]}><WorkspaceSteps items={locale==='ar'?["تجهيز المحتوى","مراجعة رسائل التواصل","تسجيل العملاء المحتملين ومشاركة نتائج الحملة مع المبيعات"]:["Prepare content","Review communication templates","Record leads and share campaign results with Sales"]} links={["/admin/communications","/admin/communications","/admin/communications"]}/></RoleShell>;
  if(role==='CUSTOMER_SERVICE') return <RoleShell cfg={roleConfig.CUSTOMER_SERVICE[locale]}><WorkspaceSteps items={locale==='ar'?["استقبال الاستفسار","مراجعة بيانات العميل","متابعة حالة الحجز","تصعيد المشكلة"]:["Receive the enquiry","Review customer details","Follow booking status","Escalate issues"]} links={["/admin/requests","/admin/guests","/admin/bookings","/admin/communications"]}/></RoleShell>;
  return <ManagementDashboard locale={locale}/>;
