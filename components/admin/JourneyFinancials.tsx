@@ -3,7 +3,7 @@ import {useMemo,useState} from "react";
 type Cost={id:string;category:string;description:string;quantity:number;amount:number;currency:"USD"|"SAR";amount_usd:number|null;cost_stage:string;date:string;notes?:string|null};
 const cats=[["HOTEL","الفنادق"],["TRANSPORTATION","النقل"],["TRAIN","قطار الحرمين"],["EXPERIENCE","الفعاليات والتجارب"],["HOST","المضيف"],["OTHER","أخرى"]];
 const money=(n:number,c="USD")=>`${c} ${Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2})}`;
-export default function JourneyFinancials({bookingId,revenue,guestCount,costs,canEdit}:{bookingId:string;revenue:number;guestCount:number;costs:Cost[];canEdit:boolean}){
+export default function JourneyFinancials({bookingId,revenue,costs,canEdit}:{bookingId:string;revenue:number;guestCount:number;costs:Cost[];canEdit:boolean}){
  const [rows,setRows]=useState(costs);const[busy,setBusy]=useState(false);const[msg,setMsg]=useState("");
  const totalUsd=useMemo(()=>rows.reduce((n,x)=>n+Number(x.amount_usd||0),0),[rows]);
  const profit=revenue-totalUsd,margin=revenue>0?(profit/revenue)*100:0;
