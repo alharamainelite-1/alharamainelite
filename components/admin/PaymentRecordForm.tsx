@@ -1,6 +1,7 @@
 'use client';
 import {useState} from 'react';
-export function PaymentRecordForm({bookings}:{bookings:any[]}){
+type PaymentBookingOption={id:string;booking_id:string;currency:string|null;total_amount:number|string|null};
+export function PaymentRecordForm({bookings}:{bookings:PaymentBookingOption[]}){
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(''); const ar=typeof document!=='undefined'&&document.cookie.includes('he_locale=ar');
  async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setMessage('');const f=new FormData(e.currentTarget);const r=await fetch('/api/admin/payments',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({booking_id:f.get('booking_id'),amount:f.get('amount'),currency:f.get('currency'),date:f.get('date'),method:f.get('method'),reference:f.get('reference'),notes:f.get('notes')})});const j=await r.json();if(r.ok&&f.get('receipt') instanceof File&&(f.get('receipt') as File).size>0){const fd=new FormData();fd.append('paymentId',j.payment.id);fd.append('file',f.get('receipt') as File);const ur=await fetch('/api/admin/payments/receipt',{method:'POST',body:fd});const uj=await ur.json();if(!ur.ok){setMessage(uj.error||(ar?'تم حفظ الدفعة، لكن تعذر رفع الإيصال.':'Payment saved, but receipt upload failed.'));setBusy(false);return}}setMessage(r.ok?ar?'تم تسجيل الدفعة وبانتظار التحقق.':'Payment recorded and awaiting verification.':j.error||(ar?'تعذر تسجيل الدفعة.':'Could not record payment.'));setBusy(false);if(r.ok)location.reload()}
  return <form onSubmit={submit} className="card mt-6 grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4">
