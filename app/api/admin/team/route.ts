@@ -20,16 +20,17 @@ const ROLE_MANAGER_ROLES:Record<string,string[]> = {
   OPERATIONS_SUPERVISOR:['OPERATIONS_MANAGER'],
   JOURNEY_COORDINATOR:['OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'],
   OPERATIONS:['OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'],
+  OPERATIONS_BOOKINGS:['OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'], 
   HOST:['JOURNEY_COORDINATOR'],
   FINANCE:['SUPER_ADMIN']
 };
 const ROLE_DEPARTMENT:Record<string,string> = {
   SUPER_ADMIN:'GENERAL_MANAGEMENT', OPERATIONS_MANAGER:'OPERATIONS',
   OPERATIONS_SUPERVISOR:'OPERATIONS', JOURNEY_COORDINATOR:'OPERATIONS',
-  OPERATIONS:'OPERATIONS', HOST:'OPERATIONS', SALES:'SALES',
+  OPERATIONS:'OPERATIONS', OPERATIONS_BOOKINGS:'BOOKINGS', HOST:'OPERATIONS', SALES:'SALES',
   MARKETING:'MARKETING', BOOKINGS:'BOOKINGS', CUSTOMER_SERVICE:'CUSTOMER_SERVICE', FINANCE:'FINANCE'
 };
-const PERMISSION_AREAS=['requests','guests','journeys','bookings','operations','groups','departures','resources','payments','finance','custody','expenses','reports','communications','reviews','influencers','team','staffMonitoring','settings','hosts','hotels','train','transportation','hostTasks'];
+const PERMISSION_AREAS=['requests','guests','journeys','bookings','operations','groups','departures','resources','payments','finance','custody','expenses','reports','communications','reviews','influencers','team','staffMonitoring','settings','hosts','hotels','train','transportation','hostTasks','operationsBookingRequests','guestSupport','operationsControl','operationsSupervision','journeyWorkspace'];
 const PERMISSION_ACTIONS=['view','create','edit','assign','approve'];
 
 function normalizePermissions(value:any){
