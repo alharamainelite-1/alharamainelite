@@ -1,2 +1,18 @@
+import type { Metadata } from 'next';
 import {PartnerRegistrationForm} from '@/components/partner/PartnerRegistrationForm';
+
+export const metadata: Metadata = {
+  title: 'ALHARAMAIN ELITE Partner Program | Referral Partners',
+  description: 'Join the ALHARAMAIN ELITE Partner Program. Share meaningful Umrah journeys with your Somali community and earn commission on eligible, fully paid bookings.',
+  alternates: {
+    canonical: 'https://alharamainelite.vercel.app/partner-program',
+  },
+  openGraph: {
+    title: 'ALHARAMAIN ELITE Partner Program',
+    description: 'Turn your influence into meaningful Umrah journeys.',
+    url: 'https://alharamainelite.vercel.app/partner-program',
+    type: 'website',
+  },
+};
+
 export default function PartnerProgramPage(){return <main className="min-h-screen bg-ivory"><section className="section"><div className="container max-w-5xl"><div className="grid gap-10 lg:grid-cols-[1.05fr_.95fr] lg:items-center"><div><div className="eyebrow">ALHARAMAIN ELITE Partner Program</div><h1 className="serif mt-4 text-5xl leading-[1.02] text-forest md:text-7xl">Turn your influence into meaningful Umrah journeys.</h1><p className="mt-6 max-w-xl text-lg leading-8 text-forest/60">Share ALHARAMAIN ELITE with your Somali community and send interested guests directly to our website.</p><div className="mt-8 grid gap-3 sm:grid-cols-3"><div className="card p-5"><div className="eyebrow">01</div><p className="mt-2 font-semibold text-forest">Get your link</p></div><div className="card p-5"><div className="eyebrow">02</div><p className="mt-2 font-semibold text-forest">Share naturally</p></div><div className="card p-5"><div className="eyebrow">03</div><p className="mt-2 font-semibold text-forest">Grow journeys</p></div></div><p className="mt-6 text-sm text-forest/45">For Somali creators and community pages in the UK, USA, Canada and Europe.</p></div><div className="card p-7 md:p-9"><div className="eyebrow">Become a Partner</div><h2 className="serif mt-3 text-3xl text-forest">Join ALHARAMAIN ELITE</h2><PartnerRegistrationForm/></div></div></div></section></main>}
