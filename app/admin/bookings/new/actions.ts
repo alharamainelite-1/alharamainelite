@@ -64,6 +64,39 @@ export async function createManualBooking(formData: FormData) {
   }).select("id").single();
   if (bookingError || !booking) redirect("/admin/bookings/new?error=database");
 
+  if (privateJourney) {
+    const privateGroupCode = `HE-PRIVATE-${year}-${crypto.randomUUID().replaceAll("-", "").slice(0, 8).toUpperCase()}`;
+    let privatePeriodEnd = periodEnd;
+    if (expectedDate) {
+      const endDate = new Date(`${expectedDate}T12:00:00Z`);
+      endDate.setUTCDate(endDate.getUTCDate() + 9);
+      privatePeriodEnd = endDate.toISOString().slice(0, 10);
+    }
+    const { data: privateGroup, error: groupError } = await db.from("groups").insert({
+      group_id: privateGroupCode,
+      package_id: selectedPackage.id,
+      departure_period_start: expectedDate || periodStart,
+      departure_period_end: privatePeriodEnd,
+      capacity: guestCount,
+      status: "PLANNING",
+      notes: `PRIVATE JOURNEY linked to booking ${bookingCode}. Keep separate from public group matching.\n${notes}`.trim()
+    }).select("id").single();
+    if (!groupError && privateGroup) {
+      const { error: memberError } = await db.from("group_members").insert({
+        group_id: privateGroup.id,
+        booking_id: booking.id,
+        guest_count: guestCount,
+        approved_by: staff.profile.id,
+        approved_at: new Date().toISOString()
+      });
+      if (memberError) {
+        await db.from("bookings").update({ notes: [...noteParts, `WARNING: private group ${privateGroupCode} created but booking membership needs manual linking.`].join("\\n") }).eq("id", booking.id);
+      }
+    } else {
+      await db.from("bookings").update({ notes: [...noteParts, "WARNING: private group creation failed; create a separate planning group before arranging operations."].join("\\n") }).eq("id", booking.id);
+    }
+  }
+
   const { error: travelAdminError } = await db.from("booking_travel_admin").insert({
     booking_id: booking.id, updated_by: staff.profile.id,
     internal_notes: privateJourney ? "Private journey: do not automatically match with other groups." : null
