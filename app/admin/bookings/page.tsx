@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabase/server';
 import { BookingStatusForm } from '@/components/admin/BookingStatusForm';
 import { getAdminLocale } from '@/lib/admin-locale';
 import { adminText } from '@/lib/admin-text';
-import { getCurrentStaff } from '@/lib/supabase/auth';
+import { getCurrentStaff, hasStaffPermission } from '@/lib/supabase/auth';
 import { ReviewInvitationAction } from '@/components/admin/ReviewInvitationAction';
 
 type BookingRow={id:string;booking_id:string|null;guest_count:number|null;total_amount:number|string|null;currency:string|null;status:string;payment_status:string|null;lead_source:string|null;created_at:string;customers:{full_name:string|null;whatsapp:string|null}|{full_name:string|null;whatsapp:string|null}[]|null;packages:{name:string|null}|{name:string|null}[]|null};
@@ -23,10 +23,12 @@ export default async function BookingsPage(){
   if(e)throw e;rows=data||[];
  }catch(e){error=e instanceof Error?e.message:'Unable to load bookings.'}
  const canReviewConfirmation=staff.profile.role==='SUPER_ADMIN';
+ const sourceLabels:Record<string,{ar:string;en:string}>={WHATSAPP:{ar:'واتساب',en:'WhatsApp'},PHONE:{ar:'اتصال هاتفي',en:'Phone'},INFLUENCER:{ar:'مؤثر / شريك',en:'Influencer / partner'},REFERRAL:{ar:'توصية عميل',en:'Referral'},OTHER:{ar:'أخرى',en:'Other'},WOMENS_UMRAH:{ar:'عمرة النساء',en:'Women’s Umrah'},WEBSITE:{ar:'الموقع',en:'Website'}};
  const columns=(canViewFinancial?10:8)+(canInviteReviews?1:0)+(canReviewConfirmation?1:0);
  const label=(value:string,map:Record<string,string>)=>locale==='ar'?(map[value]||value):value.replaceAll('_',' ');
  return <section className="pb-12">
   <div><div className="eyebrow">{t.common.salesFinance}</div><h1 className="serif mt-2 text-4xl text-forest">{t.page.bookings}</h1><p className="mt-2 text-sm text-forest/55">{t.common.trackBookings}</p></div>
+  {hasStaffPermission(staff,'bookings','create')&&<div className="mt-5 flex flex-wrap gap-3"><Link href="/admin/bookings/new" className="btn btn-primary">{locale==='ar'?'إنشاء حجز يدوي':'Create manual booking'}</Link><span className="self-center text-xs text-forest/50">{locale==='ar'?'للحجوزات الواردة عبر واتساب أو الهاتف':'For WhatsApp, phone and partner bookings'}</span></div>}
   {error&&<div className="mt-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">{t.common.database}: {error}</div>}
   <div className="card mt-6 overflow-x-auto"><table className="w-full min-w-[980px] text-left text-sm">
    <thead className="border-b border-forest/10 bg-[#faf8f2]"><tr>{(locale==='ar'?['رقم الحجز','العميل','الباقة','المصدر','الضيوف',...(canViewFinancial?['الإجمالي']:[]),'حالة الحجز',...(canViewFinancial?['الدفع']:[]),'تاريخ الإنشاء',...(canInviteReviews?['رابط التقييم']:[]),...(canReviewConfirmation?['تأكيد الرحلة']:[]),'تحديث']:['Booking ID','Customer','Package','Source','Guests',...(canViewFinancial?['Total']:[]),'Booking status',...(canViewFinancial?['Payment']:[]),'Created',...(canInviteReviews?['Review link']:[]),...(canReviewConfirmation?['Journey confirmation']:[]),'Update']).map(h=><th key={h} className="px-4 py-4 font-semibold text-forest">{h}</th>)}</tr></thead>
@@ -34,7 +36,7 @@ export default async function BookingsPage(){
     <td className="px-4 py-4 font-semibold text-forest">{row.booking_id}</td>
     <td className="px-4 py-4"><div className="font-semibold">{customer?.full_name||'—'}</div><div className="text-xs text-forest/45">{customer?.whatsapp||''}</div></td>
     <td className="px-4 py-4">{packageInfo?.name||'—'}</td>
-    <td className="px-4 py-4"><span className={row.lead_source==='WOMENS_UMRAH'?'rounded-full bg-[#f7f3ea] px-2 py-1 text-xs font-semibold text-forest':'text-xs text-forest/55'}>{row.lead_source==='WOMENS_UMRAH'?(locale==='ar'?'عمرة النساء':'Women’s Umrah'):(locale==='ar'?'الموقع':'Website')}</span></td>
+    <td className="px-4 py-4"><span className="text-xs text-forest/70">{sourceLabels[row.lead_source||'WEBSITE']?.[locale==='ar'?'ar':'en']||row.lead_source||'—'}</span></td>
     <td className="px-4 py-4">{row.guest_count}</td>
     {canViewFinancial&&<td className="px-4 py-4">{row.currency||'USD'} {Number(row.total_amount||0).toLocaleString()}</td>}
     <td className="px-4 py-4">{label(row.status,statusAr)}</td>
