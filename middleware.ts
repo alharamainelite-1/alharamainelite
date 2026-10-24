@@ -65,7 +65,7 @@ export async function middleware(req: NextRequest){
 
   if(originalPath==='/favicon.ico') return NextResponse.redirect(new URL('/brand/alharamainelite-logo.png',req.url));
   const candidate=publicPath.replace(/^\//,'');
-  const reserved=['packages','experience','womens-umrah','makkah','madinah','jeddah','hotels','transportation','about','reviews','faq','request-journey','request-success','contact','umrah-from-usa','umrah-from-uk','umrah-from-canada','partner-program','partner-login','partner','admin','api'];
+  const reserved=['packages','experience','womens-umrah','makkah','madinah','jeddah','hotels','transportation','about','reviews','faq','request-journey','request-success','family-friends','contact','umrah-from-usa','umrah-from-uk','umrah-from-canada','partner-program','partner-login','partner','admin','api'];
   if(candidate && !candidate.includes('/') && /^[a-z0-9-]{2,60}$/.test(candidate) && !reserved.includes(candidate)){
     if(await partnerSlugExists(req,candidate)){
       res=NextResponse.rewrite(new URL('/',req.url),{request:{headers:requestHeaders}});
