@@ -2,6 +2,7 @@ import type { StaffRole } from '@/lib/supabase/auth';
 
 export const ADMIN_ACCESS = {
   requests: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE'],
+  familyFriends: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE'],
   staffTasks: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS','SALES','BOOKINGS','MARKETING','CUSTOMER_SERVICE','FINANCE','HOST'],
   guests: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','OPERATIONS_MANAGER','OPERATIONS'],
   journeys: ['SUPER_ADMIN','SALES','CUSTOMER_SERVICE','OPERATIONS_MANAGER','OPERATIONS'],
@@ -42,7 +43,7 @@ export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS, 
 
 export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | null {
   const map: Array<[string, keyof typeof ADMIN_ACCESS]> = [
-    ['/admin/requests','requests'],['/admin/guests','guests'],['/admin/journeys','journeys'],
+    ['/admin/family-friends','familyFriends'],['/admin/requests','requests'],['/admin/guests','guests'],['/admin/journeys','journeys'],
     ['/admin/bookings','bookings'],['/admin/operations-booking-requests','operationsBookingRequests'],['/admin/guest-care','guestSupport'],['/admin/operations-control','operationsControl'],['/admin/operations-supervision','operationsSupervision'],['/admin/journey-workspace','journeyWorkspace'],['/admin/staff-tasks','staffTasks'],['/admin/operations','operations'],['/admin/groups','groups'],
     ['/admin/departures','departures'],['/admin/payments','payments'],['/admin/finance','finance'],
     ['/admin/custody','custody'],['/admin/expenses','expenses'],['/admin/reports','reports'],
