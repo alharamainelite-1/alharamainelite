@@ -27,13 +27,13 @@ const STAFF_ROLE_PERMISSIONS: Record<StaffRole, Record<string, StaffAction[]>> =
   OPERATIONS: { operations:['view','edit'], transportation:['view'] },
   OPERATIONS_BOOKINGS: { bookings:['view','create','edit'], operationsBookingRequests:['view','create','edit'], transportation:['view'], train:['view'] },
   SALES: {
-    requests:['view','create','edit'], guests:['view','edit'], journeys:['view','edit'],
+    requests:['view','create','edit'], familyFriends:['view','create','edit'], guests:['view','edit'], journeys:['view','edit'],
     communications:['view','create','edit']
   },
   BOOKINGS: { bookings:['view','create','edit'], guests:['view'], communications:['view','create','edit'] },
   MARKETING: { communications:['view','create','edit'] },
   CUSTOMER_SERVICE: {
-    requests:['view','edit'], guests:['view','edit'], journeys:['view'], bookings:['view','edit'],
+    requests:['view','edit'], familyFriends:['view','edit'], guests:['view','edit'], journeys:['view'], bookings:['view','edit'],
     communications:['view','create','edit']
   },
   FINANCE: {
