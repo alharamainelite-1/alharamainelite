@@ -17,6 +17,7 @@ const copy={
     request:'Plan this journey',compare:'At a glance',compareText:'Both journeys share the same thoughtful foundation. ELITE adds a higher accommodation level and Two Haramain Train journeys: Makkah → Madinah and Madinah → Jeddah Airport.',
     processTitle:'FROM INTEREST TO JOURNEY',process:[['01','Choose','Select Signature or Elite and tell us how many guests are travelling.'],['02','Share your period','You can give an expected date or an approximate travel period. A confirmed flight date is not required.'],['03','Speak with us','We review your request and continue the details with you on WhatsApp.'],['04','Confirm','Your final itinerary and payment instructions are provided before the booking is confirmed.']],
     note:'No hidden package price. Your estimate is simply price × guests.',
+    familyTitle:'FAMILY & FRIENDS',familyBest:'A private Umrah journey created exclusively for your family or friends. Your group stays together — we never add unrelated customers.',familyDetails:['Private group, just your people','Personalised arrangements after checking availability','10 days / 9 nights','A tailored quote prepared by our team'],familyCta:'Request a private quote',familyTag:'Private journey',familyNoPrice:'No automatic price. We review your group and travel plans, check availability, then prepare your quote.',
     duration:'10 days / 9 nights',features:['Premium hotels in Makkah & Madinah','Daily breakfast','Private VIP transportation throughout included journey movements','Guided Makkah & Madinah ziyarat','Jeddah experience','Cultural experiences as applicable','SIM card with internet','Journey support','Saudi tourist visa arranged by our team, subject to eligibility and approval','Travel health insurance arranged for your journey, subject to policy terms','Small group structure'],eliteExtra:['Luxury hotels','Haramain Train'],premium:'Premium level',higher:'Higher level'
   },
   so:{
@@ -26,6 +27,7 @@ const copy={
     request:'Qorshee safarkan',compare:'Marka la soo koobo',compareText:'Labada safar waxay wadaagaan aasaas isku mid ah. ELITE wuxuu ku daraa heer hoy oo sare iyo Haramain Train marka uu ku habboon yahay.',
     processTitle:'LAGA BILAABO XIISAHA ILAA SAFARKA',process:[['01','Dooro','Dooro Signature ama Elite oo sheeg tirada martida.'],['02','Sheeg muddada','Waxaad bixin kartaa taariikh la filayo ama muddo qiyaas ah. Taariikh duulimaad la xaqiijiyay looma baahna.'],['03','Nala hadal','Waxaan dib u eegaynaa codsigaaga, kadibna faahfaahinta kula sii wadaynaa WhatsApp.'],['04','Xaqiiji','Jadwalka ugu dambeeya iyo tilmaamaha lacag-bixinta ayaa lagu siinayaa ka hor xaqiijinta booking-ka.']],
     note:'Qiime qarsoon ma jiro. Qiyaastu waa qiimaha qofkiiba × tirada martida.',
+    familyTitle:'QOYSKA & SAAXIIBBADA',familyBest:'Safar Cumro oo gaar u ah qoyskaaga ama saaxiibbadaa. Kooxdiinnu waxay wada safri doontaan — macaamiil kale laguma dari doono.',familyDetails:['Koox gaar ah oo dadkiinna keliya ah','Qorshe gaar ah kadib hubinta helitaanka','10 maalmood / 9 habeen','Kooxdayadu waxay idiin diyaarinaysaa qiime gaar ah'],familyCta:'Codso qiime gaar ah',familyTag:'Safar gaar ah',familyNoPrice:'Qiime si otomaatig ah looma xisaabiyo. Waxaan dib u eegaynaa kooxdaada iyo qorshaha safarka, hubinaynaa helitaanka, kadibna waxaan diyaarinaynaa qiime.',
     duration:'10 maalmood / 9 habeen',features:['Hoteello heer sare ah oo ku yaal Makkah iyo Madiinah','Quraac maalinle ah','Gaadiid gaar ah sida ku cad qorshaha safarka','Ziyaaro la hagayo oo Makkah iyo Madiinah ah','Khibradda Jeddah','Khibrado dhaqameed marka ay khuseeyaan','SIM card leh internet','Taageero inta safarku socdo','Fiisaha dalxiiska Sacuudiga oo kooxdeennu kuu diyaarinayso, iyadoo ku xiran u-qalmitaanka iyo oggolaanshaha','Caymis caafimaad safar oo aan kuu diyaarinayno, iyadoo la raacayo shuruudaha caymiska','Qaab koox yar ah'],eliteExtra:['Hoteello raaxo leh','Tareenka Xaramaynka'],premium:'Heer sare',higher:'Heer ka sarreeya'
   },
   ar:{
@@ -35,6 +37,7 @@ const copy={
     request:'خطط لهذه الرحلة',compare:'في لمحة',compareText:'تشترك الرحلتان في الأساس نفسه. وتضيف ELITE مستوى إقامة أعلى وقطار الحرمين حيث يناسب البرنامج.',
     processTitle:'من الاهتمام إلى الرحلة',process:[['01','اختر','اختر SIGNATURE أو ELITE وحدد عدد الضيوف.'],['02','شارك الفترة','يمكنك إرسال تاريخ متوقع أو فترة تقريبية. لا تحتاج إلى تاريخ رحلة طيران مؤكد.'],['03','تحدث معنا','نراجع طلبك ونكمل التفاصيل معك عبر واتساب.'],['04','أكد','نرسل البرنامج النهائي وتعليمات التحويل البنكي قبل تأكيد الحجز.']],
     note:'لا توجد أسعار مخفية. التقدير ببساطة: سعر الضيف × عدد الضيوف.',
+    familyTitle:'العائلة والأصدقاء',familyBest:'رحلة عمرة خاصة لعائلتكم أو أصدقائكم وحدكم. تبقون مجموعة واحدة، ولن نضم إليكم عملاء من مجموعات أخرى.',familyDetails:['رحلة خاصة بمجموعتكم فقط','ترتيبات مخصصة بعد التحقق من التوافر','10 أيام / 9 ليالٍ','فريقنا يعد لكم عرض سعر مخصصًا'],familyCta:'اطلب عرض سعر خاصًا',familyTag:'رحلة خاصة',familyNoPrice:'لا يوجد سعر تلقائي. نراجع تفاصيل مجموعتكم وموعد السفر ونتحقق من التوافر، ثم نعد عرض السعر المناسب.',
     duration:'10 أيام / 9 ليالٍ',features:['فنادق راقية في مكة والمدينة','إفطار يومي','تنقلات خاصة حسب البرنامج','زيارات إرشادية في مكة والمدينة','تجربة جدة','تجارب ثقافية حسب البرنامج','شريحة SIM مع إنترنت','دعم طوال الرحلة','استخراج التأشيرة السياحية السعودية من خلال فريقنا، وفق الأهلية وموافقة الجهات المختصة','ترتيب التأمين الصحي للسفر طوال الرحلة، وفق شروط الوثيقة وتغطيتها','تنظيم ضمن مجموعة صغيرة'],eliteExtra:['فنادق فاخرة','قطار الحرمين'],premium:'مستوى راقٍ',higher:'مستوى أعلى'
   }
 } as const;
@@ -54,7 +57,7 @@ export default async function Packages(){
       <div className="container relative py-24 md:py-32"><div className="max-w-4xl"><div className="eyebrow">{t.eyebrow}</div><h1 className="serif mt-5 text-5xl leading-[.98] md:text-7xl">{t.title}</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-white/75">{t.intro}</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/request-journey" className="btn bg-gold text-forest">{t.request}</Link><a href="#compare" className="btn border border-white/35 text-white">{t.compare}</a></div></div></div>
     </section>
     <section className="section"><div className="container">
-      <div className="grid gap-7 lg:grid-cols-2">
+      <div className="grid gap-7 lg:grid-cols-3">
         {cards.map(({p,image,best,extra})=><article key={p.slug} className="overflow-hidden rounded-[28px] border border-forest/10 bg-white shadow-[0_28px_90px_rgba(6,63,53,.09)]">
           <div className="relative h-56 overflow-hidden"><img src={image} alt={l==='ar'?(p.slug==='elite'?'المدينة المنورة':'مكة المكرمة'):(l==='so'?(p.slug==='elite'?'Madiinah':'Makkah'):(p.slug==='elite'?'Madinah':'Makkah'))} className="h-full w-full object-cover"/><div className="absolute inset-0 bg-gradient-to-t from-forest/75 via-transparent to-transparent"/>
             <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between gap-4 text-white"><div><div className="eyebrow text-gold">{p.name}</div><div className="serif mt-1 text-3xl">{t.duration}</div></div><span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs backdrop-blur">{p.slug==='elite'?t.higher:t.premium}</span></div>
@@ -65,6 +68,29 @@ export default async function Packages(){
             <Link href={'/packages/'+p.slug} className="btn btn-primary mt-8 w-full">{t.request}</Link>
           </div>
         </article>)}
+        <article className="overflow-hidden rounded-[28px] border border-gold/50 bg-white shadow-[0_28px_90px_rgba(6,63,53,.09)]">
+          <div className="relative h-56 overflow-hidden">
+            <img src="https://images.pexels.com/photos/8112552/pexels-photo-8112552.jpeg?auto=compress&cs=tinysrgb&w=1800" alt={t.familyTitle} className="h-full w-full object-cover"/>
+            <div className="absolute inset-0 bg-gradient-to-t from-forest/85 via-forest/20 to-transparent"/>
+            <div className="absolute bottom-5 left-6 right-6 text-white">
+              <div className="eyebrow text-gold">{t.familyTag}</div>
+              <div className="serif mt-1 text-3xl">{t.familyTitle}</div>
+              <div className="mt-2 text-sm text-white/85">{t.duration}</div>
+            </div>
+          </div>
+          <div className="p-7 md:p-9">
+            <div className="eyebrow">{t.best}</div>
+            <p className="mt-2 text-base leading-7 text-forest/70">{t.familyBest}</p>
+            <div className="mt-6 rounded-2xl border border-gold/30 bg-[#f7f3ea] p-5">
+              <div className="serif text-2xl text-forest">{t.familyTag}</div>
+              <p className="mt-2 text-sm leading-6 text-forest/70">{t.familyNoPrice}</p>
+            </div>
+            <div className="mt-6 grid gap-3 border-t border-forest/10 pt-6">
+              {t.familyDetails.map(item=><div key={item} className="flex gap-3 text-sm leading-6 text-forest/75"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"/>{item}</div>)}
+            </div>
+            <Link href="/family-friends" className="btn btn-primary mt-8 w-full">{t.familyCta}</Link>
+          </div>
+        </article>
       </div>
       <div id="compare" className="mt-10 grid gap-6 md:grid-cols-2"><div className="card p-7 md:p-8"><div className="eyebrow">SIGNATURE</div><h2 className="serif mt-2 text-3xl text-forest">$2,000 <span className="font-sans text-sm text-forest/45">/ {t.perGuest}</span></h2><p className="mt-3 leading-7 text-forest/60">{t.signatureBest}</p></div><div className="card border-gold p-7 md:p-8"><div className="eyebrow">ELITE</div><h2 className="serif mt-2 text-3xl text-forest">$2,500 <span className="font-sans text-sm text-forest/45">/ {t.perGuest}</span></h2><p className="mt-3 leading-7 text-forest/60">{t.eliteBest}</p></div></div>
       <div className="mt-10 rounded-[28px] bg-[#f7f3ea] p-7 md:p-10"><div className="grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-center"><div><div className="eyebrow">{t.notIncluded}</div><h2 className="serif mt-3 text-3xl text-forest">{t.notText}</h2></div><div className="grid gap-3 sm:grid-cols-3">{notBoxes.map(x=><div key={x} className="border border-forest/10 bg-white p-4 text-sm text-forest/65">{x}</div>)}</div></div></div>
