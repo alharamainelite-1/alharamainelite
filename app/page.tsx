@@ -20,6 +20,7 @@ const serviceImages={
 const copy={
   en:{
     journeys:'OUR UMRAH JOURNEYS',choose:'CHOOSE THE JOURNEY THAT FITS YOUR PEOPLE.',packageIntro:'Two clear journeys. Transparent pricing. Thoughtful arrangements for small groups.',
+    familyFriendsLabel:'PRIVATE GROUP JOURNEY',familyFriendsTitle:'Umrah together, your way',familyFriendsDesc:'Planning Umrah with family or friends? Tell us about your group and preferred travel period. We will prepare a tailored proposal based on your needs—without a fixed package price.',familyFriendsCta:'Request a private group quote',
     premium:'Premium experience',higher:'Higher level',perGuest:'per guest',view:'View journey',
     signature:'Comfortable & meaningful',elite:'A higher level of comfort',
     signatureDesc:'Premium hotels, breakfast, private transportation, ziyarat, Jeddah experience, SIM and journey support.',
@@ -38,6 +39,7 @@ const copy={
   },
   so:{
     journeys:'SAFARRADEENNA CUMRADA',choose:'DOORO SAFARKA KU HABBOON DADKAAGA.',packageIntro:'Laba safar oo cad. Qiime cad. Qorshe taxaddar leh oo loogu talagalay kooxo yaryar.',
+    familyFriendsLabel:'SAFAR KO koox GAAR AH',familyFriendsTitle:'Cumro wadajir ah, sida aad rabtaan',familyFriendsDesc:'Ma qorshaynaysaan Cumro qoys ama saaxiibbo? Noo sheeg tirada kooxda iyo muddada safarka aad doorbidaysaan. Waxaan idiin diyaarin doonnaa soo-jeedin ku habboon baahiyihiinna, qiimahana si gaar ah ayaa loo xisaabinayaa.',familyFriendsCta:'Codso qiimeyn koox gaar ah',
     premium:'Khibrad heer sare ah',higher:'Heer ka sarreeya',perGuest:'qofkiiba',view:'Eeg safarka',
     signature:'Raaxo & macne',elite:'Heer raaxo oo sarreeya',
     signatureDesc:'Hoteello heer sare ah, quraac, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
@@ -56,6 +58,7 @@ const copy={
   },
   ar:{
     journeys:'رحلات العمرة لدينا',choose:'اختر الرحلة التي تناسب مجموعتك.',packageIntro:'رحلتان واضحتان. أسعار شفافة. وترتيبات مدروسة للمجموعات الصغيرة.',
+    familyFriendsLabel:'رحلة خاصة للمجموعة',familyFriendsTitle:'عمرة تجمع العائلة والأصدقاء',familyFriendsDesc:'هل تخططون للعمرة مع العائلة أو الأصدقاء؟ أخبرونا عن مجموعتكم والفترة المتوقعة للسفر، وسنعد لكم عرضًا يناسب احتياجاتكم، مع تسعير مخصص بدلًا من سعر باقة ثابت.',familyFriendsCta:'اطلب عرضًا خاصًا للمجموعة',
     premium:'تجربة راقية',higher:'مستوى أعلى',perGuest:'للضيف',view:'استكشف الرحلة',
     signature:'راحة ومعنى',elite:'مستوى أعلى من الراحة',
     signatureDesc:'فنادق راقية، إفطار، تنقلات خاصة، زيارات، تجربة جدة، شريحة إنترنت ودعم الرحلة.',
@@ -168,26 +171,6 @@ export default async function Home(){
 
 
 
-    <section className="border-b border-forest/10 bg-white py-5">
-      <div className="container grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-        {highlights.map(([label,Icon])=><div key={label} className="flex items-center gap-3 text-sm text-forest/70"><Icon size={19} className="text-gold"/><span>{label}</span></div>)}
-      </div>
-    </section>
-
-    <section className="border-y border-forest/10 bg-[#f7f3ea] py-8">
-      <div className="container grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ['10','DAYS / 9 NIGHTS','10 أيام / 9 ليالٍ','10 MAALMOOD / 9 HABEEN'],
-          ['5–8','GUESTS / GROUP','ضيوف / مجموعة','MARTI / KOX'],
-          ['3','LANGUAGES','لغات','Luqadood'],
-          ['2','PREMIUM JOURNEYS','رحلتان مميزتان','2 SAFAR OO HEER SARE AH']
-        ].map(([value,en,ar,so])=><div key={value+en} className="card bg-white p-6">
-          <div className="serif text-4xl text-forest">{value}</div>
-          <div className="mt-2 text-xs font-bold uppercase tracking-[.16em] text-forest/60">{locale==='ar'?ar:locale==='so'?so:en}</div>
-        </div>)}
-      </div>
-    </section>
-
     <section className="section">
       <div className="container">
         <SectionHeading eyebrow={c.journeys} title={c.choose}>{c.packageIntro}</SectionHeading>
@@ -215,6 +198,40 @@ export default async function Home(){
             </div>
           </article>)}
         </div>
+        <article className="mt-7 overflow-hidden rounded-[28px] border border-[#C9A227]/40 bg-[#063F35] text-white shadow-[0_25px_80px_rgba(6,63,53,.14)]">
+          <div className="grid md:grid-cols-[.8fr_1.2fr]">
+            <div className="relative min-h-[220px] md:min-h-[300px]">
+              <Image src={hero} alt={c.familyFriendsTitle} fill sizes="(max-width: 768px) 100vw, 40vw" className="object-cover"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#063F35]/65 via-transparent to-transparent md:bg-gradient-to-r"/>
+            </div>
+            <div className="flex flex-col items-start justify-center p-6 sm:p-8 md:p-10">
+              <div className="text-[10px] font-bold uppercase tracking-[.22em] text-[#DCC27E]">{c.familyFriendsLabel}</div>
+              <h2 className="serif mt-3 text-3xl leading-tight sm:text-4xl">{c.familyFriendsTitle}</h2>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/75">{c.familyFriendsDesc}</p>
+              <Link href="/family-friends" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#C9A227] px-5 py-3 text-sm font-bold text-[#063F35] transition hover:bg-[#D8B94B] sm:w-auto">{c.familyFriendsCta}<ArrowRight size={16}/></Link>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section className="border-b border-forest/10 bg-white py-5">
+      <div className="container grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+        {highlights.map(([label,Icon])=><div key={label} className="flex items-center gap-3 text-sm text-forest/70"><Icon size={19} className="text-gold"/><span>{label}</span></div>)}
+      </div>
+    </section>
+
+    <section className="border-y border-forest/10 bg-[#f7f3ea] py-8">
+      <div className="container grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          ['10','DAYS / 9 NIGHTS','10 أيام / 9 ليالٍ','10 MAALMOOD / 9 HABEEN'],
+          ['5–8','GUESTS / GROUP','ضيوف / مجموعة','MARTI / KOX'],
+          ['3','LANGUAGES','لغات','Luqadood'],
+          ['2','PREMIUM JOURNEYS','رحلتان مميزتان','2 SAFAR OO HEER SARE AH']
+        ].map(([value,en,ar,so])=><div key={value+en} className="card bg-white p-6">
+          <div className="serif text-4xl text-forest">{value}</div>
+          <div className="mt-2 text-xs font-bold uppercase tracking-[.16em] text-forest/60">{locale==='ar'?ar:locale==='so'?so:en}</div>
+        </div>)}
       </div>
     </section>
 
