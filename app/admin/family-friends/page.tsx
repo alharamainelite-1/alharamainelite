@@ -20,7 +20,7 @@ export default async function FamilyFriendsAdminPage(){
   {(error||staffError)&&<div className="mt-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">تعذر تحميل بعض بيانات الإدارة. تحقق من قاعدة البيانات والصلاحيات قبل متابعة الطلبات.</div>}
   <div className="mt-7 rounded-2xl border border-[#C9A227]/35 bg-[#f7f3ea] p-5">
    <h2 className="serif text-2xl text-forest">تحويل الطلب المؤكد إلى حجز</h2>
-   <p className="mt-2 mb-4 max-w-3xl text-sm text-forest/65">يتطلب الطلب حالة «مؤكد» وسعرًا معتمدًا فقط. يُستخدم السعر المتفق عليه ولا يلزم اختيار باقة من الموقع. التحويل ينشئ حجزًا واحدًا مرتبطًا بالطلب، بحالة طلب جديد وغير مدفوع، ولا يضيفه تلقائيًا إلى مجموعة مشتركة.</p>
+   <p className="mt-2 mb-4 max-w-3xl text-sm text-forest/65">يتطلب الطلب حالة «مؤكد» وسعرًا معتمدًا فقط. يُستخدم السعر المتفق عليه ولا يلزم اختيار باقة من الموقع. التحويل ينشئ حجزًا خاصًا مرتبطًا بالطلب ومجموعة خاصة بحالة تخطيط، مع إبقاء الدفع غير مسجل. لا يتم ضمه إلى مجموعة مشتركة.</p>
    <FamilyFriendsConversionPanel requests={requests}/>
   </div>
   <div className="mt-6"><FamilyFriendsQuoteManager initialRequests={requests} staffOptions={staffOptions||[]}/></div>
