@@ -168,26 +168,6 @@ export default async function Home(){
 
 
 
-    <section className="border-b border-forest/10 bg-white py-5">
-      <div className="container grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-        {highlights.map(([label,Icon])=><div key={label} className="flex items-center gap-3 text-sm text-forest/70"><Icon size={19} className="text-gold"/><span>{label}</span></div>)}
-      </div>
-    </section>
-
-    <section className="border-y border-forest/10 bg-[#f7f3ea] py-8">
-      <div className="container grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ['10','DAYS / 9 NIGHTS','10 أيام / 9 ليالٍ','10 MAALMOOD / 9 HABEEN'],
-          ['5–8','GUESTS / GROUP','ضيوف / مجموعة','MARTI / KOX'],
-          ['3','LANGUAGES','لغات','Luqadood'],
-          ['2','PREMIUM JOURNEYS','رحلتان مميزتان','2 SAFAR OO HEER SARE AH']
-        ].map(([value,en,ar,so])=><div key={value+en} className="card bg-white p-6">
-          <div className="serif text-4xl text-forest">{value}</div>
-          <div className="mt-2 text-xs font-bold uppercase tracking-[.16em] text-forest/60">{locale==='ar'?ar:locale==='so'?so:en}</div>
-        </div>)}
-      </div>
-    </section>
-
     <section className="section">
       <div className="container">
         <SectionHeading eyebrow={c.journeys} title={c.choose}>{c.packageIntro}</SectionHeading>
@@ -215,6 +195,26 @@ export default async function Home(){
             </div>
           </article>)}
         </div>
+      </div>
+    </section>
+
+    <section className="border-b border-forest/10 bg-white py-5">
+      <div className="container grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+        {highlights.map(([label,Icon])=><div key={label} className="flex items-center gap-3 text-sm text-forest/70"><Icon size={19} className="text-gold"/><span>{label}</span></div>)}
+      </div>
+    </section>
+
+    <section className="border-y border-forest/10 bg-[#f7f3ea] py-8">
+      <div className="container grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          ['10','DAYS / 9 NIGHTS','10 أيام / 9 ليالٍ','10 MAALMOOD / 9 HABEEN'],
+          ['5–8','GUESTS / GROUP','ضيوف / مجموعة','MARTI / KOX'],
+          ['3','LANGUAGES','لغات','Luqadood'],
+          ['2','PREMIUM JOURNEYS','رحلتان مميزتان','2 SAFAR OO HEER SARE AH']
+        ].map(([value,en,ar,so])=><div key={value+en} className="card bg-white p-6">
+          <div className="serif text-4xl text-forest">{value}</div>
+          <div className="mt-2 text-xs font-bold uppercase tracking-[.16em] text-forest/60">{locale==='ar'?ar:locale==='so'?so:en}</div>
+        </div>)}
       </div>
     </section>
 
