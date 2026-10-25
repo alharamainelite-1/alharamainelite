@@ -7,7 +7,7 @@ export function FamilyFriendsConversionPanel({requests}:{requests:RequestRow[]})
  const eligible=requests.filter(q=>q.status==='CONFIRMED');
  async function convert(q:RequestRow) {
   if(q.quote_amount===null||Number(q.quote_amount)<=0){setMessages(v=>({...v,[q.id]:{text:'لا يوجد سعر معتمد موجب لهذا الطلب.',ok:false}}));return;}
-  if(!window.confirm('سيتم إنشاء حجز خاص بالسعر المتفق عليه، بحالة طلب جديد وغير مدفوع، وربطه بهذا الطلب. هل تريد المتابعة؟'))return;
+  if(!window.confirm('سيتم إنشاء حجز خاص بالسعر المتفق عليه، بحالة طلب جديد وغير مدفوع، وإنشاء مجموعة خاصة بحالة تخطيط وربطه بهذا الطلب. هل تريد المتابعة؟'))return;
   setBusy(q.id);setMessages(v=>({...v,[q.id]:{text:'جارٍ إنشاء الحجز…',ok:false}}));
   try {
    const response=await fetch('/api/admin/family-friends/convert',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({request_id:q.id})});
