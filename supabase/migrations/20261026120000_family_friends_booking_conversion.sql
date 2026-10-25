@@ -14,7 +14,6 @@ create unique index if not exists family_friends_quote_booking_id_uidx
 
 create or replace function public.convert_family_friends_quote_to_booking(
   p_request_id uuid,
-  p_package_id uuid,
   p_actor_id uuid
 ) returns table(booking_uuid uuid, booking_code text, already_converted boolean)
 language plpgsql
@@ -29,8 +28,8 @@ declare
   v_booking_code text;
   v_guest_count integer;
 begin
-  if p_request_id is null or p_package_id is null or p_actor_id is null then
-    raise exception 'Request, package and actor are required' using errcode='22023';
+  if p_request_id is null or p_actor_id is null then
+    raise exception 'Request and actor are required' using errcode='22023';
   end if;
 
   select * into q
@@ -52,9 +51,15 @@ begin
     raise exception 'A positive approved quote amount is required' using errcode='22023';
   end if;
 
+  -- Internal placeholder satisfies the existing booking FK; it is never offered as a public package.
   select * into v_package from public.packages
-  where id=p_package_id and active=true;
-  if not found then raise exception 'Active package not found' using errcode='22023'; end if;
+  where slug='family-friends-private-custom'
+  limit 1;
+  if not found then
+    insert into public.packages(slug, name, price, currency, positioning, active)
+    values('family-friends-private-custom', 'Family & Friends — Custom Private Journey', 0, q.quote_currency, 'PRIVATE_CUSTOM', false)
+    returning * into v_package;
+  end if;
 
   v_guest_count := q.adults + coalesce(array_length(q.children_ages,1),0) + coalesce(array_length(q.infant_ages_months,1),0);
   if v_guest_count < 1 or v_guest_count > 100 then
@@ -99,5 +104,5 @@ begin
   return query select v_booking_id, v_booking_code, false;
 end;
 $$;
-revoke all on function public.convert_family_friends_quote_to_booking(uuid,uuid,uuid) from public, anon, authenticated;
-grant execute on function public.convert_family_friends_quote_to_booking(uuid,uuid,uuid) to service_role;
+revoke all on function public.convert_family_friends_quote_to_booking(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.convert_family_friends_quote_to_booking(uuid,uuid) to service_role;
