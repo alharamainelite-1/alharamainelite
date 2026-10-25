@@ -28,7 +28,6 @@ const nav:NavItem[]=[
  {en:'Departure Schedule',ar:'مواعيد الانطلاق',href:'/admin/departures',roles:['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR']},
  {en:'Operations',ar:'العمليات والمهام',href:'/admin/operations',roles:[...ADMIN_ACCESS.operations]},
  {en:'Groups',ar:'المجموعات',href:'/admin/groups',roles:[...ADMIN_ACCESS.groups]},
- {en:'Resources',ar:'الموارد',href:'/admin/operations',roles:[...ADMIN_ACCESS.resources]},
  {en:'Finance Center',ar:'المركز المالي',href:'/admin/finance',roles:[...ADMIN_ACCESS.finance]},
  {en:'Custody',ar:'العهد',href:'/admin/custody',roles:[...ADMIN_ACCESS.custody]},
  {en:'Payments',ar:'المدفوعات',href:'/admin/payments',roles:[...ADMIN_ACCESS.payments]},
