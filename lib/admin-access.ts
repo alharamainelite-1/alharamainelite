@@ -10,6 +10,7 @@ export const ADMIN_ACCESS = {
   operationsBookingRequests: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS_BOOKINGS','BOOKINGS','OPERATIONS','FINANCE'],
   guestSupport: ['SUPER_ADMIN','CUSTOMER_SERVICE','SALES','BOOKINGS','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR'],
   operationsControl: ['SUPER_ADMIN','OPERATIONS_MANAGER'],
+  visaInsurance: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS','SALES'],
   operationsSupervision: ['SUPER_ADMIN','OPERATIONS_SUPERVISOR','OPERATIONS_MANAGER'],
   journeyWorkspace: ['SUPER_ADMIN','JOURNEY_COORDINATOR','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR'],
   operations: ['SUPER_ADMIN','OPERATIONS_MANAGER','OPERATIONS_SUPERVISOR','JOURNEY_COORDINATOR','OPERATIONS'],
@@ -44,7 +45,7 @@ export function roleCanAccess(role: StaffRole, area: keyof typeof ADMIN_ACCESS, 
 export function areaForAdminPath(pathname: string): keyof typeof ADMIN_ACCESS | null {
   const map: Array<[string, keyof typeof ADMIN_ACCESS]> = [
     ['/admin/family-friends','familyFriends'],['/admin/requests','requests'],['/admin/guests','guests'],['/admin/journeys','journeys'],
-    ['/admin/bookings','bookings'],['/admin/operations-booking-requests','operationsBookingRequests'],['/admin/guest-care','guestSupport'],['/admin/operations-control','operationsControl'],['/admin/operations-supervision','operationsSupervision'],['/admin/journey-workspace','journeyWorkspace'],['/admin/staff-tasks','staffTasks'],['/admin/operations','operations'],['/admin/groups','groups'],
+    ['/admin/bookings','bookings'],['/admin/operations-booking-requests','operationsBookingRequests'],['/admin/guest-care','guestSupport'],['/admin/operations-lead','operationsControl'],['/admin/operations-control','operationsControl'],['/admin/visa-insurance','visaInsurance'],['/admin/operations-supervision','operationsSupervision'],['/admin/journey-workspace','journeyWorkspace'],['/admin/staff-tasks','staffTasks'],['/admin/operations','operations'],['/admin/groups','groups'],
     ['/admin/departures','departures'],['/admin/payments','payments'],['/admin/finance','finance'],
     ['/admin/custody','custody'],['/admin/expenses','expenses'],['/admin/reports','reports'],
     ['/admin/communications','communications'],['/admin/reviews','reviews'],['/admin/influencer-partners','influencers'],
