@@ -39,7 +39,7 @@ const copy={
   },
   so:{
     journeys:'SAFARRADEENNA CUMRADA',choose:'DOORO SAFARKA KU HABBOON DADKAAGA.',packageIntro:'Laba safar oo cad. Qiime cad. Qorshe taxaddar leh oo loogu talagalay kooxo yaryar.',
-    familyFriendsLabel:'SAFAR KO koox GAAR AH',familyFriendsTitle:'Cumro wadajir ah, sida aad rabtaan',familyFriendsDesc:'Ma qorshaynaysaan Cumro qoys ama saaxiibbo? Noo sheeg tirada kooxda iyo muddada safarka aad doorbidaysaan. Waxaan idiin diyaarin doonnaa soo-jeedin ku habboon baahiyihiinna, qiimahana si gaar ah ayaa loo xisaabinayaa.',familyFriendsCta:'Codso qiimeyn koox gaar ah',
+    familyFriendsLabel:'SAFAR GAAR AH OO QOYSKA IYO ASXAABTA',familyFriendsTitle:'Cumro wadajir ah, sida aad rabtaan',familyFriendsDesc:'Ma qorshaynaysaan Cumro qoys ama saaxiibbo? Noo sheeg tirada kooxda iyo muddada safarka aad doorbidaysaan. Waxaan idiin diyaarin doonnaa soo-jeedin ku habboon baahiyihiinna, qiimahana si gaar ah ayaa loo xisaabinayaa.',familyFriendsCta:'Codso qiimeyn koox gaar ah',
     premium:'Khibrad heer sare ah',higher:'Heer ka sarreeya',perGuest:'qofkiiba',view:'Eeg safarka',
     signature:'Raaxo & macne',elite:'Heer raaxo oo sarreeya',
     signatureDesc:'Hoteello heer sare ah, quraac, gaadiid gaar ah, ziyaraat, khibradda Jeddah, SIM iyo taageero safar.',
