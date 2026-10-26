@@ -5,6 +5,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://alharamaine
 export const SEO_PAGES: Record<string, { title: string; description: string }> = {
   '/': { title: 'Premium Umrah Journeys for Somali Muslims Abroad', description: 'AlHaramain Elite offers premium 10-day, 9-night Umrah journeys for Somali Muslims living abroad, with clear pricing, small groups and personal support.' },
   '/packages': { title: 'Umrah Packages for Somali Travelers | AlHaramain Elite', description: 'Compare AlHaramain Elite SIGNATURE and ELITE Umrah journeys: 10 days / 9 nights, transparent pricing, small groups and clear inclusions.' },
+  '/family-friends': { title: 'Private Family & Friends Umrah for Somali Families | AlHaramain Elite', description: 'Plan a private 10-day, 9-night Umrah journey for your family or friends. Designed with Somali families abroad in mind, with personal coordination and a tailored quote.' },
   '/packages/signature': { title: 'SIGNATURE Umrah Journey — $2,000 per Guest', description: 'A 10-day / 9-night SIGNATURE Umrah journey at $2,000 per guest, with premium accommodation, breakfast, private transportation, ziyarat, Jeddah experience and journey support.' },
   '/packages/elite': { title: 'ELITE Umrah Journey — $2,500 per Guest', description: 'A 10-day / 9-night ELITE Umrah journey at $2,500 per guest, adding Haramain Train where applicable to the confirmed journey plan.' },
   '/experience': { title: 'The AlHaramain Elite Umrah Experience', description: 'Explore how AlHaramain Elite brings together Makkah, Madinah, Jeddah, accommodation, transportation and personal journey support for small groups.' },
@@ -52,6 +53,7 @@ const LOCALIZED_SEO: Record<'so' | 'ar', Record<string, { title: string; descrip
   so: {
     '/': { title: 'Safarrada Cumrada ee Heer Sare ee Muslimiinta Soomaalida Dibadda', description: 'AlHaramain Elite waxay bixisaa safarro Cumro oo 10 maalmood iyo 9 habeen ah, qiime cad, kooxo yaryar iyo taageero gaar ah.' },
     '/packages': { title: 'Xirmooyinka Cumrada ee Muslimiinta Soomaalida | AlHaramain Elite', description: 'Isbarbar dhig safarrada SIGNATURE iyo ELITE: 10 maalmood iyo 9 habeen, qiime cad iyo kooxo yaryar.' },
+    '/family-friends': { title: 'Cumro Gaar ah oo Qoyska iyo Saaxiibbada ah | AlHaramain Elite', description: 'Qorshee safar Cumro oo gaar ah oo 10 maalmood iyo 9 habeen ah, adiga, qoyskaaga ama saaxiibbadaa. Waxaa loo habeeyey qoysaska Soomaaliyeed ee dibadda ku nool, iyadoo la helayo qorsheyn iyo qiime kuu gaar ah.' },
     '/packages/signature': { title: 'SIGNATURE Cumro — $2,000 Marti Kasta', description: 'Safar Cumro oo 10 maalmood iyo 9 habeen ah, $2,000 marti kasta, oo leh hoy tayo leh, quraac, gaadiid gaar ah, ziyaraat iyo taageero.' },
     '/packages/elite': { title: 'ELITE Cumro — $2,500 Marti Kasta', description: 'Safar Cumro oo 10 maalmood iyo 9 habeen ah, $2,500 marti kasta, oo Haramain Train lagu daro marka uu ku habboon yahay qorshaha.' },
     '/experience': { title: 'Khibradda Cumrada ee AlHaramain Elite', description: 'Baro sida Makkah, Madiinah, Jeddah, hoyga, gaadiidka iyo taageerada safarka loogu diyaariyo kooxo yaryar.' },
@@ -77,6 +79,7 @@ const LOCALIZED_SEO: Record<'so' | 'ar', Record<string, { title: string; descrip
   ar: {
     '/': { title: 'رحلات عمرة راقية للمسلمين الصوماليين في الخارج', description: 'تقدم AlHaramain Elite رحلات عمرة لمدة 10 أيام و9 ليالٍ، بأسعار واضحة ومجموعات صغيرة ودعم شخصي.' },
     '/packages': { title: 'باقات العمرة للمسافرين الصوماليين | AlHaramain Elite', description: 'قارن بين رحلتي SIGNATURE وELITE لمدة 10 أيام و9 ليالٍ مع أسعار واضحة ومجموعات صغيرة.' },
+    '/family-friends': { title: 'عمرة خاصة للعائلة والأصدقاء الصوماليين | AlHaramain Elite', description: 'خططوا لرحلة عمرة خاصة لمدة 10 أيام و9 ليالٍ للعائلة أو الأصدقاء، مع مراعاة احتياجات العائلات الصومالية في الخارج وتنسيق شخصي وعرض سعر مخصص.' },
     '/packages/signature': { title: 'عمرة SIGNATURE — 2,000 دولار لكل ضيف', description: 'رحلة عمرة لمدة 10 أيام و9 ليالٍ بسعر 2,000 دولار لكل ضيف، مع إقامة راقية وإفطار وتنقلات وزيارات ودعم.' },
     '/packages/elite': { title: 'عمرة ELITE — 2,500 دولار لكل ضيف', description: 'رحلة عمرة لمدة 10 أيام و9 ليالٍ بسعر 2,500 دولار لكل ضيف، مع قطار الحرمين حيث يناسب البرنامج المؤكد.' },
     '/experience': { title: 'تجربة العمرة مع AlHaramain Elite', description: 'اكتشف كيف نجمع بين مكة والمدينة وجدة والإقامة والتنقلات والدعم الشخصي في رحلة متكاملة.' },
