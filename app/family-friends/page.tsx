@@ -1,6 +1,15 @@
-import {cookies} from 'next/headers';
-import {defaultLocale,isLocale} from '@/lib/i18n';
+import type {Metadata} from 'next';
+import {cookies,headers} from 'next/headers';
+import {defaultLocale,isLocale,type Locale} from '@/lib/i18n';
+import {SEO_PAGES,localizedMetadata} from '@/lib/seo';
 import {FamilyFriendsForm} from '@/components/forms/FamilyFriendsForm';
+
+export async function generateMetadata():Promise<Metadata>{
+ const h=await headers();
+ const raw=h.get('x-he-locale');
+ const locale:Locale=isLocale(raw??undefined)?raw as Locale:defaultLocale;
+ return localizedMetadata('/family-friends',locale,SEO_PAGES['/family-friends']);
+}
 
 const copy={
  en:{
@@ -35,7 +44,7 @@ const copy={
   lead:'Safar macno leh oo lagu tagayo Labada Magaalo ee Barakaysan, kaas oo loo qorsheeyo qoyskaaga ama saaxiibbadaa — asturnaan, habayn taxaddar leh iyo taageero gaar ah.',
   text:'Waxaa maskaxda lagu hayaa qoysaska iyo saaxiibbada Soomaaliyeed ee dibadda ku nool. Kooxdiinnu waa gaar; macaamiil aan idinla socon laguma dari doono.',
   cta:'Qorshee safarkaaga gaarka ah',secondary:'Sida uu u shaqeeyo',
-  badge:'KOox GAAR AH · 10 MAALMOOD / 9 HABEEN',
+  badge:'KOX GAAR AH · 10 MAALMOOD / 9 HABEEN',
   features:[['Kooxdiinna oo wadajir ah','Qoyska ama saaxiibbada aad doorataan oo keliya'],['Adiga ayaa saldhig u ah','Noo sheeg tirada kooxda iyo qorshaha safarka'],['Qiime kuu gaar ah','Kadib marka la hubiyo helitaanka'],['Isku-duwid shakhsi ah','Hal koox oo codsiga idinla socota']],
   whyEyebrow:'LOO QORSHEEYEY QOYSASKA SOOMAALIYEED',
   whyTitle:'Safar kuu gaar ah laga bilaabo tallaabada koowaad.',
