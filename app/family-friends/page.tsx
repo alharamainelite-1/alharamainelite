@@ -36,6 +36,7 @@ const copy={
   formText:'Share a few details. Sending this form is a request only — your journey is not confirmed until our team contacts you.',
   reassurance:'No online payment · No fixed public price for private groups · No unrelated guests added',
   footerNote:'A JOURNEY WORTH REMEMBERING.',
+  name:'Full name',phone:'Phone number with country code',email:'Email address (optional)',country:'Country of residence',adults:'Number of adults',children:'Number of children',infants:'Number of infants',date:'Expected travel date',notes:'Additional notes (optional)',submit:'Send private group request',duration:'Trip duration',durationValue:'10 days / 9 nights',success:'Your request has been received. Our team will review it and contact you.',required:'Please complete all required fields.',age:'Age in years',ageMonths:'Age in months',
   countries:['United Kingdom','United States','Canada','Australia','Sweden','Norway','Denmark','Finland','Germany','Netherlands','France','Italy','Saudi Arabia','Other']
  },
  so:{
@@ -62,6 +63,7 @@ const copy={
   formText:'La wadaag faahfaahin kooban. Foomkani waa codsi oo keliya — safarka lama xaqiijinayo ilaa kooxdayadu kula soo xiriirto.',
   reassurance:'Lacag online ah lagama qaadayo · Qiime go’an oo dadweyne ma jiro safarrada gaarka ah · Kooxdiinna laguma darayo dad kale',
   footerNote:'SAFAR MUDAN IN LA XUSUUSTO.',
+  name:'Magaca oo buuxa',phone:'Telefoonka oo leh furaha dalka',email:'Email (ikhtiyaari)',country:'Dalka aad degan tahay',adults:'Tirada dadka waaweyn',children:'Tirada carruurta',infants:'Tirada dhallaanka',date:'Taariikhda safarka la filayo',notes:'Faahfaahin dheeraad ah (ikhtiyaari)',submit:'Dir codsiga kooxda gaarka ah',duration:'Muddada safarka',durationValue:'10 maalmood / 9 habeen',success:'Codsigaaga waa la helay. Kooxdayadu way dib u eegi doontaa wayna kula soo xiriiri doontaa.',required:'Fadlan buuxi meelaha loo baahan yahay.',age:'Da’da sannado',ageMonths:'Da’da bilaha',
   countries:['Boqortooyada Midowday','Mareykanka','Canada','Australia','Sweden','Norway','Denmark','Finland','Germany','Netherlands','France','Italy','Saudi Arabia','Dal kale']
  },
  ar:{
@@ -88,6 +90,7 @@ const copy={
   formText:'شاركونا بعض التفاصيل. إرسال النموذج هو طلب فقط، ولا تتأكد الرحلة حتى يتواصل معكم فريقنا.',
   reassurance:'لا يوجد دفع عبر الإنترنت · لا يوجد سعر عام ثابت للرحلات الخاصة · لن نضم إليكم ضيوفًا غرباء',
   footerNote:'رحلة تستحق أن تبقى في الذاكرة.',
+  name:'الاسم الكامل',phone:'رقم الهاتف مع مفتاح الدولة',email:'البريد الإلكتروني (اختياري)',country:'بلد الإقامة',adults:'عدد البالغين',children:'عدد الأطفال',infants:'عدد الرضع',date:'موعد السفر المتوقع',notes:'ملاحظات إضافية (اختياري)',submit:'إرسال طلب الرحلة الخاصة',duration:'مدة الرحلة',durationValue:'10 أيام / 9 ليالٍ',success:'تم استلام طلبكم. سيراجعه فريقنا ويتواصل معكم.',required:'يرجى استكمال الحقول المطلوبة.',age:'العمر بالسنوات',ageMonths:'العمر بالأشهر',
   countries:['المملكة المتحدة','الولايات المتحدة','كندا','أستراليا','السويد','النرويج','الدنمارك','فنلندا','ألمانيا','هولندا','فرنسا','إيطاليا','المملكة العربية السعودية','أخرى']
  }
 } as const;
