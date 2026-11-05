@@ -3,6 +3,13 @@ import {cookies} from 'next/headers';
 import {defaultLocale,isLocale} from '@/lib/i18n';
 import {packages} from '@/lib/site';
 import PackageItineraryPreview from '@/components/PackageItineraryPreview';
+import {getSupabaseAdmin} from '@/lib/supabase/server';
+
+export const dynamic='force-dynamic';
+export const revalidate=0;
+
+function departureLabel(date:string,locale:string){return new Intl.DateTimeFormat(locale==='ar'?'ar-SA':locale==='so'?'so-SO':'en-US',{day:'numeric',month:'short',year:'numeric'}).format(new Date(date+'T12:00:00Z'));}
+function riyadhToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 
 const images={
   signature:'https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200',
@@ -11,7 +18,7 @@ const images={
 
 const copy={
   en:{
-    eyebrow:'Our Umrah journeys',title:'CHOOSE THE JOURNEY THAT FITS YOUR PEOPLE.',intro:'Two clear journeys. One thoughtful standard. Select the level that fits your group, see exactly what is included, then request your dates.',perGuest:'per guest',
+    availableDepartures:'Available departure dates',noDepartures:'No open dates at the moment. Contact our team for a suitable date.',eyebrow:'Our Umrah journeys',title:'CHOOSE THE JOURNEY THAT FITS YOUR PEOPLE.',intro:'Two clear journeys. One thoughtful standard. Select the level that fits your group, see exactly what is included, then request your dates.',perGuest:'per guest',
     best:'Best for',signatureBest:'Guests who want premium comfort, private VIP transportation and a calm small-group experience.',eliteBest:'Guests who want a higher accommodation level, private VIP transportation and the added convenience of two Haramain Train journeys.',
     notIncluded:'Always clear',notText:'International flights, personal expenses and any service not expressly confirmed in your final itinerary are not included.',
     request:'Plan this journey',compare:'At a glance',compareText:'Both journeys share the same thoughtful foundation. ELITE adds a higher accommodation level and Two Haramain Train journeys: Makkah → Madinah and Madinah → Jeddah Airport.',
@@ -21,7 +28,7 @@ const copy={
     duration:'10 days / 9 nights',features:['Premium hotels in Makkah & Madinah','Daily breakfast','Private VIP transportation throughout included journey movements','Guided Makkah & Madinah ziyarat','Jeddah experience','Cultural experiences as applicable','SIM card with internet','Journey support','Saudi tourist visa arranged by our team, subject to eligibility and approval','Travel health insurance arranged for your journey, subject to policy terms','Small group structure'],eliteExtra:['Luxury hotels','Haramain Train'],premium:'Premium level',higher:'Higher level'
   },
   so:{
-    eyebrow:'Safarradeenna Cumrada',title:'DOORO SAFARKA KU HABBOON DADKAAGA.',intro:'Laba safar oo cad. Hal heer oo taxaddar leh. Dooro heerka ku habboon kooxdaada, arag waxa ku jira, kadibna codso muddada safarka.',perGuest:'qofkiiba',
+    availableDepartures:'Taariikhaha safarka ee furan',noDepartures:'Hadda ma jiraan taariikho furan. Nala soo xiriir si aan kuu helno taariikh kugu habboon.',eyebrow:'Safarradeenna Cumrada',title:'DOORO SAFARKA KU HABBOON DADKAAGA.',intro:'Laba safar oo cad. Hal heer oo taxaddar leh. Dooro heerka ku habboon kooxdaada, arag waxa ku jira, kadibna codso muddada safarka.',perGuest:'qofkiiba',
     best:'Ku habboon',signatureBest:'Martida rabta raaxo heer sare ah, qorshe cad iyo khibrad koox yar oo deggan.',eliteBest:'Martida rabta hoy heer sare ah iyo faa’iidada Haramain Train marka uu ku habboon yahay qorshaha.',
     notIncluded:'Wax walba si cad',notText:'Duulimaadyada caalamiga ah, kharashaadka gaarka ah iyo adeeg kasta oo aan si cad loogu xaqiijin jadwalka ugu dambeeya kuma jiraan.',
     request:'Qorshee safarkan',compare:'Marka la soo koobo',compareText:'Labada safar waxay wadaagaan aasaas isku mid ah. ELITE wuxuu ku daraa heer hoy oo sare iyo Haramain Train marka uu ku habboon yahay.',
@@ -31,7 +38,7 @@ const copy={
     duration:'10 maalmood / 9 habeen',features:['Hoteello heer sare ah oo ku yaal Makkah iyo Madiinah','Quraac maalinle ah','Gaadiid gaar ah sida ku cad qorshaha safarka','Ziyaaro la hagayo oo Makkah iyo Madiinah ah','Khibradda Jeddah','Khibrado dhaqameed marka ay khuseeyaan','SIM card leh internet','Taageero inta safarku socdo','Fiisaha dalxiiska Sacuudiga oo kooxdeennu kuu diyaarinayso, iyadoo ku xiran u-qalmitaanka iyo oggolaanshaha','Caymis caafimaad safar oo aan kuu diyaarinayno, iyadoo la raacayo shuruudaha caymiska','Qaab koox yar ah'],eliteExtra:['Hoteello raaxo leh','Tareenka Xaramaynka'],premium:'Heer sare',higher:'Heer ka sarreeya'
   },
   ar:{
-    eyebrow:'رحلات العمرة لدينا',title:'اختر الرحلة التي تناسب مجموعتك.',intro:'رحلتان واضحتان بمعيار واحد من العناية. اختر المستوى المناسب، تعرّف على ما يشمله، ثم شاركنا الفترة التي تناسبكم.',perGuest:'للضيف',
+    availableDepartures:'مواعيد الانطلاق المتاحة',noDepartures:'لا توجد مواعيد مفتوحة حاليًا. تواصل معنا لاختيار موعد مناسب.',eyebrow:'رحلات العمرة لدينا',title:'اختر الرحلة التي تناسب مجموعتك.',intro:'رحلتان واضحتان بمعيار واحد من العناية. اختر المستوى المناسب، تعرّف على ما يشمله، ثم شاركنا الفترة التي تناسبكم.',perGuest:'للضيف',
     best:'مناسبة لمن',signatureBest:'من يريد راحة راقية وترتيبات واضحة وتجربة هادئة ضمن مجموعة صغيرة.',eliteBest:'من يريد مستوى إقامة أعلى مع ميزة قطار الحرمين حيث يناسب البرنامج.',
     notIncluded:'كل شيء واضح',notText:'الرحلات الدولية والمصاريف الشخصية وأي خدمة لم يتم تأكيدها صراحة في برنامجك النهائي غير مشمولة.',
     request:'خطط لهذه الرحلة',compare:'في لمحة',compareText:'تشترك الرحلتان في الأساس نفسه. وتضيف ELITE مستوى إقامة أعلى وقطار الحرمين حيث يناسب البرنامج.',
@@ -46,6 +53,8 @@ export default async function Packages(){
   const raw=(await cookies()).get('he_locale')?.value;
   const l=isLocale(raw)?raw:defaultLocale;
   const t=copy[l];
+  let departures:{id:string;departure_date:string}[]=[];
+  try{const {data,error}=await getSupabaseAdmin().from('departures').select('id,departure_date').eq('status','OPEN').gte('departure_date',riyadhToday()).order('departure_date',{ascending:true}).limit(8);if(error)throw error;departures=data||[];}catch(error){console.error('public_package_departures_load_failed',error);}
   const notBoxes=l==='ar'?['الرحلات الدولية','المصاريف الشخصية','الخدمات غير المؤكدة']:l==='so'?['Duulimaadyada caalamiga ah','Kharashaadka gaarka ah','Adeegyada aan la xaqiijin']:['International flights','Personal expenses','Unconfirmed services'];
   const cards=[
     {p:packages.signature,image:images.signature,best:t.signatureBest,extra:t.features},
@@ -65,6 +74,7 @@ export default async function Packages(){
           <div className="p-7 md:p-9"><div className="flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow">{t.best}</div><p className="mt-2 max-w-xl text-base leading-7 text-forest/65">{best}</p></div><div className="text-right"><div className="serif text-5xl text-forest">{'$'+p.price.toLocaleString()}</div><div className="text-sm text-forest/45">{t.perGuest}</div></div></div>
             <div className="mt-7 grid gap-3 border-t border-forest/10 pt-7 sm:grid-cols-2">{extra.map(f=><div key={f} className="flex gap-3 text-sm leading-6 text-forest/75"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"/>{f}</div>)}</div>
             <PackageItineraryPreview locale={l} slug={p.slug as 'signature'|'elite'}/>
+            <div className="mt-7 rounded-2xl border border-gold/25 bg-[#f7f3ea] p-5"><div className="text-xs font-bold uppercase tracking-[.12em] text-[#9b6a10]">{t.availableDepartures}</div>{departures.length?<div className="mt-3 flex flex-wrap gap-2">{departures.map(d=><Link key={d.id} href={'/request-journey?package='+p.slug+'&departure='+encodeURIComponent(d.id)} className="rounded-xl border border-forest/15 bg-white px-3 py-2 text-sm font-semibold text-forest transition hover:border-gold">{departureLabel(d.departure_date,l)}</Link>)}</div>:<p className="mt-2 text-sm leading-6 text-forest/60">{t.noDepartures}</p>}</div>
             <Link href={'/packages/'+p.slug} className="btn btn-primary mt-8 w-full">{t.request}</Link>
           </div>
         </article>)}
