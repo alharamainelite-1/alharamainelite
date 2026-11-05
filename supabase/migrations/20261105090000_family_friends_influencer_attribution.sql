@@ -53,9 +53,9 @@ begin
   ) values (
     v_booking_code,q.id,v_customer_id,null,v_guest_count,q.quote_amount,q.quote_currency,
     'NEW_REQUEST','NOT_REQUESTED',q.expected_travel_date,
-    '[FAMILY & FRIENDS] Source request: '||q.reference||E'\\nConverted by staff: '||p_actor_id::text||
-    E'\\nCustom private journey. Do not automatically match with shared groups.'||
-    case when nullif(trim(q.notes),'') is not null then E'\\nCustomer notes: '||q.notes else '' end,
+    '[FAMILY & FRIENDS] Source request: '||q.reference||E'\nConverted by staff: '||p_actor_id::text||
+    E'\nCustom private journey. Do not automatically match with shared groups.'||
+    case when nullif(trim(q.notes),'') is not null then E'\nCustomer notes: '||q.notes else '' end,
     'PUBLIC','PRIVATE_JOURNEY',v_partner_id
   ) returning id into v_booking_id;
 
