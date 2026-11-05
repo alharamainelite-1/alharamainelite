@@ -1,18 +1,23 @@
 import {NextResponse} from 'next/server';
 import {getSupabaseAdmin} from '@/lib/supabase/server';
 
+export const dynamic='force-dynamic';
+export const revalidate=0;
+
+function riyadhToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+
 const RESERVED_BOOKING_STATUSES=['CONFIRMED','PAYMENT_RECEIVED','PREPARING','ACTIVE'] as const;
 
 export async function GET(){
   const supabase=getSupabaseAdmin();
-  const today=new Date().toISOString().slice(0,10);
+  const today=riyadhToday();
   const {data:departures,error}=await supabase.from('departures')
     .select('id,departure_date,duration_nights,group_size,max_groups,status,public_label')
     .eq('status','OPEN').gte('departure_date',today)
     .order('departure_date',{ascending:true});
   if(error)return NextResponse.json({error:'Unable to load departure dates.'},{status:500});
   if(!departures?.length){
-    return NextResponse.json({departures:[]},{headers:{'Cache-Control':'public, s-maxage=60, stale-while-revalidate=300'}});
+    return NextResponse.json({departures:[]},{headers:{'Cache-Control':'no-store, max-age=0'}});
   }
 
   const ids=departures.map(d=>d.id);
