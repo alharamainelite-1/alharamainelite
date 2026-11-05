@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {getSupabaseAdmin} from '@/lib/supabase/server';
 import {enforceRateLimit,rateLimitResponse} from '@/lib/security/rate-limit';
 
-const schema=z.object({fullName:z.string().trim().min(2).max(120),phone:z.string().trim().min(7).max(30),email:z.union([z.string().trim().email().max(160),z.literal('')]).optional(),country:z.string().trim().min(2).max(80),preferredLanguage:z.enum(['en','so','ar']),adults:z.coerce.number().int().min(1).max(40),childrenAges:z.array(z.coerce.number().int().min(0).max(17)).max(30),infantAgesMonths:z.array(z.coerce.number().int().min(0).max(23)).max(20),expectedTravelDate:z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/),notes:z.string().trim().max(500).optional().default(''),website:z.string().max(0).optional().default('')});
+const schema=z.object({fullName:z.string().trim().min(2).max(120),phone:z.string().trim().min(7).max(30),email:z.union([z.string().trim().email().max(160),z.literal('')]).optional(),country:z.string().trim().min(2).max(80),preferredLanguage:z.enum(['en','so','ar']),adults:z.coerce.number().int().min(1).max(40),childrenAges:z.array(z.coerce.number().int().min(0).max(17)).max(30),infantAgesMonths:z.array(z.coerce.number().int().min(0).max(23)).max(20),expectedTravelDate:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),notes:z.string().trim().max(500).optional().default(''),website:z.string().max(0).optional().default('')});
 
 export async function POST(req:Request){
  try{
