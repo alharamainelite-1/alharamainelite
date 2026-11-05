@@ -56,6 +56,6 @@ export async function GET(){
   }).filter(d=>d.available_seats>0);
 
   return NextResponse.json({departures:enriched},{
-    headers:{'Cache-Control':'public, s-maxage=60, stale-while-revalidate=300'}
+    headers:{'Cache-Control':'no-store, max-age=0'}
   });
 }
