@@ -12,6 +12,11 @@ import ItineraryAccordion from '@/components/ItineraryAccordion';
 import { headers } from 'next/headers';
 import {Check, Hotel, Utensils, Car, MapPinned, Smartphone, Headphones, Train, Plane, Globe2, ShieldCheck} from 'lucide-react';
 
+export const dynamic='force-dynamic';
+export const revalidate=0;
+
+function riyadhToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+
 const hero='https://images.pexels.com/photos/32839113/pexels-photo-32839113.jpeg?auto=compress&cs=tinysrgb&w=2200';
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}): Promise<Metadata> {
@@ -198,7 +203,7 @@ export default async function PackagePage({params}:{params:Promise<{slug:string}
   const itinerary=itineraryCopy[l];
   let departures:any[]=[];
   try{
-    const {data}=await getSupabaseAdmin().from('departures').select('id,departure_date,status').eq('status','OPEN').gte('departure_date',new Date().toISOString().slice(0,10)).order('departure_date',{ascending:true});
+    const {data}=await getSupabaseAdmin().from('departures').select('id,departure_date,status').eq('status','OPEN').gte('departure_date',riyadhToday()).order('departure_date',{ascending:true});
     departures=(data||[]).slice(0,8);
   }catch{departures=[]}
   const icons=[Hotel,Utensils,Car,MapPinned,MapPinned,Smartphone,Headphones,Globe2,ShieldCheck] as const;
