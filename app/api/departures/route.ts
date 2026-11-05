@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {getSupabaseAdmin} from '@/lib/supabase/server';
+import {getSupabaseAdmin, getSupabasePublicServer} from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,9 +19,11 @@ const RESERVED_BOOKING_STATUSES = ['CONFIRMED', 'PAYMENT_RECEIVED', 'PREPARING',
 
 export async function GET() {
   try {
-    const supabase = getSupabaseAdmin();
+    // Open departures are intentionally public under the departures SELECT RLS policy.
+    // Do not require the service-role secret for this public read.
+    const publicSupabase = getSupabasePublicServer();
     const today = riyadhToday();
-    const { data: departures, error } = await supabase
+    const { data: departures, error } = await publicSupabase
       .from('departures')
       .select('id,departure_date,duration_nights,group_size,max_groups,status,public_label')
       .eq('status', 'OPEN')
@@ -48,7 +50,8 @@ export async function GET() {
     let bookings: { departure_id: string; guest_count: number | null }[] = [];
 
     if (cappedIds.length > 0) {
-      const { data, error: bookingError } = await supabase
+      const adminSupabase = getSupabaseAdmin();
+      const { data, error: bookingError } = await adminSupabase
         .from('bookings')
         .select('departure_id,guest_count')
         .in('departure_id', cappedIds)
