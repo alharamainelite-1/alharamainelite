@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {getSupabaseAdmin, getSupabasePublicServer} from '@/lib/supabase/server';
+import {getSupabaseAdmin} from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,11 +19,11 @@ const RESERVED_BOOKING_STATUSES = ['CONFIRMED', 'PAYMENT_RECEIVED', 'PREPARING',
 
 export async function GET() {
   try {
-    // Open departures are intentionally public under the departures SELECT RLS policy.
-    // Do not require the service-role secret for this public read.
-    const publicSupabase = getSupabasePublicServer();
+    // Read only explicitly public departure fields with the server-side client.
+    // The service key never leaves this route; private booking data is not returned.
+    const adminSupabase = getSupabaseAdmin();
     const today = riyadhToday();
-    const { data: departures, error } = await publicSupabase
+    const { data: departures, error } = await adminSupabase
       .from('departures')
       .select('id,departure_date,duration_nights,group_size,max_groups,status,public_label')
       .eq('status', 'OPEN')
@@ -44,13 +44,10 @@ export async function GET() {
       });
     }
 
-    // Unlimited departures do not need a bookings lookup to be listed.
-    // This avoids making public date visibility depend on the bookings table.
     const cappedIds = departures.filter((d) => d.max_groups != null).map((d) => d.id);
     let bookings: { departure_id: string; guest_count: number | null }[] = [];
 
     if (cappedIds.length > 0) {
-      const adminSupabase = getSupabaseAdmin();
       const { data, error: bookingError } = await adminSupabase
         .from('bookings')
         .select('departure_id,guest_count')
